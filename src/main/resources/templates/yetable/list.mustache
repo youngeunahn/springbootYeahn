@@ -8,26 +8,51 @@
     <table id="yeGrid"></table>
     <div id="pager"></div>
     <script type="text/javascript">
-        var searchResultColNames =  ['NO', '제목', '작성자', '날짜'];
-        var searchResultColModel =
-            [{ name : 'no',    index:'no',     width:"20%",  align:'center', cellattr:idColorFmt},
-            { name : 'title',  index:'title',     width:"60%",  align:'left'  , cellattr:idColorFmt},
-            { name : 'reg_ID', index:'reg_ID',     width:"10%",  align:'center' , cellattr:idColorFmt},
-            { name : 'reg_DATE', index:'reg_DATE',   width:"10%",  align:'center' , cellattr:idColorFmt}];
+        var editableCells = ['title'];
+        var ColNames =  ['NO', '제목', '작성자', '날짜'];
+        var ColModel =
+            [{ name : 'no',      index:'no',        width:"20%",  align:'center' , cellattr:idColorFmt},
+            { name : 'title',    index:'title',     width:"60%",  align:'left'   , cellattr:idColorFmt},
+            { name : 'reg_ID',   index:'reg_ID',    width:"10%",  align:'center' , cellattr:idColorFmt},
+            { name : 'reg_DATE', index:'reg_DATE',  width:"10%",  align:'center' , cellattr:idColorFmt}];
 
         $(document).ready(function () {
             $("#yeGrid").jqGrid({
                 url : '/yetable/list.json',
                 datatype : "json",
                 mtype : "get",
-                colNames : searchResultColNames,
-                colModel : searchResultColModel,
+                colNames : ColNames,
+                colModel : ColModel,
                 pager : '#pager',
                 rowNum : '10',
                 autowidth : true,
                 sortable : true,
                 loadonce : true,
-            sortorder: "asc"
+                sortorder: "asc",
+
+                cellEdit: true,
+                cellsubmit:'remote',
+                cellurl : "/yetable/edit.json",
+
+                //더블클릭하면 셀 에디트 가능하게
+                ondblClickRow : function(rowid, iRow, iCol, e){
+                    var colModels = $(this).getGridParam('colModel');
+                    var colName = colModels[iCol].name;
+
+                    if (editableCells.indexOf(colName) >= 0) {
+                        $(this).setColProp(colName, { editable: true });
+                        $(this).editCell(iRow, iCol, true);
+                    }
+                },
+
+                beforeSubmitCell : function(rowid,name,val) { // submit 전
+                    return {"NO":rowid, "TITLE":val}
+                },
+
+                afterSaveCell : function(rowid,name,val,iRow,iCol){ // 로우 데이터 변경하고 엔터치거나 다른 셀 클릭했을때 발동
+                     $("#yeGrid").jqGrid('setGridParam', {cellEdit: false});
+                },
+
             });
         });
 

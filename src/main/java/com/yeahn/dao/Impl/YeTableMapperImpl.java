@@ -19,4 +19,9 @@ public class YeTableMapperImpl implements YeTableMapper {
     public List<YeahnTable> getYeahnTableList() {
         return sqlSession.selectList("YeTableMapper.getYeahnTableList");
     }
+
+    @Override
+    public int editYeahnTable(YeahnTable model) {
+        return sqlSession.update("YeTableMapper.editYeahnTable", model);
+    }
 }

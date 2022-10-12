@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -36,6 +37,22 @@ public class YeController {
         List<YeahnTable> YeList = yeTableService.getYeahnTableList();
 
         return YeList;
+    }
+
+    @RequestMapping("/yetable/edit.json")
+    public @ResponseBody String cellEdit(
+    @RequestParam(value = "NO") Integer NO,
+    @RequestParam(value = "TITLE") String TITLE) {
+
+        String result = "";
+        YeahnTable model = new YeahnTable();
+        model.setNO(NO);
+        model.setTITLE(TITLE);
+
+        int resultQuery = yeTableService.editYeahnTable(model);
+        if (resultQuery == 1) result = "SUCCESS";
+        else result = "FAIL";
+        return result;
     }
 
     @RequestMapping("/yetable/create")

@@ -18,4 +18,9 @@ public class YeTableServiceimpl implements YeTableService {
     public List<YeahnTable> getYeahnTableList() {
         return yetableMapper.getYeahnTableList();
     }
+
+    @Override
+    public int editYeahnTable(YeahnTable model) {
+        return yetableMapper.editYeahnTable(model);
+    }
 }

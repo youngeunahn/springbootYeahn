@@ -6,4 +6,10 @@
     <select id="getYeahnTableList" resultType="com.yeahn.model.YeahnTable">
         SELECT * FROM yeahn_table;
     </select>
+
+    <update id="editYeahnTable" parameterType="com.yeahn.model.YeahnTable">
+        UPDATE yeahn_table
+        SET TITLE = #{TITLE}
+        WHERE NO = #{NO}
+    </update>
 </mapper>

@@ -13,4 +13,6 @@ public class YeahnTable {
     private String CONTENT;
     private String REG_DATE;
     private String REG_ID;
+
+    public YeahnTable() {}
 }

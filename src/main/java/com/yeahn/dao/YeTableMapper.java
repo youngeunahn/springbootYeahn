@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface YeTableMapper {
     List<YeahnTable> getYeahnTableList();
+
+    int editYeahnTable(YeahnTable model);
 }
