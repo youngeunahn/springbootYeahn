@@ -1,0 +1,65 @@
+{{> layout/header }}
+{{> layout/leftmenu }}
+{{> layout/gnb }}
+<!-- ============================================================== -->
+<!-- main  -->
+<!-- ============================================================== -->
+<div class="col-12">
+    <table id="yeGrid"></table>
+    <div id="pager"></div>
+    <script type="text/javascript">
+        var searchResultColNames =  ['NO', '제목', '작성자', '날짜'];
+        var searchResultColModel =
+            [{ name : 'no',    index:'no',     width:"20%",  align:'center', cellattr:idColorFmt},
+            { name : 'title',  index:'title',     width:"60%",  align:'left'  , cellattr:idColorFmt},
+            { name : 'reg_ID', index:'reg_ID',     width:"10%",  align:'center' , cellattr:idColorFmt},
+            { name : 'reg_DATE', index:'reg_DATE',   width:"10%",  align:'center' , cellattr:idColorFmt}];
+
+        $(document).ready(function () {
+            $("#yeGrid").jqGrid({
+                url : '/yetable/list.json',
+                datatype : "json",
+                mtype : "get",
+                colNames : searchResultColNames,
+                colModel : searchResultColModel,
+                pager : '#pager',
+                rowNum : '10',
+                autowidth : true,
+                sortable : true,
+                loadonce : true,
+            sortorder: "asc"
+            });
+        });
+
+        // table cell의 attribute 설정. Style 등등
+        function idColorFmt( rowId, tv, rawObject, cm, rdata) {
+            switch( rawObject.level) {
+                case 1:
+                    return 'style="background-color:#58D3F7"';
+                    break;
+                case 2:
+                    return 'style="background-color:#E0F2F7"';
+                    break;
+                case 3:
+                    return 'style="background-color:white"';
+                    break;
+                default:
+            }
+            return  "";
+        }
+
+        // 글자 포멧팅
+        function numFormat( cellvalue, options, rowObject ){
+            return numberWithCommas(cellvalue)
+        }
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    </script>
+</div>
+<!-- ============================================================== -->
+<!-- end main  -->
+<!-- ============================================================== -->
+
+{{> layout/footer }}

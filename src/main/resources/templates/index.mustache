@@ -1,0 +1,49 @@
+{{> layout/header }}
+{{> layout/leftmenu }}
+{{> layout/gnb }}
+<!-- ============================================================== -->
+<!-- main  -->
+<!-- ============================================================== -->
+<div class="col-12">
+    <div class="card">
+        <h5 class="card-header">영은쓰 테이블
+            <form action="/excel/download" method="get" class="float-right" style="display:inline">
+                <button type="submit">Excel</button>
+            </form>
+        </h5>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead class="bg-light">
+                    <tr class="border-1">
+                        <th class="border-1">NO</th>
+                        <th class="border-1">제목</th>
+                        <th class="border-1">작성일</th>
+                        <th class="border-1">작성자</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#YeList}}
+                    <tr>
+                        <td>{{NO}}</td>
+                        <td>{{TITLE}}</td>
+                        <td>{{REG_DATE}}</td>
+                        <td>{{REG_ID}}</td>
+                    </tr>
+                    {{/YeList}}
+                    <tr>
+                        <td colspan="4">
+                            <a href="#" class="btn btn-outline-light float-right">글 등록</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- end main  -->
+<!-- ============================================================== -->
+
+{{> layout/footer }}

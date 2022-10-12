@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ConfigMapper">
+    <resultMap type="com.yeahn.model.MenuConfig" id="menu2">
+        <result column="MENU_CODE" property="MENU_CODE"/>
+        <result column="MENU_TITLE" property="MENU_TITLE"/>
+        <result column="MENU_URL" property="MENU_URL"/>
+        <result column="MENU_LEVEL" property="MENU_LEVEL"/>
+        <result column="MENU_PARENT" property="MENU_PARENT"/>
+        <result column="MENU_SEQ" property="MENU_SEQ"/>
+        <result column="DEL_YN" property="DEL_YN"/>
+    </resultMap>
+
+    <select id="getMenuList"  parameterType="com.yeahn.model.MenuConfig" resultMap="menu2" resultType="com.yeahn.dao.ConfigMapper">
+        select MENU1.MENU_CODE, MENU1.MENU_TITLE, MENU1.MENU_URL, MENU1.MENU_LEVEL, MENU1.MENU_PARENT, MENU1.MENU_SEQ, MENU1.DEL_YN
+        FROM menu menu1, menu menu2
+        WHERE menu1.MENU_PARENT = menu2.MENU_CODE
+        ORDER BY menu1.`MENU_SEQ`
+    </select>
+
+    <select id="getMenuPage" parameterType="string" resultType="com.yeahn.model.MenuConfig">
+        select MENU_CODE, MENU_TITLE, MENU_GNB
+        FROM MENU
+        WHERE MENU_CODE = #{value}
+    </select>
+</mapper>

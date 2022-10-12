@@ -1,0 +1,41 @@
+<!-- ============================================================== -->
+<!-- left sidebar -->
+<!-- ============================================================== -->
+<div class="nav-left-sidebar sidebar-dark">
+    <div class="menu-list">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="d-xl-none d-lg-none" href="#">게시판</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav flex-column">
+                    <li class="nav-divider">
+                        Menu
+                    </li>
+                    <li class="nav-item">
+                        {{#MenuList}}
+                            {{#MENU_LEVEL_VIEW}}
+                            <a class="nav-link" href="{{MENU_URL}}" data-toggle="collapse" aria-expanded="false" data-target=".submenu-{{MENU_GROUP}}" aria-controls=".submenu-{{MENU_GROUP}}">
+                                <i class="fa fa-fw fa-user-circle"></i>{{MENU_TITLE}}
+                            </a>
+                            {{/MENU_LEVEL_VIEW}}
+                            {{^MENU_LEVEL_VIEW}}
+                            <div class="submenu-{{MENU_GROUP}} submenu show" style="">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{MENU_URL}}?menuCode={{MENU_CODE}}">{{MENU_TITLE}}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            {{/MENU_LEVEL_VIEW}}
+                        {{/MenuList}}
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- end left sidebar -->
+<!-- ============================================================== -->
