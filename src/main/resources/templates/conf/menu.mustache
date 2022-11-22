@@ -1,0 +1,73 @@
+{{> layout/header }}
+{{> layout/leftmenu }}
+{{> layout/gnb }}
+<!-- ============================================================== -->
+<!-- main  -->
+<!-- ============================================================== -->
+<div class="col-2">
+    <div class="card"></div>
+    <form id="sendForm" method="post">
+        <input type="hidden" name="MENU_PARENT" id="MENU_CODE"/>
+    </form>
+</div>
+<!-- ============================================================== -->
+<!-- end main  -->
+<!-- ============================================================== -->
+<link rel="stylesheet" href="/css/jqtree.css">
+<script type="text/javascript" src="/js/tree.jquery.js"></script>
+<script>
+    let data =
+    [
+        {{#menuList}}
+            {{#MENU_LEVEL_VIEW}}
+                {"name": "{{MENU_TITLE}}",
+                    "id": "{{MENU_CODE}}"
+                },
+            {{/MENU_LEVEL_VIEW}}
+        {{/menuList}}
+    ];
+
+    $(function() {
+        $tree = $('.card');
+
+        $tree.tree({
+            data: data,
+            autoOpen: true,
+            closedIcon: '+',
+            openedIcon: '-'
+        });
+
+        $tree.on(
+            'tree.dblclick',
+            function(event) {
+                // event.node is the clicked node
+                console.log(event.node);
+            }
+        );
+
+        {{#menuList}}
+            {{#MENU_CHILD_YN}}
+
+            $("#MENU_CODE").val("{{MENU_CODE}}");
+            $.ajax({
+                url :"/ajax/conf/menuChildList",
+                data : $("#sendForm").serialize(),
+                dataType: "json",
+                success : function(data) {
+                    $.each(data, function (k, v) {
+                        $tree.tree(
+                            'appendNode',
+                            {
+                                name: v.menu_TITLE,
+                                id: v.menu_CODE
+                            },
+                            $tree.tree('getNodeById', v.menu_PARENT)
+                        );
+                    });
+                }
+            });
+            {{/MENU_CHILD_YN}}
+        {{/menuList}}
+    });
+</script>
+{{> layout/footer }}

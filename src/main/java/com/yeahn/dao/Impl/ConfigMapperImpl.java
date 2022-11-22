@@ -24,4 +24,14 @@ public class ConfigMapperImpl implements ConfigMapper {
     public MenuConfig getMenuPage(String menuCode) {
         return sqlSession.selectOne("ConfigMapper.getMenuPage", menuCode);
     }
+
+    @Override
+    public List<MenuConfig> getMenuConfigList() {
+        return sqlSession.selectList("ConfigMapper.getMenuConfigList");
+    }
+
+    @Override
+    public List<MenuConfig> getMenuChildList(String menuCode) {
+        return sqlSession.selectList("ConfigMapper.getMenuChildList", menuCode);
+    }
 }

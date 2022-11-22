@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <configuration status="info" monitorInterval="30"> -->
+<configuration>
+
+<!--    <appender name="FILE" class="ch.qos.logback.core.FileAppender">-->
+<!--        <file>myApp.log</file>-->
+<!--        <encoder>-->
+<!--            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%-5p] %d{[yyyy-MM-dd HH:mm:ss]} [%F:%L - %M] - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="chapters.configuration" level="OFF" additivity="false"/>
+    <logger name="chapters.configuration.Foo" level="OFF" additivity="false"/>
+
+    <!-- log4jdbc 옵션 설정 -->
+    <logger name="jdbc" level="OFF" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+    <!-- 커넥션 open close 이벤트를 로그로 남긴다. -->
+    <logger name="jdbc.connection" level="OFF" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+    <logger name="jdbc.sqlonly" level="INFO" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+    <logger name="jdbc.sqltiming" level="OFF" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+    <logger name="jdbc.audit" level="OFF" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+    <!-- ResultSet을 포함한 모든 JDBC 호출 정보를 로그로 남기므로 매우 방대한 양의 로그가 생성된다. -->
+    <logger name="jdbc.resultset" level="OFF" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+    <!-- SQL 결과 조회된 데이터의 table을 로그로 남긴다. -->
+    <logger name="jdbc.resultsettable" level="OFF" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+    <!-- Log everything in Spring Boot -->
+    <logger name="org.springframework.boot" level="OFF" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+    <!-- Root Logger -->
+    <root level="INFO" additivity="false">
+<!--        <appender-ref ref="FILE" />-->
+        <appender-ref ref="Console" />
+    </root>
+
+</configuration>

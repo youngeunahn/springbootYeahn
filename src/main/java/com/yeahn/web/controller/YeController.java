@@ -3,6 +3,7 @@ package com.yeahn.web.controller;
 import com.yeahn.model.YeahnTable;
 import com.yeahn.web.service.YeTableService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 public class YeController {

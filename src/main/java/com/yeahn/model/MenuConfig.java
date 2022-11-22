@@ -16,6 +16,7 @@ public class MenuConfig {
     private String MENU_PARENT; // 메뉴부모코드
     private Integer MENU_LEVEL; // 메뉴깊이
     private boolean MENU_LEVEL_VIEW;
+    private boolean MENU_CHILD_YN;
     private String MENU_GROUP;
     private String DEL_YN;      // 삭제여부
 

@@ -1,21 +1,18 @@
-package com.yeahn.web;
+package com.yeahn.config;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.yeahn.model.MenuConfig;
-import com.yeahn.web.service.ConfigService;
+import com.yeahn.config.service.ConfigService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 @Component
@@ -57,19 +54,27 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		List<MenuConfig> MenuList = configService.getMenuList();
-		if (modelAndView != null){
-			for (MenuConfig menulist : MenuList){
-				if (menulist.getMENU_LEVEL()==1)
-					menulist.setMENU_LEVEL_VIEW(true);
-				else if (menulist.getMENU_LEVEL()==2)
-					menulist.setMENU_LEVEL_VIEW(false);
-				menulist.setMENU_GROUP(menulist.getMENU_CODE().split("_")[0]);
-			}
-				modelAndView.addObject("MenuList", MenuList);
+		String requestURI = request.getRequestURI();
 
-			MenuConfig MenuPage = configService.getMenuPage(request.getParameter("menuCode").toString());
-			modelAndView.addObject("MenuPage", MenuPage);
+		logger.info("requestURI:::::::"+requestURI );
+		if(requestURI.indexOf("/error") > -1){
+		}else{
+			List<MenuConfig> MenuList = configService.getMenuList();
+			if (modelAndView != null){
+				for (MenuConfig menulist : MenuList){
+					if (menulist.getMENU_LEVEL()==1)
+						menulist.setMENU_LEVEL_VIEW(true);
+					else if (menulist.getMENU_LEVEL()==2)
+						menulist.setMENU_LEVEL_VIEW(false);
+					menulist.setMENU_GROUP(menulist.getMENU_CODE().split("_")[0]);
+				}
+					modelAndView.addObject("MenuList", MenuList);
+
+				if(request.getParameter("menuCode") != null){
+					MenuConfig MenuPage = configService.getMenuPage(request.getParameter("menuCode").toString());
+					modelAndView.addObject("MenuPage", MenuPage);
+				}
+			}
 		}
 	}
  
