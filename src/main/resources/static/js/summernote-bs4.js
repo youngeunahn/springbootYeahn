@@ -8174,7 +8174,7 @@ class HintPopover_HintPopover {
   }
 
   nodeFromItem($item) {
-    const hint = this.hints[$item.data('templates.index')];
+    const hint = this.hints[$item.data('static.index')];
     const item = $item.data('item');
     let node = hint.content ? hint.content(item) : item;
 

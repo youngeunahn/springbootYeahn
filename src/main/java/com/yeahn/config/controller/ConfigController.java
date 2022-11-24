@@ -42,4 +42,12 @@ public class ConfigController {
 
         return menuChildList;
     }
+
+    @RequestMapping("/ajax/conf/menuDetail")
+    @ResponseBody
+    public Map<String, Object> getMenuDetail(@RequestParam Map<String, Object> params){
+        Map<String, Object> MenuDetail = configService.getMenuDetail(params);
+
+        return MenuDetail;
+    }
 }

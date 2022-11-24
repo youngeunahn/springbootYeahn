@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,5 +34,10 @@ public class ConfigMapperImpl implements ConfigMapper {
     @Override
     public List<MenuConfig> getMenuChildList(String menuCode) {
         return sqlSession.selectList("ConfigMapper.getMenuChildList", menuCode);
+    }
+
+    @Override
+    public Map<String, Object> getMenuDetail(String menuCode) {
+        return sqlSession.selectOne("ConfigMapper.getMenuDetail", menuCode);
     }
 }

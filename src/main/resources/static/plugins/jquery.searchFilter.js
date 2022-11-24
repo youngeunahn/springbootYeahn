@@ -544,7 +544,7 @@ jQuery.fn.searchFilter = function(fields, options) {
                 var fieldvalue, fieldindex, opindex, datavalue, dataindex;
                 fieldvalue = filter['field'];
 				if (valueindexmap[fieldvalue]) {
-					fieldindex = valueindexmap[fieldvalue]['templates.index'];
+					fieldindex = valueindexmap[fieldvalue]['static.index'];
 				}
                 if (fieldindex != null) {
                     opindex = valueindexmap[fieldvalue]['ops'][filter['op']];

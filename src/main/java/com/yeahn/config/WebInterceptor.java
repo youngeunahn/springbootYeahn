@@ -68,12 +68,15 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 						menulist.setMENU_LEVEL_VIEW(false);
 					menulist.setMENU_GROUP(menulist.getMENU_CODE().split("_")[0]);
 				}
-					modelAndView.addObject("MenuList", MenuList);
+				modelAndView.addObject("MenuList", MenuList);
 
-				if(request.getParameter("menuCode") != null){
-					MenuConfig MenuPage = configService.getMenuPage(request.getParameter("menuCode").toString());
-					modelAndView.addObject("MenuPage", MenuPage);
+				MenuConfig MenuPage = new MenuConfig();
+				if(request.getParameter("menuCode") == null){
+					MenuPage = configService.getMenuPage("MENU");
+				} else{
+					MenuPage = configService.getMenuPage(request.getParameter("menuCode"));
 				}
+				modelAndView.addObject("MenuPage", MenuPage);
 			}
 		}
 	}

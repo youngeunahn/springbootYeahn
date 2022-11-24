@@ -4,11 +4,84 @@
 <!-- ============================================================== -->
 <!-- main  -->
 <!-- ============================================================== -->
-<div class="col-2">
-    <div class="card"></div>
-    <form id="sendForm" method="post">
-        <input type="hidden" name="MENU_PARENT" id="MENU_CODE"/>
+<div class="row">
+    <div class="col-3">
+        <h5 class="card-header border-1">메뉴 선택</h5>
+        <div class="card card-body" id="menu_tree"></div>
+        <form id="sendForm" method="post">
+            <input type="hidden" name="MENU_PARENT" id="menuCode"/>
+        </form>
+    </div>
+    <div class="col-9">
+    <form id="sendForm2" method="post">
+        <h5 class="card-header border-1">메뉴 상세
+            <a href="#" class="btn btn-primary float-right text-white btn-xs" onclick="">하위메뉴추가</a>
+        </h5>
+        <div id="menuDetailBody" class="card card-body p-0" style="display: none;">
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr class="border-0" >
+                            <th class="bg-light" style="width:15%">GNB 네비게이터</th>
+                            <td colspan="3"><input id="dGnbNav" type="text" class="form-control" style="width: 100%"></td>
+                        </tr>
+                        <tr class="border-0">
+                            <th class="bg-light" style="width:15%">메뉴 이름</th>
+                            <td style="width: 35%;">
+                                <input id="dMenuName" type="text" class="form-control" style="width: 100%">
+                            </td>
+                            <th class="bg-light" style="width:15%">메뉴 URL</th>
+                            <td style="width: 35%;">
+                                <input id="dMenuUrl" type="text" class="form-control" style="width: 100%">
+                            </td>
+                        </tr>
+                        <tr class="border-0">
+                            <th class="bg-light" style="width:15%">메뉴 코드</th>
+                            <td style="width: 35%;">
+                                <input id="dMenuCode" type="text" class="form-control" style="width: 100%">
+                            </td>
+                            <th class="bg-light" style="width:15%">메뉴 깊이<br />(LEVEL)</th>
+                            <td style="width: 35%;">
+                                <input id="dMenuLevel" type="text" class="form-control" style="width: 100%">
+                            </td>
+                        </tr>
+                        <tr class="border-0">
+                            <th class="bg-light" style="width:15%">부모메뉴 코드</th>
+                            <td style="width: 35%;">
+                                <input id="dMenuPCode" type="text" class="form-control" style="width: 100%">
+                            </td>
+                            <th class="bg-light" style="width:15%">메뉴순서 번호</th>
+                            <td style="width: 35%;">
+                                <input id="dMenuOrderNo" type="text" class="form-control" style="width: 100%">
+                            </td>
+                        </tr>
+                        <tr class="border-0">
+                            <th class="bg-light" style="width:15%">자식 메뉴<br />보유 여부</th>
+                            <td style="width: 35%;">
+                                <input id="dMenuChildYn" type="text" class="form-control" style="width: 100%">
+                            </td>
+                            <th class="bg-light" style="width:15%">사용 여부</th>
+                            <td style="width: 35%;">
+<!--                                <input id="dMenuDelYn" type="text" class="form-control" style="width: 100%">-->
+                                <label class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="dMenuDelYn1" name="dMenuDelYn" class="custom-control-input"><span class="custom-control-label">사용</span>
+                                </label>
+                                <label class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="dMenuDelYn2" name="dMenuDelYn" class="custom-control-input"><span class="custom-control-label">미사용</span>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <p id="menuDetailBtn" style="display: none;">
+            <a href="#" class="btn btn-primary border-1 float-right text-white" onclick="fn_update();">저장</a>
+<!--            <a href="#" class="btn btn-outline-primary float-right" style="margin-right: 10px;" onclick="reset()">취소</a>-->
+            <input class="btn btn-outline-primary float-right" style="margin-right: 10px;" type="reset" onclick="fn_outfocus();" value="취소">
+        </p>
     </form>
+    </div>
 </div>
 <!-- ============================================================== -->
 <!-- end main  -->
@@ -16,8 +89,20 @@
 <link rel="stylesheet" href="/css/jqtree.css">
 <script type="text/javascript" src="/js/tree.jquery.js"></script>
 <script>
+    const $tree = $('#menu_tree');
+
+    function fn_outfocus(){
+        const node = $tree.tree('getNodeById', "ROOT");
+        $tree.tree('selectNode', node, { mustSetFocus: false });
+        $("#menuDetailBody").hide();
+        $("#menuDetailBtn").hide();
+    }
+
     let data =
     [
+        {"name": "심심할때 쓰는 개발일기",
+        "id": "ROOT",
+        "children": [
         {{#menuList}}
             {{#MENU_LEVEL_VIEW}}
                 {"name": "{{MENU_TITLE}}",
@@ -25,11 +110,10 @@
                 },
             {{/MENU_LEVEL_VIEW}}
         {{/menuList}}
+        ]}
     ];
 
     $(function() {
-        $tree = $('.card');
-
         $tree.tree({
             data: data,
             autoOpen: true,
@@ -38,17 +122,41 @@
         });
 
         $tree.on(
-            'tree.dblclick',
+            'tree.click',
             function(event) {
                 // event.node is the clicked node
-                console.log(event.node);
+                // console.log(event.node);
+                $("#menuDetailBody").show();
+                $.ajax({
+                    url :"/ajax/conf/menuDetail",
+                    data : "menuCode=" + event.node.id,
+                    dataType: "json",
+                    success : function(data) {
+                        $("#dGnbNav").val(data.MENU_GNB);
+                        $("#dMenuName").val(data.MENU_TITLE);
+                        $("#dMenuUrl").val(data.MENU_URL);
+                        $("#dMenuCode").val(data.MENU_CODE);
+                        $("#dMenuLevel").val(data.MENU_LEVEL);
+                        $("#dMenuPCode").val(data.MENU_PARENT);
+                        $("#dMenuOrderNo").val(data.MENU_SEQ);
+                        $("#dMenuChildYn").val(data.MENU_CHILD_YN);
+                        if (data.DEL_YN == 'N'){
+                            $("#dMenuDelYn1").attr("checked",true);
+                        }
+                        else if (data.DEL_YN == 'Y'){
+                            $("#dMenuDelYn2").attr("checked",true);
+                        }
+
+                        $("#menuDetailBtn").show();
+                    }
+                });
             }
         );
 
         {{#menuList}}
             {{#MENU_CHILD_YN}}
 
-            $("#MENU_CODE").val("{{MENU_CODE}}");
+            $("#menuCode").val("{{MENU_CODE}}");
             $.ajax({
                 url :"/ajax/conf/menuChildList",
                 data : $("#sendForm").serialize(),

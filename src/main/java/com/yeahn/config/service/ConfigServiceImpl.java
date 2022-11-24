@@ -5,6 +5,7 @@ import com.yeahn.model.MenuConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,5 +47,12 @@ public class ConfigServiceImpl implements ConfigService{
         List<MenuConfig> MenuChildList = configMenuMapper.getMenuChildList((String) params.get("MENU_PARENT"));
 
         return MenuChildList;
+    }
+
+    @Override
+    public Map<String, Object> getMenuDetail(@RequestParam Map<String, Object> params){
+        Map<String, Object> MenuDetail = configMenuMapper.getMenuDetail(params.get("menuCode").toString());
+
+        return MenuDetail;
     }
 }

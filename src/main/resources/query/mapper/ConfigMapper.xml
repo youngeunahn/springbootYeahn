@@ -27,16 +27,32 @@
     </select>
 
     <select id="getMenuConfigList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
-        select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_LEVEL_VIEW, MENU_CHILD_YN, MENU_PARENT
+        select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_CHILD_YN, MENU_PARENT
         FROM MENU
         ORDER BY MENU_SEQ
     </select>
 
     <select id="getMenuChildList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
-        select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_LEVEL_VIEW, MENU_CHILD_YN, MENU_PARENT
+        select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_CHILD_YN, MENU_PARENT
         FROM MENU
         WHERE MENU_PARENT = #{value}
         ORDER BY MENU_SEQ
+    </select>
+
+    <select id="getMenuDetail" parameterType="string" resultType="map">
+        select
+               MENU_CODE,
+               MENU_SEQ,
+               MENU_TITLE,
+               MENU_URL,
+               MENU_GNB,
+               MENU_PARENT,
+               MENU_LEVEL,
+               MENU_CHILD_YN,
+               MENU_GROUP,
+               DEL_YN
+        FROM MENU
+        WHERE MENU_CODE = #{value}
     </select>
 
 </mapper>

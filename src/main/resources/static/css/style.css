@@ -3219,7 +3219,9 @@ btn-link
     font-size: 14px;
 }
 
-.card-body {}
+.card-body {
+    margin-bottom: 18px;
+}
 
 .card-text {}
 
