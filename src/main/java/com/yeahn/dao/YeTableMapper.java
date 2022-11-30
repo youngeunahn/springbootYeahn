@@ -11,4 +11,6 @@ public interface YeTableMapper {
     int editYeahnTable(YeahnTable model);
 
     int insertYetable(Map<String, Object> params);
+
+    YeahnTable getYeahnTable(Map<String, Object> params);
 }

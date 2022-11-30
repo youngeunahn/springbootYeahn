@@ -113,6 +113,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.navercorp.lucy/lucy-xss-servlet -->
+        <dependency>
+            <groupId>com.navercorp.lucy</groupId>
+            <artifactId>lucy-xss-servlet</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

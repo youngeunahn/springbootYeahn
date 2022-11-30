@@ -10,4 +10,5 @@ public interface YeTableService {
     public List<YeahnTable> getYeahnTableList();
     public int editYeahnTable(YeahnTable model);
     public int insertYetable(@RequestParam Map<String, Object> params);
+    public YeahnTable getYeahnTableData(@RequestParam Map<String, Object> params);
 }

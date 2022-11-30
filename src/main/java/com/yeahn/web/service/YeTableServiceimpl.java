@@ -30,4 +30,9 @@ public class YeTableServiceimpl implements YeTableService {
     public int insertYetable(Map<String, Object> params) {
         return yetableMapper.insertYetable(params);
     };
+
+    @Override
+    public YeahnTable getYeahnTableData(@RequestParam Map<String, Object> params) {
+        return yetableMapper.getYeahnTable(params);
+    }
 }

@@ -17,4 +17,8 @@
         INSERT INTO yeahn_table(TITLE, CONTENT, REG_DATE, REG_ID)
         VALUES (#{TITLE}, #{CONTENT}, #{REG_DATE}, #{REG_ID})
     </insert>
+
+    <select id="getYeahnTable" resultType="com.yeahn.model.YeahnTable">
+        SELECT * FROM yeahn_table where NO = #{NO};
+    </select>
 </mapper>

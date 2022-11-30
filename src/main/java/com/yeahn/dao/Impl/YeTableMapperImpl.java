@@ -29,5 +29,10 @@ public class YeTableMapperImpl implements YeTableMapper {
     @Override
     public int insertYetable(Map<String, Object> params) {
         return sqlSession.insert("YeTableMapper.insertYetable", params);
-    };
+    }
+
+    @Override
+    public YeahnTable getYeahnTable(Map<String, Object> params) {
+        return sqlSession.selectOne("YeTableMapper.getYeahnTable", params);
+    }
 }

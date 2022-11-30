@@ -1,5 +1,6 @@
 package com.yeahn.web.controller;
 
+import com.yeahn.common.CommonUtils;
 import com.yeahn.model.YeahnTable;
 import com.yeahn.web.service.YeTableService;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +72,18 @@ public class YeController {
         return result;
     }
 
+    @RequestMapping("/yetable/detail")
+    public ModelAndView detail(@RequestParam Map<String, Object> params){
+        ModelAndView mv = new ModelAndView();
+
+        params = CommonUtils.paramCleanXSS(params);
+        YeahnTable data = yeTableService.getYeahnTableData(params);
+        mv.addObject("data", data);
+
+        mv.setViewName("/yetable/detail");
+        return mv;
+    }
+
     @RequestMapping("/yetable/create")
     public ModelAndView index(Model model){
         ModelAndView mv = new ModelAndView();
@@ -82,6 +95,8 @@ public class YeController {
     @RequestMapping("/ajax/yetable/insertYetable")
     @ResponseBody
     public int insertYetable(@RequestParam Map<String, Object> params){
+        params = CommonUtils.paramCleanXSS(params);
+
         String unixTimestamp = getTimestampToDate(Instant.now().getEpochSecond());
         params.put("REG_DATE", unixTimestamp);
         params.put("REG_ID", "yeahn");
