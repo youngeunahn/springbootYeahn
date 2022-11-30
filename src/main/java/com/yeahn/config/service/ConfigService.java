@@ -11,5 +11,7 @@ public interface ConfigService {
     public MenuConfig getMenuPage(String menuCode);
     public List<MenuConfig> getMenuConfigList();
     public List<MenuConfig> getMenuChildList(Map<String, Object> params);
-    public Map<String, Object> getMenuDetail(@RequestParam Map<String, Object> params);
+    public Map<String, Object> getMenuDetail(Map<String, Object> params);
+    public int updateMenu(Map<String, Object> params);
+    public int insertMenu(Map<String, Object> params);
 }

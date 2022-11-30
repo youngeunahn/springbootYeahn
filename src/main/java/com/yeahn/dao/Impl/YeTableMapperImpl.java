@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,4 +25,9 @@ public class YeTableMapperImpl implements YeTableMapper {
     public int editYeahnTable(YeahnTable model) {
         return sqlSession.update("YeTableMapper.editYeahnTable", model);
     }
+
+    @Override
+    public int insertYetable(Map<String, Object> params) {
+        return sqlSession.insert("YeTableMapper.insertYetable", params);
+    };
 }

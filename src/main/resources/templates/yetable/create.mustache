@@ -4,27 +4,34 @@
 <!-- ============================================================== -->
 <!-- main  -->
 <!-- ============================================================== -->
-
 <div class="col-12">
+    <form id="sendForm" method="post">
     <div class="card">
-        <h5 class="card-header">글 등록</h5>
-        <div class="card-body p-0">
+        <h4 class="card-header p-0"><input type="text" name="TITLE" class="form-control" style="height: 50px" placeholder="제목 입력"></h4>
             <div class="table-responsive">
-                <form action="" method="POST">
-                  <textarea name="text" id="editor"></textarea>
-                <p><input type="submit" value="전송"></p>
-                </form>
+                <textarea name="CONTENT" id="editor"></textarea>
             </div>
-        </div>
     </div>
+        <a href="#" class="btn btn-primary border-1 float-right text-white" onclick="fn_insert();">저장</a>
+        <input class="btn btn-outline-primary float-right" style="margin-right: 10px;" type="reset" onclick="" value="취소">
+    </form>
 </div>
 
-<script type="text/javascript" src="/js/ckeditor.js"></script>
 <script type="text/javascript" src="/js/translations/ko.js"></script>
+<script type="text/javascript" src="/js/ckeditor.js"></script>
+<script type="text/javascript" src="/js/UploadAdapter.js"></script>
 <script type="text/javascript">
+    function MyCustomUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new UploadAdapter(loader)
+        }
+    }
+
     ClassicEditor
         .create( document.querySelector( '#editor' ), {
             // toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
+            extraPlugins: [MyCustomUploadAdapterPlugin],
+            language: "ko"
         } )
         .then( editor => {
             window.editor = editor;
@@ -32,7 +39,24 @@
         .catch( err => {
             console.error( err.stack );
         } );
+
+    function fn_insert() {
+        $("#editor").val(editor.getData());
+        $.ajax({
+            url: "/ajax/yetable/insertYetable",
+            data: $("#sendForm").serialize(),
+            dataType: "json",
+            success: function (data) {
+                if(data > 0){
+                    alert('저장되었습니다.');
+                }else{
+                    alert("저장에 실패했습니다. 관리자에 문의하세요.");
+                }
+            }
+        });
+    }
 </script>
+
 <!-- ============================================================== -->
 <!-- end main  -->
 <!-- ============================================================== -->

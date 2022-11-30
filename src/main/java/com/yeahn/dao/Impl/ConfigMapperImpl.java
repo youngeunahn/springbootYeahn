@@ -40,4 +40,14 @@ public class ConfigMapperImpl implements ConfigMapper {
     public Map<String, Object> getMenuDetail(String menuCode) {
         return sqlSession.selectOne("ConfigMapper.getMenuDetail", menuCode);
     }
+
+    @Override
+    public int updateMenu(Map<String, Object> params) {
+        return sqlSession.update("ConfigMapper.updateMenu", params);
+    }
+
+    @Override
+    public int insertMenu(Map<String, Object> params) {
+        return sqlSession.insert("ConfigMapper.insertMenu", params);
+    }
 }

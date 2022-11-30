@@ -12,4 +12,9 @@
         SET TITLE = #{TITLE}
         WHERE NO = #{NO}
     </update>
+
+    <insert id="insertYetable" parameterType="map">
+        INSERT INTO yeahn_table(TITLE, CONTENT, REG_DATE, REG_ID)
+        VALUES (#{TITLE}, #{CONTENT}, #{REG_DATE}, #{REG_ID})
+    </insert>
 </mapper>

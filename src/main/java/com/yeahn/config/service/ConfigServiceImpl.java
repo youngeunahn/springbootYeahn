@@ -50,9 +50,23 @@ public class ConfigServiceImpl implements ConfigService{
     }
 
     @Override
-    public Map<String, Object> getMenuDetail(@RequestParam Map<String, Object> params){
+    public Map<String, Object> getMenuDetail(Map<String, Object> params){
         Map<String, Object> MenuDetail = configMenuMapper.getMenuDetail(params.get("menuCode").toString());
 
         return MenuDetail;
+    }
+
+    @Override
+    public int updateMenu(Map<String, Object> params){
+        int result = configMenuMapper.updateMenu(params);
+
+        return result;
+    }
+
+    @Override
+    public int insertMenu(Map<String, Object> params){
+        int result = configMenuMapper.insertMenu(params);
+
+        return result;
     }
 }

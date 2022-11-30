@@ -17,6 +17,7 @@
         select MENU1.MENU_CODE, MENU1.MENU_TITLE, MENU1.MENU_URL, MENU1.MENU_LEVEL, MENU1.MENU_PARENT, MENU1.MENU_SEQ, MENU1.DEL_YN
         FROM menu menu1, menu menu2
         WHERE menu1.MENU_PARENT = menu2.MENU_CODE
+        AND menu1.DEL_YN = 'N'
         ORDER BY menu1.`MENU_SEQ`
     </select>
 
@@ -54,5 +55,23 @@
         FROM MENU
         WHERE MENU_CODE = #{value}
     </select>
+
+    <update id="updateMenu" parameterType="map" >
+        UPDATE MENU
+           SET MENU_SEQ = #{MENU_SEQ}
+              ,MENU_TITLE = #{MENU_TITLE}
+              ,MENU_URL = #{MENU_URL}
+              ,MENU_GNB = #{MENU_GNB}
+              ,MENU_PARENT = #{MENU_PARENT}
+              ,MENU_LEVEL = #{MENU_LEVEL}
+              ,MENU_CHILD_YN = #{MENU_CHILD_YN}
+              ,DEL_YN = #{DEL_YN}
+        WHERE MENU_CODE = #{MENU_CODE}
+    </update>
+
+    <insert id="insertMenu" parameterType="map">
+        INSERT INTO menu(MENU_CODE, MENU_PARENT)
+        VALUES (#{MENU_CODE}, #{MENU_PARENT})
+    </insert>
 
 </mapper>

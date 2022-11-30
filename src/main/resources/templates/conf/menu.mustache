@@ -15,7 +15,7 @@
     <div class="col-9">
     <form id="sendForm2" method="post">
         <h5 class="card-header border-1">메뉴 상세
-            <a href="#" class="btn btn-primary float-right text-white btn-xs" onclick="">하위메뉴추가</a>
+            <a href="#" id="childMenuCreate" class="btn btn-primary float-right text-white btn-xs" data-toggle="modal" data-target="#insertMenuCodeModal" style="display: none;">하위메뉴추가</a>
         </h5>
         <div id="menuDetailBody" class="card card-body p-0" style="display: none;">
             <div class="table-responsive">
@@ -23,51 +23,50 @@
                     <tbody>
                         <tr class="border-0" >
                             <th class="bg-light" style="width:15%">GNB 네비게이터</th>
-                            <td colspan="3"><input id="dGnbNav" type="text" class="form-control" style="width: 100%"></td>
+                            <td colspan="3"><input id="dGnbNav" name="MENU_GNB" type="text" class="form-control" style="width: 100%"></td>
                         </tr>
                         <tr class="border-0">
                             <th class="bg-light" style="width:15%">메뉴 이름</th>
                             <td style="width: 35%;">
-                                <input id="dMenuName" type="text" class="form-control" style="width: 100%">
+                                <input id="dMenuName" name="MENU_TITLE" type="text" class="form-control" style="width: 100%">
                             </td>
                             <th class="bg-light" style="width:15%">메뉴 URL</th>
                             <td style="width: 35%;">
-                                <input id="dMenuUrl" type="text" class="form-control" style="width: 100%">
+                                <input id="dMenuUrl" name="MENU_URL" type="text" class="form-control" style="width: 100%">
                             </td>
                         </tr>
                         <tr class="border-0">
                             <th class="bg-light" style="width:15%">메뉴 코드</th>
                             <td style="width: 35%;">
-                                <input id="dMenuCode" type="text" class="form-control" style="width: 100%">
+                                <input id="dMenuCode" name="MENU_CODE" type="text" class="form-control" style="width: 100%">
                             </td>
                             <th class="bg-light" style="width:15%">메뉴 깊이<br />(LEVEL)</th>
                             <td style="width: 35%;">
-                                <input id="dMenuLevel" type="text" class="form-control" style="width: 100%">
+                                <input id="dMenuLevel" name="MENU_LEVEL" type="text" class="form-control" style="width: 100%">
                             </td>
                         </tr>
                         <tr class="border-0">
                             <th class="bg-light" style="width:15%">부모메뉴 코드</th>
                             <td style="width: 35%;">
-                                <input id="dMenuPCode" type="text" class="form-control" style="width: 100%">
+                                <input id="dMenuPCode" name="MENU_PARENT" type="text" class="form-control" style="width: 100%">
                             </td>
                             <th class="bg-light" style="width:15%">메뉴순서 번호</th>
                             <td style="width: 35%;">
-                                <input id="dMenuOrderNo" type="text" class="form-control" style="width: 100%">
+                                <input id="dMenuOrderNo" name="MENU_SEQ" type="text" class="form-control" style="width: 100%">
                             </td>
                         </tr>
                         <tr class="border-0">
                             <th class="bg-light" style="width:15%">자식 메뉴<br />보유 여부</th>
                             <td style="width: 35%;">
-                                <input id="dMenuChildYn" type="text" class="form-control" style="width: 100%">
+                                <input id="dMenuChildYn" name="MENU_CHILD_YN" type="text" class="form-control" style="width: 100%">
                             </td>
                             <th class="bg-light" style="width:15%">사용 여부</th>
                             <td style="width: 35%;">
-<!--                                <input id="dMenuDelYn" type="text" class="form-control" style="width: 100%">-->
                                 <label class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="dMenuDelYn1" name="dMenuDelYn" class="custom-control-input"><span class="custom-control-label">사용</span>
+                                    <input type="radio" id="dMenuDelYn1" name="DEL_YN" value="N" class="custom-control-input"><span class="custom-control-label">사용</span>
                                 </label>
                                 <label class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="dMenuDelYn2" name="dMenuDelYn" class="custom-control-input"><span class="custom-control-label">미사용</span>
+                                    <input type="radio" id="dMenuDelYn2" name="DEL_YN" value="Y" class="custom-control-input"><span class="custom-control-label">미사용</span>
                                 </label>
                             </td>
                         </tr>
@@ -83,6 +82,37 @@
     </form>
     </div>
 </div>
+
+
+
+<div class="modal fade" id="insertMenuCodeModal" tabindex="-1" role="dialog" aria-labelledby="MenuCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="MenuCodeModalLabel">메뉴 생성</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="sendForm3" method="post">
+                    <div class="form-group">
+                        <label for="insertMenuParent" class="col-form-label">부모메뉴 코드 ::::</label>
+                        <input type="text" class="form-control" id="insertMenuParent" name="MENU_PARENT" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="insertMenuCode" class="col-form-label">메뉴코드를 입력하세요(수정불가) ::::</label>
+                        <input type="text" class="form-control" id="insertMenuCode" name="MENU_CODE">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="fn_menuCreate();">메뉴생성</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- ============================================================== -->
 <!-- end main  -->
 <!-- ============================================================== -->
@@ -94,8 +124,45 @@
     function fn_outfocus(){
         const node = $tree.tree('getNodeById', "ROOT");
         $tree.tree('selectNode', node, { mustSetFocus: false });
+        $("#childMenuCreate").hide();
         $("#menuDetailBody").hide();
         $("#menuDetailBtn").hide();
+    }
+
+    function fn_update(){
+        $.ajax({
+            url: "/ajax/conf/menuUpdate",
+            data: $("#sendForm2").serialize(),
+            dataType: "json",
+            success: function (data) {
+                if(data > 0){
+                    alert('저장되었습니다.');
+                    //하위메뉴추가, 메뉴삭제버튼 삭제
+                    $("#childMenuCreate").hide();
+                    $("#menuDetailBtn").hide();
+                }else{
+                    alert("저장에 실패했습니다. 관리자에 문의하세요.");
+                }
+            }
+        });
+    }
+
+    function fn_menuCreate() {
+        $.ajax({
+            url: "/ajax/conf/menuInsert",
+            data: $("#sendForm3").serialize(),
+            dataType: "json",
+            success: function (data) {
+                if(data > 0){
+                    alert('저장되었습니다.');
+                    //하위메뉴추가, 메뉴삭제버튼 삭제
+                    $("#childMenuCreate").hide();
+                    $("#menuDetailBtn").hide();
+                }else{
+                    alert("저장에 실패했습니다. 관리자에 문의하세요.");
+                }
+            }
+        });
     }
 
     let data =
@@ -141,12 +208,12 @@
                         $("#dMenuOrderNo").val(data.MENU_SEQ);
                         $("#dMenuChildYn").val(data.MENU_CHILD_YN);
                         if (data.DEL_YN == 'N'){
-                            $("#dMenuDelYn1").attr("checked",true);
+                            $("#dMenuDelYn1").prop("checked",true);
                         }
                         else if (data.DEL_YN == 'Y'){
-                            $("#dMenuDelYn2").attr("checked",true);
+                            $("#dMenuDelYn2").prop("checked",true);
                         }
-
+                        $("#childMenuCreate").show();
                         $("#menuDetailBtn").show();
                     }
                 });
@@ -176,6 +243,13 @@
             });
             {{/MENU_CHILD_YN}}
         {{/menuList}}
+
+        $('#insertMenuCodeModal').on('show.bs.modal', function (event) {
+            let dMenuCode = $("#dMenuCode").val();
+
+            let modal = $(this)
+            modal.find('#insertMenuParent').val(dMenuCode)
+        })
     });
 </script>
 {{> layout/footer }}

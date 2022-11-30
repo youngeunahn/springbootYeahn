@@ -50,4 +50,20 @@ public class ConfigController {
 
         return MenuDetail;
     }
+
+    @RequestMapping("/ajax/conf/menuUpdate")
+    @ResponseBody
+    public int updateMenu(@RequestParam Map<String, Object> params){
+        int result = configService.updateMenu(params);
+
+        return result;
+    }
+
+    @RequestMapping("/ajax/conf/menuInsert")
+    @ResponseBody
+    public int insertMenu(@RequestParam Map<String, Object> params){
+        int result = configService.insertMenu(params);
+
+        return result;
+    }
 }
