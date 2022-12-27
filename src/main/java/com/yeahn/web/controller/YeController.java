@@ -1,6 +1,8 @@
 package com.yeahn.web.controller;
 
+import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata;
 import com.yeahn.common.CommonUtils;
+import com.yeahn.common.S3Uploader;
 import com.yeahn.model.YeahnTable;
 import com.yeahn.web.service.YeTableService;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -127,43 +132,16 @@ public class YeController {
     @Value("${resource.handler}")
     private String resourceHandler;
 
+    private final S3Uploader s3Uploader;
+
     //CKEditor 이미지 업로드
     @RequestMapping("/api/image/imageUpload")
     @ResponseBody
-    public Map image(@RequestParam Map<String, Object> map, MultipartHttpServletRequest request)
-            throws Exception {
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-        String imageServerPath = null;    //서버경로
-        String savePath = null;            //저장경로
-        String originalImagename = null;    //원본이름
-        String imageName = null;            //저장본이름
-        String extension = null;            //확장자
-        long fileSize = 0;
-        long uploadFileSize = 0;
+    public Map image(@RequestParam Map<String, Object> map, MultipartHttpServletRequest request) {
 
         List<MultipartFile> imageList = request.getFiles("upload");
+        s3Uploader.upload(imageList);
 
-        for (MultipartFile mf : imageList) {
-            if (imageList.get(0).getSize() > 0) {
-
-                originalImagename = mf.getOriginalFilename(); // 원본 파일 명
-                extension = FilenameUtils.getExtension(originalImagename);
-                imageName = "img_" + UUID.randomUUID() + "." + extension;
-                fileSize = mf.getSize();
-                uploadFileSize += fileSize;
-
-                File imageUpload = new File(uploadPath + imageName);
-                try {
-                    mf.transferTo(imageUpload);
-                    map.put("FILE_NM", originalImagename);
-                    map.put("FILE_NM_SAVED", imageName);
-                    map.put("FILE_SIZE", String.valueOf(uploadFileSize));
-                    map.put("FILE_URL", imageUpload);
-                } catch (IllegalStateException | IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         return map;
     }
 }

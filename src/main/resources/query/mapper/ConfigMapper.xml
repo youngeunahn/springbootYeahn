@@ -14,28 +14,35 @@
     </resultMap>
 
     <select id="getMenuList"  parameterType="com.yeahn.model.MenuConfig" resultMap="menu2" resultType="com.yeahn.dao.ConfigMapper">
-        select MENU1.MENU_CODE, MENU1.MENU_TITLE, MENU1.MENU_URL, MENU1.MENU_LEVEL, MENU1.MENU_PARENT, MENU1.MENU_SEQ, MENU1.DEL_YN
-        FROM menu menu1, menu menu2
-        WHERE menu1.MENU_PARENT = menu2.MENU_CODE
-        AND menu1.DEL_YN = 'N'
-        ORDER BY menu1.`MENU_SEQ`
+        select MENU1.MENU_CODE,
+               MENU1.MENU_TITLE,
+               MENU1.MENU_URL,
+               MENU1.MENU_LEVEL,
+               MENU1.MENU_PARENT,
+               MENU1.MENU_SEQ,
+               MENU1.DEL_YN
+        FROM menu MENU1,
+             menu MENU2
+        WHERE MENU1.MENU_PARENT = MENU2.MENU_CODE
+          AND MENU1.DEL_YN = 'N'
+        ORDER BY MENU1.`MENU_SEQ`
     </select>
 
     <select id="getMenuPage" parameterType="string" resultType="com.yeahn.model.MenuConfig">
         select MENU_CODE, MENU_TITLE, MENU_GNB
-        FROM MENU
+        FROM menu
         WHERE MENU_CODE = #{value}
     </select>
 
     <select id="getMenuConfigList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
         select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_CHILD_YN, MENU_PARENT
-        FROM MENU
+        FROM menu
         ORDER BY MENU_SEQ
     </select>
 
     <select id="getMenuChildList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
         select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_CHILD_YN, MENU_PARENT
-        FROM MENU
+        FROM menu
         WHERE MENU_PARENT = #{value}
         ORDER BY MENU_SEQ
     </select>
@@ -52,12 +59,12 @@
                MENU_CHILD_YN,
                MENU_GROUP,
                DEL_YN
-        FROM MENU
+        FROM menu
         WHERE MENU_CODE = #{value}
     </select>
 
     <update id="updateMenu" parameterType="map" >
-        UPDATE MENU
+        UPDATE menu
            SET MENU_SEQ = #{MENU_SEQ}
               ,MENU_TITLE = #{MENU_TITLE}
               ,MENU_URL = #{MENU_URL}

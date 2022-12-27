@@ -120,6 +120,46 @@
             <version>2.0.1</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.2</version>
+        </dependency>
+
+        <!-- Cloud Object Storage Starter -->
+        <dependency>
+            <groupId>com.ibm.cos</groupId>
+            <artifactId>cos-spring-boot-starter</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.cos</groupId>
+            <artifactId>ibm-cos-java-sdk</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.cos</groupId>
+            <artifactId>cos-spring-framework</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <!-- Thanks for using https://jar-download.com -->
+
+        <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>
