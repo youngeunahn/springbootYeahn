@@ -160,6 +160,12 @@
             <version>1.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.iamport</groupId>
+            <artifactId>iamport-rest-client-java</artifactId>
+            <version>0.2.22</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -194,6 +200,10 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
     <pluginRepositories>
