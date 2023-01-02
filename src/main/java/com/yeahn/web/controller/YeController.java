@@ -140,7 +140,7 @@ public class YeController {
     public Map image(@RequestParam Map<String, Object> map, MultipartHttpServletRequest request) {
 
         List<MultipartFile> imageList = request.getFiles("upload");
-        s3Uploader.upload(imageList);
+        map.put("FILE_NM_SAVED",s3Uploader.upload(imageList));
 
         return map;
     }

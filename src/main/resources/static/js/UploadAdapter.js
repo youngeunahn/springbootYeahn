@@ -34,9 +34,8 @@ class UploadAdapter {
             if(!response || response.error) {
                 return reject( response && response.error ? response.error.message : genericErrorText );
             }
-
             resolve({
-                default: "/api/image/imageUpload/"+response.FILE_NM_SAVED
+                default: response.FILE_NM_SAVED
             })
         })
     }
