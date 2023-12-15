@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ConfigMapper {
+    List<MenuConfig> getMenuList(String menuList);
     List<MenuConfig> getMenuList();
     MenuConfig getMenuPage(String menuCode);
 

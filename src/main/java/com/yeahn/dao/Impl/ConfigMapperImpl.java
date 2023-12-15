@@ -5,6 +5,8 @@ import com.yeahn.model.MenuConfig;
 import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +17,12 @@ import java.util.Map;
 public class ConfigMapperImpl implements ConfigMapper {
     @Autowired
     private SqlSessionTemplate sqlSession;
+
+    @Override
+    @Cacheable(cacheNames = "getMenuList", key="#menuList")
+    public List<MenuConfig> getMenuList(String menuList) {
+        return sqlSession.selectList("ConfigMapper.getMenuList", menuList);
+    }
 
     @Override
     public List<MenuConfig> getMenuList() {
@@ -42,6 +50,7 @@ public class ConfigMapperImpl implements ConfigMapper {
     }
 
     @Override
+    @CacheEvict(value = "getMenuList", allEntries = true)
     public int updateMenu(Map<String, Object> params) {
         return sqlSession.update("ConfigMapper.updateMenu", params);
     }

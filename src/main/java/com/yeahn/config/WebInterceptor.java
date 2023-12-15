@@ -59,7 +59,7 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 		logger.info("requestURI:::::::"+requestURI );
 		if(requestURI.indexOf("/error") > -1){
 		}else{
-			List<MenuConfig> MenuList = configService.getMenuList();
+			List<MenuConfig> MenuList = configService.getMenuList("menuList");
 			if (modelAndView != null){
 				for (MenuConfig menulist : MenuList){
 					if (menulist.getMENU_LEVEL()==1)

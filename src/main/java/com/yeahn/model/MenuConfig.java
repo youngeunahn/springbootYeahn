@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @AllArgsConstructor
-public class MenuConfig {
+public class MenuConfig implements Serializable {
     private String MENU_CODE;   // 메뉴코드
     private Integer MENU_SEQ;   // 메뉴 순서
     private String MENU_TITLE;  // 메뉴 이름 

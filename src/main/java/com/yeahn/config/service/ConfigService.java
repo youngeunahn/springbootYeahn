@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ConfigService {
+    public List<MenuConfig> getMenuList(String menuList);
     public List<MenuConfig> getMenuList();
     public MenuConfig getMenuPage(String menuCode);
     public List<MenuConfig> getMenuConfigList();

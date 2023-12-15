@@ -18,6 +18,11 @@ public class ConfigServiceImpl implements ConfigService{
     private final ConfigMapper configMenuMapper;
 
     @Override
+    public List<MenuConfig> getMenuList(String menuList) {
+        return configMenuMapper.getMenuList(menuList);
+    }
+
+    @Override
     public List<MenuConfig> getMenuList() {
         return configMenuMapper.getMenuList();
     }

@@ -4,12 +4,30 @@
 <!-- ============================================================== -->
 <!-- main  -->
 <!-- ============================================================== -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        test = ConvertSystemSourcetoHtml('{{{data.CONTENT}}}');
+        test2 = document.createElement('span');
+        test2.innerHTML = test;
+
+        $(".card-body").append(test);
+    });
+
+    function ConvertSystemSourcetoHtml(str){
+        str = str.replace("&lt;", /</);
+        str = str.replace("&gt;", />/);
+        str = str.replace("&quot;", /\"/);
+        str = str.replace("&#39;", /\'/);
+        str = str.replace("<br />", /\n/);
+        return str;
+    }
+</script>
 <div class="col-12">
     <form id="sendForm" method="post">
         <div class="card">
             <h4 class="card-header">{{data.TITLE}}</h4>
             <div class="card-body">
-                {{{data.CONTENT}}}
+
             </div>
         </div>
     </form>
