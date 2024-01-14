@@ -5,20 +5,48 @@
 <!-- main  -->
 <!-- ============================================================== -->
 <script>
+    //1. 숫자와 문자
     // 따옴표로 감싸면 string
     // 따옴표로 안감싸면 number
         //alert('rrrr');
         //alert(2222);
-
     // type이 뭔지 알수있음
         //alert(typeof 2222);
-
     // 문자의 길이를 구할때는 length를 붙인다
-        alert('ㄱㄱㄱ'.length);
+        //alert('ㄱㄱㄱ'.length);
 
-    // 변수 var, let, const 차이점
+    //2. 변수
+    // 변수선언 var, let, const 차이점
     // 변수 var는 undefined로 초기화되고
-    // let, const는 초기화값이 없으면 참조되지않는 값으로 초기화된다.
+    // let, const는 초기화값이 없으면 참조되지않는 값이 된다.
+
+    console.log(a); // 호이스팅되어 undefined로 초기화 된다
+    // 호이스팅 될때 메모리에 잡혀버린다는 것이다.
+    console.log(b); // 호이스팅은 되지만 초기화 되지않고 '참조되지않은 값'으로 남아있는다
+    console.log(c);
+    // let과 const는 호이스팅 될때 메모리에 잡히지 않은 상태로 있는다.
+    var a = 'var';
+    let b = 'let'; const c = 'const';
+    // 값이 할당되면 그 때 메모리에 잡히게 된다.
+    console.log(a);
+    console.log(b);
+    console.log(c);
+
+    // 기본적으로 js에서는 number, string, array, map 이 있다.
+    let aa = 1;
+    let bb = "string";
+    let cc = [1, 2, 3];
+    let dd = {"key1":"value", "key2":"value"}
+    // 여기에서 number, string은 value로 저장되고
+    // array, map은 reference로 저장된다.
+    // 저장되는 변수가 reference가 저장된다면 const여도 해당 변수에 참조된 값을 바꿀 수 있다.
+    const dd1 = ["1", "2", "3"]
+    dd1[2] = "4";
+
+    const dd2 = {"key1":"value", "key2":"value"}
+    dd2.key2 = "value2"; //이런식으로 바꿀수있음
+
+
 </script>
 <div class="col-12">
     <div class="card">
