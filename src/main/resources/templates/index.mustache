@@ -20,17 +20,17 @@
     // 변수 var는 undefined로 초기화되고
     // let, const는 초기화값이 없으면 참조되지않는 값이 된다.
 
-    console.log(a); // 호이스팅되어 undefined로 초기화 된다
+    //console.log(a); // 호이스팅되어 undefined로 초기화 된다
     // 호이스팅 될때 메모리에 잡혀버린다는 것이다.
-    console.log(b); // 호이스팅은 되지만 초기화 되지않고 '참조되지않은 값'으로 남아있는다
-    console.log(c);
+    //console.log(b); // 호이스팅은 되지만 초기화 되지않고 '참조되지않은 값'으로 남아있는다
+    //console.log(c);
     // let과 const는 호이스팅 될때 메모리에 잡히지 않은 상태로 있는다.
     var a = 'var';
     let b = 'let'; const c = 'const';
     // 값이 할당되면 그 때 메모리에 잡히게 된다.
-    console.log(a);
-    console.log(b);
-    console.log(c);
+    // console.log(a);
+    // console.log(b);
+    // console.log(c);
 
     // 기본적으로 js에서는 number, string, array, map 이 있다.
     let aa = 1;
@@ -44,7 +44,41 @@
     dd1[2] = "4";
 
     const dd2 = {"key1":"value", "key2":"value"}
-    dd2.key2 = "value2"; //이런식으로 바꿀수있음
+    dd2.key2 = "value2value2"; //이런식으로 바꿀수있음
+    //console.log(dd2);
+
+    //3. for문
+    // forEach :: array객체에서만 사용 가능
+    let items = ["item1", "item2", "item3"]
+
+    // items.forEach(function(item) {
+    //    console.log(item);
+    // });
+
+    // for in / for of :: 모든 객체에서 사용가능
+    // 비동기통신은 for in문을 많이 씀
+    // for in은 key가 나온다.
+    let forin1 = ["1", "2", "3"];
+    let forin2 = {"key1":"1", "key2":"2", "key3":"3"}
+
+    // for (let prop in forin1) {
+    //     console.log(prop)
+    // }
+
+    // for (let prop2 in forin2) {
+    //     console.log(prop2);
+    // }
+
+    // for of는 value가 나온다.
+
+    // for (let prop3 of forin1) {
+    //     console.log(prop3)
+    // }
+
+    // 이건 안됨, iterator 속성을 가진 array에서만 사용가능
+    // for (let prop of forin2) {
+    //     console.log(prop4);
+    // }
 
 
 </script>
