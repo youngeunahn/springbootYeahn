@@ -1,0 +1,56 @@
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<body>
+
+<script>
+    console.log(22222);
+
+    $(document).ready(function () {
+        console.log(33333);
+        //얘가 안되는 이유가 멀깡?
+        $('[name=xxxx]').click(function(e){ //없는애에다가 걸었잖아
+            console.log(1);
+        });
+        //이벤트 바인딩이 어떻게 걸려있는지에 대해
+
+    });
+
+    $(document).on('click', '[name=xxxx]', function(e){
+
+        console.log("444444");
+    });
+
+    function create(){
+        let inHtml = '<button type="button" name="xxxx" id="xxxx3" onclick="fnClick()" >test2</button>'
+        $('#xxxx2').after(inHtml);
+
+        console.log(33333);
+        //얘가 안되는 이유가 멀깡?
+        $('[name=xxxx]').click(function(e){ //없는애에다가 걸었잖아
+            console.log(1);
+        });
+    }
+
+    function fnClick(){
+        console.log("zzzz");
+    }
+
+</script>
+
+<button type="button" name="xxxx" id="xxxx" onclick="fnClick()">test</button>
+
+<button type="button" name="xxxx" id="xxxx2" onclick="create()">test1</button>
+
+
+</body>
+
+<script>
+
+    console.log(1111);
+    //$(document).ready(function () {
+    // 얘가 안되는 이유가 멀깡?
+    // $('[name=xxxx]').click(function(e){
+    //     console.log(1);
+    // });
+</script>

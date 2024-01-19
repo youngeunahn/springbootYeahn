@@ -22,6 +22,7 @@
 
     //console.log(a); // 호이스팅되어 undefined로 초기화 된다
     // 호이스팅 될때 메모리에 잡혀버린다는 것이다.
+    // 함수도 호이스팅 될 수 있음
     //console.log(b); // 호이스팅은 되지만 초기화 되지않고 '참조되지않은 값'으로 남아있는다
     //console.log(c);
     // let과 const는 호이스팅 될때 메모리에 잡히지 않은 상태로 있는다.
@@ -39,6 +40,7 @@
     let dd = {"key1":"value", "key2":"value"}
     // 여기에서 number, string은 value로 저장되고
     // array, map은 reference로 저장된다.
+    // https://bcp0109.tistory.com/360
     // 저장되는 변수가 reference가 저장된다면 const여도 해당 변수에 참조된 값을 바꿀 수 있다.
     const dd1 = ["1", "2", "3"]
     dd1[2] = "4";
@@ -76,10 +78,23 @@
     // }
 
     // 이건 안됨, iterator 속성을 가진 array에서만 사용가능
-    // for (let prop of forin2) {
+    // for (let prop4 of forin2) {
     //     console.log(prop4);
     // }
 
+    //4. 기타
+    // return true >>> continue
+    // return false >>> break
+
+    //호이스팅 개념이 들어가게 함수를 짜려면 이렇게 하면 된다.
+    // let fnTest = function(){
+    //  console.log("fnTest");
+    // }
+
+    // 동기, 비동기는
+    // await async 도 같이 알아놓자. => 동기, 비동기에 대한 제어문인데
+    // 스크립트를 하다보면 자연스럽게 node.js를 하게되는데
+    // node.js는 기본적으로 비동기통신이다.
 
 </script>
 <div class="col-12">
