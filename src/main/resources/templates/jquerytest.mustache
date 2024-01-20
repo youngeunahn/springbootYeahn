@@ -66,17 +66,22 @@
                 // name 엘리먼트 찾기
                 let $strNameEl = rootElement.find('[name=' + key + ']');
                 let strType = $strNameEl.attr('type');
-                let strVal = $strNameEl.attr('value');
-                console.log(value)
 
-                $(selector).each()
+                if (strType === 'checkbox') {
+                    console.log(value);
 
-                $.each(value, function (key2, value2) {
-                    console.log(value2)
-                    // if (strType == 'checkbox' && value2 == strVal){
-                    //     $strNameEl.prop("checked", true);
-                    // }
-                })
+                    $(value).each(function (key2, value2) {
+                        console.log(value);
+                        console.log(value2);
+                        let $rrrr = $strNameEl.find('[value=' + value2 + ']');
+                        console.log($rrrr);
+                        $rrrr.prop("checked", true);
+                        /*if (value2 === $strNameEl.val()) {
+                            console.log($strNameEl);
+                            $(obj).prop("checked", true);
+                        }*/
+                    });
+                }
 
                 // $(obj[key]).each(function (key2) {
                 //     console.log(2, getelements.prevObject[key2])
@@ -261,7 +266,6 @@
             "company2": "kakao",
             "order": ['caffe latte', 'cafe olleh'],
             "language": "css",
-            "todo": ['sleep', 'study'],
             "todo2": ['sleep'],
             "CONTENT": "test11",
             "CONTENT2": "test22",
