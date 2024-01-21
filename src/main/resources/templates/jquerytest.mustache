@@ -68,18 +68,13 @@
                 let strType = $strNameEl.attr('type');
 
                 if (strType === 'checkbox') {
-                    console.log(value);
-
-                    $(value).each(function (key2, value2) {
-                        console.log(value);
-                        console.log(value2);
-                        let $rrrr = $strNameEl.find('[value=' + value2 + ']');
-                        console.log($rrrr);
-                        $rrrr.prop("checked", true);
-                        /*if (value2 === $strNameEl.val()) {
-                            console.log($strNameEl);
-                            $(obj).prop("checked", true);
-                        }*/
+                    $($strNameEl).each(function () {
+                        $this = $(this);
+                        $(value).each(function (checkey, checkvalue) {
+                            if ($this.is("[value="+checkvalue+"]")) {
+                                $this.prop("checked", true);
+                            }
+                        });
                     });
                 }
 
