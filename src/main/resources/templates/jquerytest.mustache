@@ -66,61 +66,63 @@
                 // name 엘리먼트 찾기
                 let $strNameEl = rootElement.find('[name=' + key + ']');
                 let strType = $strNameEl.attr('type');
+                let strTag = $strNameEl.prop('tagName');
 
-                if (strType === 'checkbox') {
-                    $($strNameEl).each(function () {
-                        $this = $(this);
-                        $(value).each(function (checkey, checkvalue) {
-                            if ($this.is("[value="+checkvalue+"]")) {
-                                $this.prop("checked", true);
-                            }
-                        });
+                if (typeof value === 'object') {
+                    $(value).each(function (idx, findgap) {
+                        if (findgap.match(" ")) {
+                            console.log("[data value]", findgap, ">>>> 데이터에 공백이 포함되어있음 <<<<");
+                        }
                     });
                 }
 
-                // $(obj[key]).each(function (key2) {
-                //     console.log(2, getelements.prevObject[key2])
-                // });
-                // let strInputType = $getelements.attr('type');
-                // console.log(strInputType);
-                let strInputType = "";
-
-                // 그것의 value에 넣어주기
-                // 만약 체크박스라면
-                /*if (strInputType == 'checkbox') {
-                    for (let element of getelements) {
-                        for (let checkarr of obj[prop]) {
-                            if (checkarr == element.value){
-                                $(element).prop("checked", true);
-                            }
-                        }
-                    }
-
-                    //만약 라디오버튼이면
-                } else if (strInputType == 'radio') {
-                    for (let element of getelements) {
-                        if ($(element).val() == obj[prop]) {
-                            $(element).prop("checked", true);
-                        }
-                    }
-
-                    //파일은 value값 세팅할 수 없음
-                } else if (strInputType == 'file') {
-                    console.log('[name]',getelements.attr("name"),'>>>> 파일은 value값 세팅할 수 없음 <<<<');
-
-                // 셀렉트이면 셀렉트 해주기
-                } else if (getelements.attr('tagName') == 'select') {
-                    getelements.prop("selected", true);
-                }
-
-                // 그 외
-                else {
-                    if(strInputType == undefined ) {
-                        //console.log("[name] ", prop, ">>>> 해당 name을 가진 element가 없습니다. <<<<");
+                if (strType === 'checkbox' ) {
+                    if (typeof value === 'object') {
+                        $strNameEl.each(function (idx, ele) {
+                            $(value).each(function (checkey, checkvalue) {
+                                if ($(ele).is("[value="+checkvalue+"]")) {
+                                    $(ele).prop("checked", true);
+                                }
+                            });
+                        });
                     } else {
-                        //$getelements.val(obj[prop]);
+                        console.log("[data key]", key, ">>>> 자료형을 object형으로 준비하라 <<<<");
                     }
-                }*/
+                } else if (strType === 'radio') {
+                    if (typeof value === 'string') {
+                        $strNameEl.each(function (idx, ele) {
+                            if ($(ele).is("[value="+value+"]")) {
+                                $(ele).prop("checked", true);
+                            }
+                        });
+                    } else {
+                        console.log("[data key]", key, ">>>> 자료형을 string형으로 준비하라 <<<<");
+                    }
+                } else if (strType === 'file') {
+                    console.log('[data key]', key, '>>>> 파일은 value값 세팅할 수 없음 <<<<');
+                } else if (strTag === 'SELECT') {
+                    $strNameEl.each(function (idx, ele) {
+                        if (typeof value === 'object') {
+                            $(value).each(function (idx, selectedvalue) {
+                                $(ele).find('[value='+selectedvalue+']').prop("selected", true);
+                            });
+                        } else if (typeof value === 'string') {
+                            $(ele).find('[value='+value+']').prop("selected", true);
+                        }
+                    });
+                } else if (strType === 'number') {
+                    if (!/^[0-9]+$/.test(value)) {
+                        console.log('[data key]', key, '>>>> 해당 데이터는 숫자만 넣어주세요 <<<<')
+                    } else {
+                        $strNameEl.val(value);
+                    }
+                } else {
+                    if (strType === undefined && strTag === undefined) {
+                        console.log("[data key] ", key, ">>>> 해당 name을 가진 element가 없습니다. <<<<");
+                    } else {
+                        $strNameEl.val(value);
+                    }
+                }
             });
         };
 
@@ -189,64 +191,23 @@
         };
 
         $.fn.insideTagInputToMap2 = function () {
-            // 이것의 자식들의 태그를 모두 가지고온다
-            // 그것은 input태그만 있다
-            let inputs = this.find('input');
-            let textareas = this.find('textarea');
-            let selects = this.find('select');
-
-            let getelements;
-            let checkboxarray = [];
-            let checkboxname = "";
+            let $targetEl = this;
+            let targetMap = $targetEl.find('input, textarea, select');
             let resultmap = {};
+            let llist = [];
 
-            // 그 input의 name을 가지고오고
-            // 그 input의 value를 가지고온다
-            for (let prop of inputs) {
-                getelements = $(prop).eq(0);
+            //console.log(targetMap);
 
-                if ( getelements.attr('name') == undefined ) {
-                    console.log("[type]", getelements.attr('type')," >>>> name이 없는 input 태그가 있습니다 <<<<");
-                }
+            targetMap.each(function (key, value) {
+                console.log(value)
+                //$targetEl.push(value);
+                llist.push($(value).attr("name"))
+            });
 
-                if (getelements.attr('type') == 'checkbox'){ // 체크박스
-                    if ($(prop).is(":checked")){ // 체크되었을 경우
-                        // checkboxname과 현재 element name을 가져와 비교
-                        if (checkboxname != $(prop).attr('name')) {
-                            checkboxarray = []; // name이 다를경우 array를 초기화 한다
-                        }
-                        checkboxarray.push($(prop).val());
-                        resultmap[$(prop).attr('name')] = checkboxarray;
-                        checkboxname = $(prop).attr('name');
-                    }
-                } else if (getelements.attr('type') == 'radio'){ // 라디오버튼
-                    if ($(prop).is(":checked")) {
-                        resultmap[$(prop).attr('name')] = $(prop).val();
-                    }
-                } else {
-                    resultmap[getelements.attr('name')] = getelements.val();
-                }
-            }
-
-            for (let prop of textareas) { // 텍스트에어리어
-                getelements = $(prop).eq(0);
-
-                if ( getelements.attr('name') == undefined ) {
-                    console.log("name이 없는 textarea 태그가 있습니다");
-                }
-
-                resultmap[getelements.attr('name')] = getelements.val();
-            }
-
-            for (let prop of selects) { // 셀렉트
-                getelements = $(prop).eq(0);
-
-                if ( getelements.attr('name') == undefined ) {
-                    console.log("name이 없는 select 태그가 있습니다");
-                }
-
-                resultmap[getelements.attr('name')] = getelements.val();
-            }
+            //console.log($targetEl)
+            $.each(llist, function (resultkey, resultvalue) {
+                resultmap[resultvalue] = "";
+            });
 
             //그걸 맵으로 리턴
             return resultmap;
@@ -255,23 +216,22 @@
         let object = {};
         let testData = {
             "todo": ['sleep', 'study'],
-            "order": ['caffe latte', 'cafe olleh'],
-            "company": "naver"
-            /*"company": "naver",
-            "company2": "kakao",
-            "order": ['caffe latte', 'cafe olleh'],
+            "order": ['caffelatte', 'cafeolleh'],
+            "company": "naver",
+            "company2": "google",
+            "filepath": "안영은(930330)-2023년도자료.pdf",
             "language": "css",
-            "todo2": ['sleep'],
+            "rrrr": "qqqq",
             "CONTENT": "test11",
             "CONTENT2": "test22",
+            "pwdtest": "1q2w3e4r!",
             "TITLE": "test00",
-            "filepath": "안영은(930330)-2023년도자료.pdf",
-            "rrrr": "qqqq",
-            "pwdtest": "1q2w3e4r!"*/
+            "todo2": ['sleep'],
+            "numbertest": '1234'
         };
 
         $(document).on("click", "#save", function(){
-            object = $("#test").insideTagInputToMap();
+            object = $("#test").insideTagInputToMap2();
             console.log(object);
         });
 
@@ -330,8 +290,8 @@
 
             <select name="order" multiple>
                 <option value="americano">아메리카노</option>
-                <option value="caffe latte">카페라테</option>
-                <option value="cafe olleh">카페오레</option>
+                <option value="caffelatte">카페라테</option>
+                <option value="cafeolleh">카페오레</option>
                 <option value="espresso">에스프레소</option>
             </select>
         </div>
