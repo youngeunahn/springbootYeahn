@@ -2,6 +2,28 @@
 
 <script>
     $(document).ready(function(){
+
+        //셀렉터 참고
+        //https://hello-bryan.tistory.com/241
+        console.log($('[name=company][data-test=Y]').val());
+        console.log($('[data-test=Y]:not([name=company])').val());
+        console.log($('[data-test=Y]').not('[name=company]').val());
+        console.log($('[name*=company]'));
+        console.log('---------------')
+        console.log($('#tttest').attr('data-test'));
+        console.log($('#tttest').attr('data-test', 'N'));
+        console.log($('#tttest').attr('data-test'));
+        console.log('---------------')
+        console.log($('#tttest').prop('data-test'));
+        console.log($('#tttest').prop('data-test', 'Y'));
+        console.log($('#tttest').attr('data-test'));
+        console.log($('#tttest').prop('data-test'));
+        console.log('---------------')
+        console.log($('#tttest').data('test'));
+
+        console.log($('#tttest').data('test', "mmmm"));
+        console.log($('#tttest').data('test'));
+
         // jquery 플러그인 만드는 방법 참고
         // https://learn.jquery.com/plugins/basic-plugin-creation/
         $.fn.bindingFnc = function (obj) {
@@ -196,8 +218,11 @@
             let resultmap = {};
             let llist = [];
 
-            //console.log(targetMap);
+            // $(selector).each(function(index,element))
 
+            // $.each( array, callback )
+
+            //console.log(targetMap);
             targetMap.each(function (key, value) {
                 console.log(value)
                 //$targetEl.push(value);
@@ -205,6 +230,9 @@
             });
 
             //console.log($targetEl)
+            $.each(llist, function (resultkey, resultvalue) {
+                resultmap[resultvalue] = "";
+            });
             $.each(llist, function (resultkey, resultvalue) {
                 resultmap[resultvalue] = "";
             });
@@ -266,12 +294,12 @@
 
             <input type="checkbox" name="todo2" value="study">study<br>
 
-            <input type="radio" name="company2" value="google">google<br>
+            <input type="radio" name="company2" data-test="Y" id="tttest" value="google1">google<br>
             <input type="radio" name="company2" value="naver">naver<br><br>
 
             <div>
-                <input type="radio" name="company" value="google">google<br>
-                <input type="radio" name="company" value="naver">naver<br>
+                <input type="radio" name="company" data-test="Y"  value="google2">google<br>
+                <input type="radio" name="company" data-test="N" value="naver">naver<br>
                 <input type="radio" name="company" value="kakao">kakao<br><br>
             </div>
 
