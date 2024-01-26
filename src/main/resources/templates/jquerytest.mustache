@@ -5,24 +5,24 @@
 
         //셀렉터 참고
         //https://hello-bryan.tistory.com/241
-        console.log($('[name=company][data-test=Y]').val());
-        console.log($('[data-test=Y]:not([name=company])').val());
-        console.log($('[data-test=Y]').not('[name=company]').val());
-        console.log($('[name*=company]'));
-        console.log('---------------')
-        console.log($('#tttest').attr('data-test'));
-        console.log($('#tttest').attr('data-test', 'N'));
-        console.log($('#tttest').attr('data-test'));
-        console.log('---------------')
-        console.log($('#tttest').prop('data-test'));
-        console.log($('#tttest').prop('data-test', 'Y'));
-        console.log($('#tttest').attr('data-test'));
-        console.log($('#tttest').prop('data-test'));
-        console.log('---------------')
-        console.log($('#tttest').data('test'));
-
-        console.log($('#tttest').data('test', "mmmm"));
-        console.log($('#tttest').data('test'));
+        // console.log($('[name=company][data-test=Y]').val());
+        // console.log($('[data-test=Y]:not([name=company])').val());
+        // console.log($('[data-test=Y]').not('[name=company]').val());
+        // console.log($('[name*=company]'));
+        // console.log('---------------')
+        // console.log($('#tttest').attr('data-test'));
+        // console.log($('#tttest').attr('data-test', 'N'));
+        // console.log($('#tttest').attr('data-test'));
+        // console.log('---------------')
+        // console.log($('#tttest').prop('data-test'));
+        // console.log($('#tttest').prop('data-test', 'Y'));
+        // console.log($('#tttest').attr('data-test'));
+        // console.log($('#tttest').prop('data-test'));
+        // console.log('---------------')
+        // console.log($('#tttest').data('test'));
+        //
+        // console.log($('#tttest').data('test', "mmmm"));
+        // console.log($('#tttest').data('test'));
 
         // jquery 플러그인 만드는 방법 참고
         // https://learn.jquery.com/plugins/basic-plugin-creation/
@@ -214,27 +214,30 @@
 
         $.fn.insideTagInputToMap2 = function () {
             let $targetEl = this;
-            let targetMap = $targetEl.find('input, textarea, select');
+            let $targetMap = $targetEl.find('input, textarea, select');
             let resultmap = {};
-            let llist = [];
+            let vlist = {};
 
-            // $(selector).each(function(index,element))
-
-            // $.each( array, callback )
-
-            //console.log(targetMap);
-            targetMap.each(function (key, value) {
-                console.log(value)
-                //$targetEl.push(value);
-                llist.push($(value).attr("name"))
+            //$.unique
+            $targetMap.each(function (key, value) {
+                vlist[$(value).prop("name")] = [];
             });
-
-            //console.log($targetEl)
-            $.each(llist, function (resultkey, resultvalue) {
-                resultmap[resultvalue] = "";
+            $targetMap.each(function (key, value) {
+                let valuename = $(value).prop("name");
+                if ($(value).prop('type') === 'checkbox') {
+                    if ($(value).is(":checked")) {
+                        vlist[valuename].push($(value).val());
+                    }
+                } else if ($(value).prop('type') === 'radio') {
+                    if ($(value).is(":checked")) {
+                        vlist[valuename] = $(value).val();
+                    }
+                } else {
+                    vlist[valuename] = $(value).val();
+                }
             });
-            $.each(llist, function (resultkey, resultvalue) {
-                resultmap[resultvalue] = "";
+            $.each(vlist, function (resultkey, resultvalue) {
+                resultmap[resultkey] = resultvalue;
             });
 
             //그걸 맵으로 리턴
@@ -289,8 +292,6 @@
             <input type="password" name="pwdtest"><br><br>
 
             <input type="checkbox" name="todo" value="study">study<br>
-            <input type="checkbox" name="todo" value="sleep">sleep<br>
-            <input type="checkbox" name="todo" value="eat">eat<br><br>
 
             <input type="checkbox" name="todo2" value="study">study<br>
 
@@ -307,6 +308,8 @@
             <input type="checkbox" name="todo2" value="eat">eat<br>
 
             <input type="radio" name="company2" value="kakao">kakao<br><br>
+            <input type="checkbox" name="todo" value="sleep">sleep<br>
+            <input type="checkbox" name="todo" value="eat">eat<br><br>
 
             <select name="language">
                 <option value=""> 선택
