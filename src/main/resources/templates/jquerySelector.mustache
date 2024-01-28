@@ -1,0 +1,14 @@
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        for (let i = 0 ; i < 10 ; i++){
+            let textElement = "<input type='text' id='el_"+i+"'><br>";
+            $("#textFor").append(textElement);
+        }
+       console.log($("*"));
+    });
+</script>
+<body>
+<div id="textFor"></div>
+</body>
