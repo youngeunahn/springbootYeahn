@@ -220,7 +220,11 @@
 
             //$.unique
             $targetMap.each(function (key, value) {
-                vlist[$(value).prop("name")] = [];
+                if ($(value).prop("type") === 'checkbox') {
+                    vlist[$(value).prop("name")] = [];
+                } else {
+                    vlist[$(value).prop("name")] = "";
+                }
             });
             $targetMap.each(function (key, value) {
                 let valuename = $(value).prop("name");
