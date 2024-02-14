@@ -1,7 +1,8 @@
-package com.yeahn.web.service;
+package com.yeahn.web.service.impl;
 
 import com.yeahn.dao.YeTableMapper;
 import com.yeahn.model.YeahnTable;
+import com.yeahn.web.service.YeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
