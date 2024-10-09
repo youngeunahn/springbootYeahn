@@ -1,0 +1,28 @@
+{{> layout/header }}
+{{> layout/leftmenu }}
+<script type="text/javascript">
+    function fn_login(){
+        $.ajax({
+            url: "/login_proc",
+            method: "post",
+            data: $("#sendForm").serialize(),
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+            }
+        });
+    }
+</script>
+<div class="dashboard-wrapper">
+    <div class="dashboard-ecommerce">
+        <div class="container-fluid dashboard-content ">
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body p-4">
+                        로그인 실패
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

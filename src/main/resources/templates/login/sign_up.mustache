@@ -1,7 +1,7 @@
 {{> layout/header }}
 {{> layout/leftmenu }}
 <script type="text/javascript">
-    function fn_login(){
+    function fn_signUp(){
         $("#sendForm").submit();
     }
 </script>
@@ -11,10 +11,10 @@
             <div class="col-4">
                 <div class="card">
                     <div class="card-body p-4">
-                        <form id="sendForm" method="post" action="/login_proc">
+                        <form id="sendForm" method="post" action="/signUp">
                             <input type="text" name="userId" class="form-control" style="height: 50px; width: 100%" placeholder="아이디">
                             <input type="text" name="password" class="form-control" style="height: 50px; width: 100%" placeholder="비밀번호"><br />
-                            <a href="#" class="btn btn-primary border-1 float-left text-white" onclick="fn_login();">로그인</a>
+                            <a href="#" class="btn btn-primary border-1 float-left text-white" onclick="fn_signUp();">회원등록</a>
                         </form>
                     </div>
                 </div>
