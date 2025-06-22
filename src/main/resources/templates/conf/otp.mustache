@@ -1,0 +1,19 @@
+{{> layout/header }}
+{{> layout/leftmenu }}
+{{> layout/gnb }}
+<!-- ============================================================== -->
+<!-- main  -->
+<!-- ============================================================== -->
+<div class="row">
+
+    key :::: {{key}} <br />
+    imgdata :::: <br />
+    <img src="data:image/jpeg;base64, {{qr}}" alt="QR Code"/>
+
+    <form method="POST" action="/check">
+        <input type="submit" name="submit" value="submit" />
+    </form>
+
+</div>
+
+{{> layout/footer }}

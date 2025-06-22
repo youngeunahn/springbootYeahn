@@ -20,7 +20,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers( "/login", "/signUp", "/access_denied", "/resources/**", "/css/**", "/js/**").permitAll() // 로그인 권한은 누구나, resources파일도 모든권한
                 // ADMIN 접근 허용
                 //.antMatchers("/").hasRole("USER")
-                .antMatchers("/*").hasRole("ADMIN")
+                //.antMatchers("/*").hasRole("ADMIN")
+                .anyRequest().authenticated()            // 나머지 모든 요청은  인증이 필요
                 .and()
             .formLogin()
                 .usernameParameter("userId")
