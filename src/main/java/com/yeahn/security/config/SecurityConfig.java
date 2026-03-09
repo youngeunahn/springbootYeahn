@@ -2,7 +2,7 @@ package com.yeahn.security.config;
 
 import com.yeahn.security.handler.LoginFailureHandler;
 import com.yeahn.security.handler.LoginSuccessHandler;
-import com.yeahn.web.service.UserService;
+import com.yeahn.security.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 
 @EnableWebSecurity
 @Configuration

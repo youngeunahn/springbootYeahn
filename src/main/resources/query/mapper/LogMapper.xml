@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="LogMapper">
+
+    <insert id="insertAccessLog" parameterType="map">
+        INSERT INTO TB_LOG_ACCESS (
+            ACESS_MENU_SEQ
+            , ACESS_METHOD
+            , ACESS_IP
+            , ACCESS_DEVICE
+            , ACCESS_BROWSER
+            , ACCESS_LANGUAGE
+            , ACCESS_OS
+            , ACCESS_SESSION_ID
+            , ACCESS_REFERRER
+            , UA_ORIGIN
+            , INS_DT
+        ) VALUES (
+
+        )
+    </insert>
+
+    <insert id="insertLoginLog" parameterType="map">
+        INSERT INTO TB_LOG_LOGIN (
+            ACCESS_LOG_SEQ
+            , USER_SEQ
+            , LOGIN_SUCCESS
+            , SESSIONID
+            , STATUS_CODE
+            , FAIL_REASON
+            , LOGIN_REQ_TIME
+        ) VALUES (
+
+        )
+    </insert>
+
+</mapper>

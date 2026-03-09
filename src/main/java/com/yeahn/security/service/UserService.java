@@ -1,4 +1,4 @@
-package com.yeahn.web.service;
+package com.yeahn.security.service;
 
 import com.yeahn.dao.UserMapper;
 import com.yeahn.model.UserVo;
