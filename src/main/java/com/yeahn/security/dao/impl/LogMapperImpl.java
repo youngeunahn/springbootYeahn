@@ -15,6 +15,11 @@ public class LogMapperImpl implements LogMapper {
     private SqlSessionTemplate sqlSession;
 
     @Override
+    public int insertAccessLog(Map<String, Object> params) {
+        return sqlSession.insert("LogMapper.insertAccessLog", params);
+    }
+
+    @Override
     public int insertLoginLog(Map<String, Object> params) {
         return sqlSession.insert("LogMapper.insertLoginLog", params);
     }

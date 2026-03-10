@@ -3,6 +3,9 @@ package com.yeahn.common;
 import com.navercorp.lucy.security.xss.servletfilter.defender.XssPreventerDefender;
 import com.nhncorp.lucy.security.xss.XssFilter;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,5 +44,17 @@ public class CommonUtils {
             }
         }
         return returnParams;
+    }
+
+    //사용자 IP가져오기
+    public static String getIP(HttpServletRequest request) {
+
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+            return ip.split(",")[0].trim();
+        }
+
+        return request.getRemoteAddr();
     }
 }

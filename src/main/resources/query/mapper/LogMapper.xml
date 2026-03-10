@@ -6,9 +6,12 @@
 
     <insert id="insertAccessLog" parameterType="map">
         INSERT INTO TB_LOG_ACCESS (
-            ACESS_MENU_SEQ
-            , ACESS_METHOD
-            , ACESS_IP
+            ACCESS_MENU_SEQ
+            , ACCESS_URI
+            , ACCESS_QUERY_STRING
+            , ACCESS_FORM_DATA
+            , ACCESS_METHOD
+            , ACCESS_IP
             , ACCESS_DEVICE
             , ACCESS_BROWSER
             , ACCESS_LANGUAGE
@@ -18,21 +21,54 @@
             , UA_ORIGIN
             , INS_DT
         ) VALUES (
-
+              #{access_menu_seq}
+            , #{access_uri}
+            , #{access_query_string}
+            , #{access_form_data}
+            , #{access_method}
+            , #{access_ip}
+            , #{access_device}
+            , #{access_browser}
+            , #{access_language}
+            , #{access_os}
+            , #{access_session_id}
+            , #{access_referrer}
+            , #{ua_origin}
+            , NOW()
         )
     </insert>
 
     <insert id="insertLoginLog" parameterType="map">
         INSERT INTO TB_LOG_LOGIN (
-            ACCESS_LOG_SEQ
-            , USER_SEQ
+            USER_SEQ
             , LOGIN_SUCCESS
-            , SESSIONID
             , STATUS_CODE
             , FAIL_REASON
+            , LOGIN_REQ_METHOD
+            , LOGIN_REQ_IP
+            , LOGIN_REQ_DEVICE
+            , LOGIN_REQ_BROWSER
+            , LOGIN_REQ_LANGUAGE
+            , LOGIN_REQ_OS
+            , LOGIN_REQ_SESSION_ID
+            , LOGIN_REQ_REFERRER
+            , LOGIN_REQ_UA_GRIGIN
             , LOGIN_REQ_TIME
         ) VALUES (
-
+              #{user_seq}
+            , #{login_success}
+            , #{status_code}
+            , #{fail_reason}
+            , #{login_req_method}
+            , #{login_req_ip}
+            , #{login_req_device}
+            , #{login_req_browser}
+            , #{login_req_language}
+            , #{login_req_os}
+            , #{login_req_session_id}
+            , #{login_req_referrer}
+            , #{login_req_ua_grigin}
+            , NOW()
         )
     </insert>
 
