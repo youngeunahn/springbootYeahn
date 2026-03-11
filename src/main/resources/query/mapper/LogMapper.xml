@@ -4,7 +4,7 @@
 
 <mapper namespace="LogMapper">
 
-    <insert id="insertAccessLog" parameterType="map">
+    <insert id="insertAccessLog" parameterType="com.yeahn.model.AccessLogVo">
         INSERT INTO TB_LOG_ACCESS (
             ACCESS_MENU_SEQ
             , ACCESS_URI
@@ -21,24 +21,24 @@
             , UA_ORIGIN
             , INS_DT
         ) VALUES (
-              #{access_menu_seq}
-            , #{access_uri}
-            , #{access_query_string}
-            , #{access_form_data}
-            , #{access_method}
-            , #{access_ip}
-            , #{access_device}
-            , #{access_browser}
-            , #{access_language}
-            , #{access_os}
-            , #{access_session_id}
-            , #{access_referrer}
-            , #{ua_origin}
+              #{accessMenuSeq}
+            , #{accessUri}
+            , #{accessQueryString}
+            , #{accessFormData}
+            , #{accessMethod}
+            , #{accessIp}
+            , #{accessDevice}
+            , #{accessBrowser}
+            , #{accessLanguage}
+            , #{accessOs}
+            , #{accessSessionId}
+            , #{accessReferrer}
+            , #{uaOrigin}
             , NOW()
         )
     </insert>
 
-    <insert id="insertLoginLog" parameterType="map">
+    <insert id="insertLoginLog" parameterType="com.yeahn.model.LoginLogVo">
         INSERT INTO TB_LOG_LOGIN (
             USER_SEQ
             , LOGIN_SUCCESS
@@ -55,19 +55,19 @@
             , LOGIN_REQ_UA_GRIGIN
             , LOGIN_REQ_TIME
         ) VALUES (
-              #{user_seq}
-            , #{login_success}
-            , #{status_code}
-            , #{fail_reason}
-            , #{login_req_method}
-            , #{login_req_ip}
-            , #{login_req_device}
-            , #{login_req_browser}
-            , #{login_req_language}
-            , #{login_req_os}
-            , #{login_req_session_id}
-            , #{login_req_referrer}
-            , #{login_req_ua_grigin}
+              #{userSeq}
+            , #{loginSuccess}
+            , #{statusCode}
+            , #{failReason}
+            , #{loginReqMethod}
+            , #{loginReqIp}
+            , #{loginReqDevice}
+            , #{loginReqBrowser}
+            , #{loginReqLanguage}
+            , #{loginReqOs}
+            , #{loginReqSessionId}
+            , #{loginReqReferrer}
+            , #{loginReqUaOrigin}
             , NOW()
         )
     </insert>

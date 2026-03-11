@@ -1,5 +1,7 @@
 package com.yeahn.security.config;
 
+import com.yeahn.security.handler.LoginFailureHandler;
+import com.yeahn.security.handler.LoginSuccessHandler;
 import com.yeahn.security.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
+    private final LoginSuccessHandler loginSuccessHandler;
+    private final LoginFailureHandler loginFailureHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -31,6 +35,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .loginProcessingUrl("/login")    // 로그인 처리 POST
             .usernameParameter("userId")     // 파라미터명 변경
             .passwordParameter("password")
+            .successHandler(loginSuccessHandler)
+            .failureHandler(loginFailureHandler)
             .permitAll();
     }
 
