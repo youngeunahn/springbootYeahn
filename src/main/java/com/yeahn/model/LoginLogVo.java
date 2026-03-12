@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class LoginLogVo {
-    private String userSeq;
+    private String userId;
     private String loginSuccess;
     private String statusCode;
     private String failReason;

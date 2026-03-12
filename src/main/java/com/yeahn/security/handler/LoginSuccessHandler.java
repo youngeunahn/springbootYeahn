@@ -1,5 +1,7 @@
 package com.yeahn.security.handler;
 
+import com.yeahn.model.LoginLogVo;
+import com.yeahn.security.service.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -13,7 +15,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-//    private final LoginHistoryService loginHistoryService;
+    private final LogService logService;
 
     @Override
     public void onAuthenticationSuccess(
@@ -22,10 +24,13 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             Authentication authentication
     ) throws IOException {
 
-        String username = authentication.getName();
+        LoginLogVo vo = new LoginLogVo();
+        vo.setUserId(authentication.getName());
+        vo.setLoginSuccess("Y");
+
         String ip = request.getRemoteAddr();
 
-//        loginHistoryService.recordSuccess(username, ip);
+//        logService.saveLoginLog(username, ip);
 
         response.sendRedirect("/yetable/list");
     }

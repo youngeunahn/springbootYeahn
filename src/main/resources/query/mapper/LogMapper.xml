@@ -59,7 +59,7 @@
             , LOGIN_REQ_UA_GRIGIN
             , LOGIN_REQ_TIME
         ) VALUES (
-              #{userSeq}
+              #{userId}
             , #{loginSuccess}
             , #{statusCode}
             , #{failReason}
