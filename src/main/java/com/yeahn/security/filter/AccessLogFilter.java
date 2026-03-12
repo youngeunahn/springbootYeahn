@@ -1,7 +1,9 @@
 package com.yeahn.security.filter;
 
 import com.yeahn.model.AccessLogVo;
+import com.yeahn.model.UserAgentInfo;
 import com.yeahn.security.service.LogService;
+import com.yeahn.security.service.UserAgentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,6 +19,7 @@ import java.io.IOException;
 public class AccessLogFilter extends OncePerRequestFilter {
 
     private final LogService logService;
+    private final UserAgentService userAgentService;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -31,16 +34,32 @@ public class AccessLogFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        AccessLogVo log = new AccessLogVo();
-        String uri = request.getRequestURI();
+        long startTime = System.currentTimeMillis();
 
-        log.setAccessMethod(request.getMethod());
-        log.setAccessIp(request.getRemoteAddr());
-        log.setAccessSessionId(request.getSession().getId());
-        log.setAccessUri(uri);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            long endTime = System.currentTimeMillis();
 
-        logService.saveAccessLog(log);
+            AccessLogVo log = new AccessLogVo();
 
-        filterChain.doFilter(request, response);
+            String userAgent = request.getHeader("User-Agent");
+            UserAgentInfo uaInfo = userAgentService.parse(userAgent);
+
+            log.setAccessUri(request.getRequestURI());
+            log.setAccessMethod(request.getMethod());
+            log.setAccessIp(request.getRemoteAddr());
+            log.setAccessDevice(uaInfo.getDevice());
+            log.setAccessBrowser(uaInfo.getBrowser());
+            log.setAccessOs(uaInfo.getOs());
+            log.setAccessSessionId(request.getSession().getId());
+            log.setAccessReferrer(request.getHeader("Referer"));
+            log.setAccessLanguage(request.getHeader("Accept-Language"));
+            log.setUaOrigin(userAgent);
+            log.setAccessStatusCode(String.valueOf(response.getStatus()));
+            log.setResponseTime(endTime - startTime);
+
+            logService.saveAccessLog(log);
+        }
     }
 }

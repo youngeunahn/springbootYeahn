@@ -17,4 +17,6 @@ public class AccessLogVo {
     private String accessSessionId;
     private String accessReferrer;
     private String uaOrigin;
+    private String accessStatusCode;
+    private long responseTime;
 }

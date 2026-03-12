@@ -19,6 +19,8 @@
             , ACCESS_SESSION_ID
             , ACCESS_REFERRER
             , UA_ORIGIN
+            , ACCESS_STATUS_CODE
+            , RESPONSE_TIME
             , INS_DT
         ) VALUES (
               #{accessMenuSeq}
@@ -34,6 +36,8 @@
             , #{accessSessionId}
             , #{accessReferrer}
             , #{uaOrigin}
+            , #{accessStatusCode}
+            , #{responseTime}
             , NOW()
         )
     </insert>
