@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.yeahn.common.CommonUtils.getIP;
+
 @Component
 @RequiredArgsConstructor
 public class AccessLogFilter extends OncePerRequestFilter {
@@ -48,7 +50,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
 
             log.setAccessUri(request.getRequestURI());
             log.setAccessMethod(request.getMethod());
-            log.setAccessIp(request.getRemoteAddr());
+            log.setAccessIp(getIP(request));
             log.setAccessDevice(uaInfo.getDevice());
             log.setAccessBrowser(uaInfo.getBrowser());
             log.setAccessOs(uaInfo.getOs());

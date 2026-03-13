@@ -1,7 +1,9 @@
 package com.yeahn.security.handler;
 
 import com.yeahn.model.LoginLogVo;
+import com.yeahn.model.UserAgentInfo;
 import com.yeahn.security.service.LogService;
+import com.yeahn.security.service.UserAgentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -11,11 +13,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.yeahn.common.CommonUtils.getIP;
+
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final LogService logService;
+    private final UserAgentService userAgentService;
 
     @Override
     public void onAuthenticationSuccess(
@@ -25,12 +30,25 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     ) throws IOException {
 
         LoginLogVo vo = new LoginLogVo();
+
+        String userAgent = request.getHeader("User-Agent");
+        UserAgentInfo uaInfo = userAgentService.parse(userAgent);
+
         vo.setUserId(authentication.getName());
         vo.setLoginSuccess("Y");
+        vo.setStatusCode(String.valueOf(response.getStatus()));
+        vo.setFailReason("");
+        vo.setLoginReqMethod(request.getMethod());
+        vo.setLoginReqIp(getIP(request));
+        vo.setLoginReqDevice(uaInfo.getDevice());
+        vo.setLoginReqBrowser(uaInfo.getBrowser());
+        vo.setLoginReqLanguage(request.getHeader("Accept-Language"));
+        vo.setLoginReqOs(uaInfo.getOs());
+        vo.setLoginReqSessionId(request.getSession().getId());
+        vo.setLoginReqReferrer(request.getHeader("Referer"));
+        vo.setLoginReqUaOrigin(userAgent);
 
-        String ip = request.getRemoteAddr();
-
-//        logService.saveLoginLog(username, ip);
+        logService.saveLoginLog(vo);
 
         response.sendRedirect("/yetable/list");
     }

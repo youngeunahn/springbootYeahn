@@ -44,7 +44,7 @@
 
     <insert id="insertLoginLog" parameterType="com.yeahn.model.LoginLogVo">
         INSERT INTO TB_LOG_LOGIN (
-            USER_SEQ
+            USER_ID
             , LOGIN_SUCCESS
             , STATUS_CODE
             , FAIL_REASON
@@ -56,8 +56,8 @@
             , LOGIN_REQ_OS
             , LOGIN_REQ_SESSION_ID
             , LOGIN_REQ_REFERRER
-            , LOGIN_REQ_UA_GRIGIN
-            , LOGIN_REQ_TIME
+            , LOGIN_REQ_UA_ORIGIN
+            , INS_DT
         ) VALUES (
               #{userId}
             , #{loginSuccess}
