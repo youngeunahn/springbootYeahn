@@ -1,22 +1,21 @@
 {{> layout/header }}
-{{> layout/leftmenu }}
 <script type="text/javascript">
     function fn_login(){
         $("#sendForm").submit();
     }
 </script>
-<div class="dashboard-wrapper">
-    <div class="dashboard-ecommerce">
-        <div class="container-fluid dashboard-content ">
-            <div class="col-4">
-                <div class="card">
-                    <div class="card-body p-4">
-                        <form id="sendForm" method="post" action="/login">
-                            <input type="text" name="userId" class="form-control" style="height: 50px; width: 100%" placeholder="아이디">
-                            <input type="text" name="password" class="form-control" style="height: 50px; width: 100%" placeholder="비밀번호"><br />
-                            <a href="#" class="btn btn-primary border-1 float-left text-white" onclick="fn_login();">로그인</a>
-                        </form>
-                    </div>
+<div class="dashboard-ecommerce">
+    <div class="container-fluid dashboard-content ">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form id="sendForm" method="post" action="/login">
+                        <input type="text" name="userId" class="form-control" style="height: 50px; width: 100%" placeholder="아이디">
+                        <input type="text" name="password" class="form-control" style="height: 50px; width: 100%" placeholder="비밀번호"><br />
+                        <a href="#" class="btn btn-primary border-1 float-left text-white" style="width: 100%" onclick="fn_login();">로그인</a>
+                        <br /><br />
+                        <a href="/signUp" class="btn btn-outline-secondary ms-2 border-1 float-left" style="width: 100%">회원가입</a>
+                    </form>
                 </div>
             </div>
         </div>
