@@ -10,14 +10,19 @@ import java.util.Collections;
 
 @Data
 public class UserVo implements UserDetails {
-    private int userNo;
     private String userId;
     private String userPwd;
     private String userName;
-    private String userEmail;
     private String userAuth;
-    private String insertDate;
-    private String updateDate;
+    private String grpAuth;
+    private String email1;
+    private String email2;
+    private String useYn;
+    private String delYn;
+    private String lockYn;
+    private String loginFailCnt;
+    private String insDt;
+    private String insIp;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -29,16 +34,9 @@ public class UserVo implements UserDetails {
         return this.userPwd;
     }
 
-    // 시큐리티의 userName
-    // -> 따라서 얘는 인증할 때 id를 봄
     @Override
     public String getUsername() {
         return this.userId;
-    }
-
-    // Vo의 userName !
-    public String getUserName(){
-        return this.userName;
     }
 
     @Override

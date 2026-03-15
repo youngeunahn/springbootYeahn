@@ -43,11 +43,9 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
-    public String signUpProcess(@RequestParam HashMap<String, Object> param){
-        UserVo uservo = new UserVo();
-        uservo.setUserId(param.get("userId").toString());
+    public String signUpProcess(@RequestParam HashMap<String, Object> param, UserVo uservo){
         uservo.setUserPwd(param.get("password").toString());
         userService.joinUser(uservo);
-        return "redirect:/yetable/list";
+        return "redirect:/login";
     }
 }

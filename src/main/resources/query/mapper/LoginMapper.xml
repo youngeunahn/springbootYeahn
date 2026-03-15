@@ -15,9 +15,35 @@
 
     <!-- 회원가입 -->
     <insert id="saveUser" parameterType="com.yeahn.model.UserVo">
-        INSERT INTO user
-        (id, password)
-        VALUES(#{userId},#{userPwd});
+        INSERT INTO TB_USER(
+            USER_ID
+            , USER_PWD
+            , USER_NAME
+            , USER_AUTH
+            , GRP_AUTH
+            , EMAIL1
+            , EMAIL2
+            , USE_YN
+            , DEL_YN
+            , LOCK_YN
+            , LOGIN_FAIL_CNT
+            , INS_DT
+            , INS_IP
+        ) VALUES (
+            #{userId}
+            , #{userPwd}
+            , #{userName}
+            , #{userAuth}
+            , #{grpAuth}
+            , #{email1}
+            , #{email2}
+            , 'Y'
+            , 'N'
+            , 'N'
+            , 0
+            , NOW()
+            , #{insIp}
+        );
     </insert>
 
 </mapper>
