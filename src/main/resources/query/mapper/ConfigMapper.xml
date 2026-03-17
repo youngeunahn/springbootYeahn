@@ -14,53 +14,211 @@
     </resultMap>
 
     <select id="getMenuList"  parameterType="com.yeahn.model.MenuConfig" resultMap="menu2" resultType="com.yeahn.dao.ConfigMapper">
-        select MENU1.MENU_CODE,
-               MENU1.MENU_TITLE,
-               MENU1.MENU_URL,
-               MENU1.MENU_LEVEL,
-               MENU1.MENU_PARENT,
-               MENU1.MENU_SEQ,
-               MENU1.DEL_YN
-        FROM menu MENU1,
-             menu MENU2
-        WHERE MENU1.MENU_PARENT = MENU2.MENU_CODE
-          AND MENU1.DEL_YN = 'N'
-        ORDER BY MENU1.`MENU_SEQ`
+        WITH RECURSIVE menu AS (
+            SELECT
+                MENU_SEQ
+                , MENU_CODE
+                , MENU_TITLE
+                , MENU_URL
+                , MENU_PARENT
+                , 0 MENU_LEVEL
+                , SORT_ORDER
+                , CAST(LPAD(SORT_ORDER,5,'0') AS CHAR(200)) AS sort_path
+                , DEL_YN
+            FROM TB_MENU
+            WHERE MENU_CODE = 'ROOT'
+
+            UNION ALL
+
+            SELECT
+                m.MENU_SEQ
+                , m.MENU_CODE
+                , m.MENU_TITLE
+                , m.MENU_URL
+                , m.MENU_PARENT
+                , menu.MENU_LEVEL + 1 MENU_LEVEL
+                , m.SORT_ORDER
+                , CONCAT(menu.sort_path, LPAD(m.SORT_ORDER,5,'0'))
+                , m.DEL_YN
+            FROM TB_MENU m
+            JOIN menu ON m.MENU_PARENT = menu.MENU_CODE
+        )
+        SELECT
+            MENU_CODE
+            , MENU_TITLE
+            , MENU_URL
+            , MENU_PARENT
+            , MENU_LEVEL
+            , MENU_SEQ
+            , DEL_YN
+        FROM menu
+        WHERE MENU_CODE != 'ROOT'
+        AND DEL_YN = 'N'
+        ORDER BY sort_path
     </select>
 
     <select id="getMenuPage" parameterType="string" resultType="com.yeahn.model.MenuConfig">
-        select MENU_CODE, MENU_TITLE, MENU_GNB
+        WITH RECURSIVE menu AS (
+            SELECT
+                MENU_CODE
+                , MENU_TITLE
+                , MENU_TITLE AS MENU_GNB
+                , DEL_YN
+            FROM TB_MENU
+            WHERE MENU_CODE = 'ROOT'
+
+            UNION ALL
+
+            SELECT
+                m.MENU_CODE
+                , m.MENU_TITLE
+                , concat(menu.MENU_GNB, ' > ', m.MENU_TITLE) AS MENU_GNB
+                , m.DEL_YN
+            FROM TB_MENU m
+            JOIN menu ON m.MENU_PARENT = menu.MENU_CODE
+        )
+        SELECT
+            MENU_CODE
+            , MENU_TITLE
+            , MENU_GNB
         FROM menu
         WHERE MENU_CODE = #{value}
     </select>
 
     <select id="getMenuConfigList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
-        select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_CHILD_YN, MENU_PARENT
-        FROM menu
-        ORDER BY MENU_SEQ
+        WITH RECURSIVE menu_tree AS (
+            SELECT
+                MENU_CODE
+                , MENU_TITLE
+                , MENU_PARENT
+                , 0 AS MENU_LEVEL
+                , CAST(LPAD(SORT_ORDER,5,'0') AS CHAR(200)) AS sort_path
+            FROM TB_MENU
+            WHERE MENU_PARENT IS NULL
+
+            UNION ALL
+
+            SELECT
+                m.MENU_CODE,
+                m.MENU_TITLE,
+                m.MENU_PARENT,
+                mt.MENU_LEVEL + 1
+                , CONCAT(mt.sort_path, LPAD(m.SORT_ORDER,5,'0'))
+            FROM TB_MENU m
+            JOIN menu_tree mt
+                ON m.MENU_PARENT = mt.MENU_CODE
+        )
+        SELECT
+            mt.MENU_CODE,
+            mt.MENU_TITLE,
+            mt.MENU_LEVEL,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM TB_MENU c
+                    WHERE c.MENU_PARENT = mt.MENU_CODE
+                ) THEN 'true'
+                ELSE 'false'
+            END AS MENU_CHILD_YN,
+            mt.MENU_PARENT
+        FROM menu_tree mt
+        ORDER BY mt.sort_path
     </select>
 
     <select id="getMenuChildList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
-        select MENU_CODE, MENU_TITLE, MENU_LEVEL, MENU_CHILD_YN, MENU_PARENT
-        FROM menu
-        WHERE MENU_PARENT = #{value}
-        ORDER BY MENU_SEQ
+        WITH RECURSIVE menu_tree AS (
+            SELECT
+                MENU_CODE
+                , MENU_TITLE
+                , MENU_PARENT
+                , 0 AS MENU_LEVEL
+                , CAST(LPAD(SORT_ORDER,5,'0') AS CHAR(200)) AS sort_path
+            FROM TB_MENU
+            WHERE MENU_PARENT IS NULL
+
+            UNION ALL
+
+            SELECT
+                m.MENU_CODE,
+                m.MENU_TITLE,
+                m.MENU_PARENT,
+                mt.MENU_LEVEL + 1
+                , CONCAT(mt.sort_path, LPAD(m.SORT_ORDER,5,'0'))
+            FROM TB_MENU m
+            JOIN menu_tree mt
+                ON m.MENU_PARENT = mt.MENU_CODE
+        )
+        SELECT
+            mt.MENU_CODE,
+            mt.MENU_TITLE,
+            mt.MENU_LEVEL,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM TB_MENU c
+                    WHERE c.MENU_PARENT = mt.MENU_CODE
+                ) THEN 'true'
+                ELSE 'false'
+            END AS MENU_CHILD_YN,
+            mt.MENU_PARENT
+        FROM menu_tree mt
+        WHERE mt.MENU_PARENT = #{value}
+        ORDER BY mt.sort_path
     </select>
 
     <select id="getMenuDetail" parameterType="string" resultType="map">
-        select
-               MENU_CODE,
-               MENU_SEQ,
-               MENU_TITLE,
-               MENU_URL,
-               MENU_GNB,
-               MENU_PARENT,
-               MENU_LEVEL,
-               MENU_CHILD_YN,
-               MENU_GROUP,
-               DEL_YN
-        FROM menu
-        WHERE MENU_CODE = #{value}
+        WITH RECURSIVE menu AS (
+            SELECT
+                MENU_SEQ
+                , MENU_CODE
+                , MENU_TITLE
+                , MENU_TITLE AS MENU_GNB
+                , MENU_URL
+                , MENU_PARENT
+                , 0 MENU_LEVEL
+                , SORT_ORDER
+                , CAST(LPAD(SORT_ORDER,5,'0') AS CHAR(200)) AS sort_path
+                , DEL_YN
+            FROM TB_MENU
+            WHERE MENU_CODE = 'ROOT'
+
+            UNION ALL
+
+            SELECT
+                m.MENU_SEQ
+                , m.MENU_CODE
+                , m.MENU_TITLE
+                , concat(menu.MENU_GNB, ' > ', m.MENU_TITLE) AS MENU_GNB
+                , m.MENU_URL
+                , m.MENU_PARENT
+                , menu.MENU_LEVEL + 1 MENU_LEVEL
+                , m.SORT_ORDER
+                , CONCAT(menu.sort_path, LPAD(m.SORT_ORDER,5,'0'))
+                , m.DEL_YN
+            FROM TB_MENU m
+            JOIN menu ON m.MENU_PARENT = menu.MENU_CODE
+        )
+        SELECT
+            m.MENU_CODE
+            , m.MENU_SEQ
+            , m.MENU_TITLE
+            , m.MENU_URL
+            , m.MENU_GNB
+            , m.MENU_PARENT
+            , m.MENU_LEVEL
+            , CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM TB_MENU c
+                    WHERE c.MENU_PARENT = m.MENU_CODE
+                ) THEN 'true'
+                ELSE 'false'
+            END AS MENU_CHILD_YN
+            , '' MENU_GROUP
+            , m.DEL_YN
+        FROM menu m
+        WHERE m.MENU_CODE = #{value}
+        ORDER BY sort_path
     </select>
 
     <update id="updateMenu" parameterType="map" >

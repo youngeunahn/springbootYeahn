@@ -72,7 +72,7 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 
 				MenuConfig MenuPage = new MenuConfig();
 				if(request.getParameter("menuCode") == null){
-					MenuPage = configService.getMenuPage("MENU");
+					MenuPage = configService.getMenuPage("ROOT");
 				} else{
 					MenuPage = configService.getMenuPage(request.getParameter("menuCode"));
 				}
