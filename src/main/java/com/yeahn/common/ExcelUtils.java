@@ -1,7 +1,6 @@
 package com.yeahn.common;
 
-import com.yeahn.model.ExcelTest;
-import com.yeahn.model.YeahnTable;
+import com.yeahn.yetable.dto.YeahnTable;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;

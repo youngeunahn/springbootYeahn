@@ -4,7 +4,7 @@
 
 <mapper namespace="LogMapper">
 
-    <insert id="insertAccessLog" parameterType="com.yeahn.model.AccessLogVo">
+    <insert id="insertAccessLog" parameterType="com.yeahn.log.dto.AccessLogVo">
         INSERT INTO TB_LOG_ACCESS (
             ACCESS_MENU_SEQ
             , ACCESS_URI
@@ -42,7 +42,7 @@
         )
     </insert>
 
-    <insert id="insertLoginLog" parameterType="com.yeahn.model.LoginLogVo">
+    <insert id="insertLoginLog" parameterType="com.yeahn.log.dto.LoginLogVo">
         INSERT INTO TB_LOG_LOGIN (
             USER_ID
             , LOGIN_SUCCESS

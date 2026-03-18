@@ -1,0 +1,65 @@
+{{> layout/header }}
+{{> layout/leftmenu }}
+{{> layout/gnb }}
+<!-- ============================================================== -->
+<!-- main  -->
+<!-- ============================================================== -->
+<script>
+    $(document).ready(function () {
+
+    })
+</script>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-body">
+        <form id="sendForm" method="post">
+            <label for="tplCode" class="form-label">운동 종류</label>
+            <select class="form-control" id="tplCode" style="display: inline; width: 10%;">
+                <option selected="">선택</option>
+                <option value="1"></option>
+                <option value="2"></option>
+            </select>
+
+            <label for="tplName" class="form-label">템플릿 명</label>
+            <input type="text" class="form-control" name="TPL_NAME" id="tplName" style="display: inline; width: 10%;"/>
+
+            <a href="#" class="btn btn-primary border-1 text-white" onclick="fn_update();">검색</a>
+        </form>
+        </div>
+    </div>
+    <div class="col-4">
+        <h5 class="card-header border-1">템플릿 리스트</h5>
+        <div class="card card-body">
+            <div class="list-group">
+                <a href="#" class="list-group-item">asdf</a>
+                <a href="#" class="list-group-item active"> >> asdf</a>
+                <a href="#" class="list-group-item"> >> asdf</a>
+                <a href="#" class="list-group-item"> >> asdf</a>
+                <a href="#" class="list-group-item">asdf</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-8">
+        <h5 class="card-header border-1">템플릿 조회 / 추가</h5>
+        <div class="card card-body">
+            <div class="mb-4">
+                <label for="siteName" class="form-label">Site Name</label>
+                <input type="text" class="form-control" id="siteName" value="Concept Dashboard">
+                <small class="form-text text-muted">The name of your website displayed in the header and title</small>
+            </div>
+
+            <div class="text-center" style="">
+                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
+                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
+                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
+                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- end main  -->
+<!-- ============================================================== -->
+
+{{> layout/footer }}

@@ -1,9 +1,9 @@
 package com.yeahn.security.handler;
 
-import com.yeahn.model.LoginLogVo;
-import com.yeahn.model.UserAgentInfo;
-import com.yeahn.security.service.LogService;
-import com.yeahn.security.service.UserAgentService;
+import com.yeahn.log.dto.LoginLogVo;
+import com.yeahn.common.UserAgentInfo;
+import com.yeahn.log.service.LogService;
+import com.yeahn.common.UserAgentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;

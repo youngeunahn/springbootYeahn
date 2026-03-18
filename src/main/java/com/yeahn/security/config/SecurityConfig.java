@@ -2,7 +2,7 @@ package com.yeahn.security.config;
 
 import com.yeahn.security.handler.LoginFailureHandler;
 import com.yeahn.security.handler.LoginSuccessHandler;
-import com.yeahn.security.service.UserService;
+import com.yeahn.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;

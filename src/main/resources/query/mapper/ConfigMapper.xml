@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="ConfigMapper">
-    <resultMap type="com.yeahn.model.MenuConfig" id="menu2">
+    <resultMap type="com.yeahn.menu.dto.MenuConfig" id="menu2">
         <result column="MENU_CODE" property="MENU_CODE"/>
         <result column="MENU_TITLE" property="MENU_TITLE"/>
         <result column="MENU_URL" property="MENU_URL"/>
@@ -13,7 +13,7 @@
         <result column="DEL_YN" property="DEL_YN"/>
     </resultMap>
 
-    <select id="getMenuList"  parameterType="com.yeahn.model.MenuConfig" resultMap="menu2" resultType="com.yeahn.dao.ConfigMapper">
+    <select id="getMenuList" parameterType="com.yeahn.menu.dto.MenuConfig" resultMap="menu2" resultType="com.yeahn.menu.dao.MenuMapper">
         WITH RECURSIVE menu AS (
             SELECT
                 MENU_SEQ
@@ -57,7 +57,7 @@
         ORDER BY sort_path
     </select>
 
-    <select id="getMenuPage" parameterType="string" resultType="com.yeahn.model.MenuConfig">
+    <select id="getMenuPage" parameterType="string" resultType="com.yeahn.menu.dto.MenuConfig">
         WITH RECURSIVE menu AS (
             SELECT
                 MENU_CODE
@@ -85,7 +85,7 @@
         WHERE MENU_CODE = #{value}
     </select>
 
-    <select id="getMenuConfigList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
+    <select id="getMenuConfigList" parameterType="string" resultType="com.yeahn.menu.dto.MenuConfig">
         WITH RECURSIVE menu_tree AS (
             SELECT
                 MENU_CODE
@@ -125,7 +125,7 @@
         ORDER BY mt.sort_path
     </select>
 
-    <select id="getMenuChildList" parameterType="string" resultType="com.yeahn.model.MenuConfig">
+    <select id="getMenuChildList" parameterType="string" resultType="com.yeahn.menu.dto.MenuConfig">
         WITH RECURSIVE menu_tree AS (
             SELECT
                 MENU_CODE

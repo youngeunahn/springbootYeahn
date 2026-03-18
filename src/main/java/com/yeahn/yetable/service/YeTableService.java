@@ -1,0 +1,14 @@
+package com.yeahn.yetable.service;
+
+import com.yeahn.yetable.dto.YeahnTable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+import java.util.Map;
+
+public interface YeTableService {
+    public List<YeahnTable> getYeahnTableList();
+    public int editYeahnTable(YeahnTable model);
+    public int insertYetable(@RequestParam Map<String, Object> params);
+    public YeahnTable getYeahnTableData(@RequestParam Map<String, Object> params);
+}

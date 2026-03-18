@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.yeahn.dao.UserMapper">
+<mapper namespace="com.yeahn.auth.dao.UserMapper">
     <!-- 로그인 -->
-    <select id="getUserAccount" parameterType="String" resultType="com.yeahn.model.UserVo">
+    <select id="getUserAccount" parameterType="String" resultType="com.yeahn.auth.dto.UserVo">
         SELECT
             USER_ID userId
             , USER_PWD userPwd
@@ -14,7 +14,7 @@
     </select>
 
     <!-- 회원가입 -->
-    <insert id="saveUser" parameterType="com.yeahn.model.UserVo">
+    <insert id="saveUser" parameterType="com.yeahn.auth.dto.UserVo">
         INSERT INTO TB_USER(
             USER_ID
             , USER_PWD

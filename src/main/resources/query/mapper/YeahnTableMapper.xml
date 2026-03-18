@@ -3,11 +3,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="YeTableMapper">
-    <select id="getYeahnTableList" resultType="com.yeahn.model.YeahnTable">
+    <select id="getYeahnTableList" resultType="com.yeahn.yetable.dto.YeahnTable">
         SELECT * FROM yeahn_table;
     </select>
 
-    <update id="editYeahnTable" parameterType="com.yeahn.model.YeahnTable">
+    <update id="editYeahnTable" parameterType="com.yeahn.yetable.dto.YeahnTable">
         UPDATE yeahn_table
         SET TITLE = #{TITLE}
         WHERE NO = #{NO}
@@ -18,7 +18,7 @@
         VALUES (#{TITLE}, #{CONTENT}, #{REG_DATE}, #{REG_ID})
     </insert>
 
-    <select id="getYeahnTable" resultType="com.yeahn.model.YeahnTable">
+    <select id="getYeahnTable" resultType="com.yeahn.yetable.dto.YeahnTable">
         SELECT * FROM yeahn_table where NO = #{NO};
     </select>
 </mapper>

@@ -1,9 +1,9 @@
 package com.yeahn.security.filter;
 
-import com.yeahn.model.AccessLogVo;
-import com.yeahn.model.UserAgentInfo;
-import com.yeahn.security.service.LogService;
-import com.yeahn.security.service.UserAgentService;
+import com.yeahn.log.dto.AccessLogVo;
+import com.yeahn.common.UserAgentInfo;
+import com.yeahn.log.service.LogService;
+import com.yeahn.common.UserAgentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;

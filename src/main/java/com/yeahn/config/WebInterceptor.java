@@ -6,8 +6,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.yeahn.model.MenuConfig;
-import com.yeahn.config.service.ConfigService;
+import com.yeahn.menu.service.MenuService;
+import com.yeahn.menu.dto.MenuConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 public class WebInterceptor extends HandlerInterceptorAdapter {
 
 	@Autowired
-	private ConfigService configService;
+	private MenuService menuService;
 
 	private static final Logger logger = LoggerFactory.getLogger(WebInterceptor.class);
 
@@ -59,7 +59,7 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 		logger.info("requestURI:::::::"+requestURI );
 		if(requestURI.indexOf("/error") > -1){
 		}else{
-			List<MenuConfig> MenuList = configService.getMenuList("menuList");
+			List<MenuConfig> MenuList = menuService.getMenuList("menuList");
 			if (modelAndView != null){
 				for (MenuConfig menulist : MenuList){
 					if (menulist.getMENU_LEVEL()==1)
@@ -72,9 +72,9 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 
 				MenuConfig MenuPage = new MenuConfig();
 				if(request.getParameter("menuCode") == null){
-					MenuPage = configService.getMenuPage("ROOT");
+					MenuPage = menuService.getMenuPage("ROOT");
 				} else{
-					MenuPage = configService.getMenuPage(request.getParameter("menuCode"));
+					MenuPage = menuService.getMenuPage(request.getParameter("menuCode"));
 				}
 				modelAndView.addObject("MenuPage", MenuPage);
 			}
