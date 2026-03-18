@@ -14,28 +14,28 @@
     <div class="col-12">
         <div class="card card-body">
         <form id="sendForm" method="post">
-            <label for="tplCode" class="form-label">운동 종류</label>
-            <select class="form-control" id="tplCode" style="display: inline; width: 10%;">
-                <option selected="">선택</option>
-                <option value="1"></option>
-                <option value="2"></option>
-            </select>
-
-            <label for="tplName" class="form-label">템플릿 명</label>
-            <input type="text" class="form-control" name="TPL_NAME" id="tplName" style="display: inline; width: 10%;"/>
-
-            <a href="#" class="btn btn-primary border-1 text-white" onclick="fn_update();">검색</a>
+            <div>
+                <label class="form-label">운동 선택</label>
+                <input type="button" class="form-control btn btn-primary border-1 text-white" value="asdf" style="display: inline; width: 10%" >
+                <input type="button" class="form-control btn border-1" value="asdf" style="display: inline; width: 10%">
+                <label for="tplName" class="form-label">&nbsp;&nbsp;템플릿 검색</label>
+                <input type="text" class="form-control" name="TPL_NAME" id="tplName" style="display: inline; width: 20%;"/>
+                <a href="#" class="btn btn-primary border-1 text-white" onclick="fn_update();">검색</a>
+            </div>
         </form>
         </div>
     </div>
     <div class="col-4">
-        <h5 class="card-header border-1">템플릿 리스트</h5>
-        <div class="card card-body">
+        <h5 class="card-header border-1">
+            템플릿 리스트
+            <a href="#" id="childMenuCreate" class="btn btn-primary float-right text-white btn-xs" data-toggle="modal" data-target="#insertMenuCodeModal" style="">템플릿 추가</a>
+        </h5>
+        <div class="card card-body p-0">
             <div class="list-group">
                 <a href="#" class="list-group-item">asdf</a>
-                <a href="#" class="list-group-item active"> >> asdf</a>
-                <a href="#" class="list-group-item"> >> asdf</a>
-                <a href="#" class="list-group-item"> >> asdf</a>
+                <a href="#" class="list-group-item active">asdf</a>
+                <a href="#" class="list-group-item">asdf</a>
+                <a href="#" class="list-group-item">asdf</a>
                 <a href="#" class="list-group-item">asdf</a>
             </div>
         </div>
@@ -45,14 +45,11 @@
         <div class="card card-body">
             <div class="mb-4">
                 <label for="siteName" class="form-label">Site Name</label>
-                <input type="text" class="form-control" id="siteName" value="Concept Dashboard">
+                <input type="text" class="form-control" id="siteName">
                 <small class="form-text text-muted">The name of your website displayed in the header and title</small>
             </div>
 
             <div class="text-center" style="">
-                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
-                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
-                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
                 <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
             </div>
         </div>
