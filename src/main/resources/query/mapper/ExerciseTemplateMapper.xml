@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ExerciseTemplateMapper">
+
+    <select id="selectTplTypeCode">
+        SELECT
+            DISTINCT FN_GET_COMM_CODE_DESC('TPL_TYPE_CODE', TPL_TYPE_CODE)
+        FROM TB_EXER TE
+        INNER JOIN TB_EXER_ATTR TEA
+        ON TE.TPL_ATTR_SEQ = TEA.TPL_ATTR_SEQ
+        WHERE TEA.USE_YN = 'Y'
+        AND TEA.DEL_YN = 'N'
+    </select>
+
+</mapper>
