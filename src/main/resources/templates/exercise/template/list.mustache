@@ -13,16 +13,43 @@
 <div class="row">
     <div class="col-10">
         <div class="card card-body">
-        <form id="sendForm" method="post">
-            <div>
-                <label class="form-label">운동 선택</label>
-                <input type="button" class="form-control btn btn-primary border-1 text-white" value="수영" style="display: inline; width: 10%" >
-                <input type="button" class="form-control btn border-1" value="헬스" style="display: inline; width: 10%">
-                <label for="tplName" class="form-label">&nbsp;&nbsp;템플릿 검색</label>
-                <input type="text" class="form-control" name="TPL_NAME" id="tplName" style="display: inline; width: 20%;"/>
-                <a href="#" class="btn btn-primary border-1 text-white" onclick="fn_update();">검색</a>
+            <div class="d-flex">
+                <div>
+                    <!-- 1줄 -->
+                    <div class="d-flex align-items-center mb-2">
+                        <label class="form-label mb-0 mr-0" style="width: 100px;">
+                            운동 선택
+                        </label>
+                        <button class="btn btn-primary mr-2">수영</button>
+                        <button class="btn btn-outline-primary mr-3">헬스</button>
+
+                        <div id="categoryButtons" class="d-flex flex-wrap">
+                            <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
+                            <button class="btn btn-sm btn-outline-secondary m-1">가슴</button>
+                            <button class="btn btn-sm btn-outline-secondary m-1">등</button>
+                            <button class="btn btn-sm btn-outline-secondary m-1">하체</button>
+                            <button class="btn btn-sm btn-outline-secondary m-1">어깨</button>
+                            <button class="btn btn-sm btn-outline-secondary m-1">팔</button>
+                        </div>
+                    </div>
+
+                    <!-- 2줄 -->
+                    <div class="d-flex align-items-center">
+                        <label for="tplName" class="form-label mb-0 mr-0"style="width: 100px;">
+                            템플릿 검색
+                        </label>
+                        <input type="text" id="tplName" class="form-control" placeholder="운동명 또는 분류 검색">
+                    </div>
+                </div>
+
+                <!-- 검색 버튼 -->
+                <div class="ml-2 d-flex align-items-stretch">
+                    <button class="btn btn-primary d-flex align-items-center justify-content-center"
+                            style="width: 70px;">
+                        검색
+                    </button>
+                </div>
             </div>
-        </form>
         </div>
     </div>
     <div class="col-4">
@@ -52,25 +79,68 @@
                 <label for="siteName" class="form-label">운동 목록</label>
                 <div class="list-group">
                     <div class="list-group-item">
-                        <span>벤치프레스</span>
-                        <span class="badge badge-info ml-2">3세트</span>
-                        <span class="badge badge-info ml-1">10회</span>
-                        <small class="form-text text-muted">메모메모메모메모</small>
+
+                        <!-- 1줄: 분류 -->
+                        <div class="small text-primary mb-1 ml-4">
+                            가슴 > 프레스 > 바벨
+                        </div>
+
+                        <!-- 2줄: 운동 + 세트 -->
+                        <div class="d-flex align-items-center">
+                            <span class="mr-2 drag-handle text-muted">☰</span>
+                            <span>벤치프레스</span>
+                            <span class="badge badge-info ml-2">3세트</span>
+                            <span class="badge badge-info ml-1">10회</span>
+                        </div>
+
+                        <!-- 3줄: 메모 -->
+                        <div class="text-muted small mt-1 ml-4">
+                            메모메모메모
+                        </div>
                     </div>
+
                     <div class="list-group-item">
-                        <span>벤치프레스</span>
-                        <span class="badge badge-info ml-2">3세트</span>
-                        <span class="badge badge-info ml-1">10회</span>
-                        <small class="form-text text-muted">메모메모메모메모</small>
+                        <!-- 1줄: 분류 -->
+                        <div class="small text-primary mb-1 ml-4">
+                            가슴 > 프레스 > 바벨
+                        </div>
+
+                        <!-- 2줄: 운동 + 세트 -->
+                        <div class="d-flex align-items-center">
+                            <span class="mr-2 drag-handle text-muted">☰</span>
+                            <span>벤치프레스</span>
+                            <span class="badge badge-info ml-2">3세트</span>
+                            <span class="badge badge-info ml-1">10회</span>
+                        </div>
+
+                        <!-- 3줄: 메모 -->
+                        <div class="text-muted small mt-1 ml-4">
+                            메모메모메모
+                        </div>
                     </div>
+
                     <div class="list-group-item">
-                        <span>벤치프레스</span>
-                        <span class="badge badge-info ml-2">3세트</span>
-                        <span class="badge badge-info ml-1">10회</span>
-                        <small class="form-text text-muted">메모메모메모메모</small>
+
+                        <!-- 1줄: 분류 -->
+                        <div class="small text-primary mb-1 ml-4">
+                            가슴 > 프레스 > 바벨
+                        </div>
+
+                        <!-- 2줄: 운동 + 세트 -->
+                        <div class="d-flex align-items-center">
+                            <span class="mr-2 drag-handle text-muted">☰</span>
+                            <span>벤치프레스</span>
+                            <span class="badge badge-info ml-2">3세트</span>
+                            <span class="badge badge-info ml-1">10회</span>
+                        </div>
+
+                        <!-- 3줄: 메모 -->
+                        <div class="text-muted small mt-1 ml-4">
+                            메모메모메모
+                        </div>
                     </div>
-                    <br>
-                    <button class="btn btn-sm btn-primary" onclick="addExercise()">
+
+                    <button class="btn btn-sm btn-primary mt-2" onclick="addExercise()">
                         + 운동 추가
                     </button>
                 </div>

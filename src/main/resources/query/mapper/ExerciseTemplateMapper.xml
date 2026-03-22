@@ -5,13 +5,11 @@
 <mapper namespace="ExerciseTemplateMapper">
 
     <select id="selectTplTypeCode">
-        SELECT
-            DISTINCT FN_GET_COMM_CODE_DESC('TPL_TYPE_CODE', TPL_TYPE_CODE)
-        FROM TB_EXER TE
-        INNER JOIN TB_EXER_ATTR TEA
-        ON TE.TPL_ATTR_SEQ = TEA.TPL_ATTR_SEQ
-        WHERE TEA.USE_YN = 'Y'
-        AND TEA.DEL_YN = 'N'
+        SELECT TYPE_CODE, CODE_DESC
+        FROM TB_COMM_CODE
+        WHERE USE_YN = 'Y'
+        AND DEL_YN = 'N'
+        AND TYPE_CLASS='TPL_TYPE_CODE'
     </select>
 
 </mapper>
