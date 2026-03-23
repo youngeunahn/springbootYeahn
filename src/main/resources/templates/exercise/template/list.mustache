@@ -5,9 +5,43 @@
 <!-- main  -->
 <!-- ============================================================== -->
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
+        // 운동 순서 버튼 그룹
+        $('.phase-group').each(function() {
+            const $phaseGroup = $(this);
+            const $phaseAllBtn = $phaseGroup.find('button:first-child');
+            const $phaseBtns = $phaseGroup.find('button:not(:first-child)');
 
-    })
+            $phaseBtns.click(function() {
+                $phaseAllBtn.removeClass('active');
+                $phaseBtns.removeClass('active');
+                $(this).addClass('active');
+            });
+
+            $phaseAllBtn.click(function() {
+                $phaseBtns.removeClass('active');
+                $phaseAllBtn.addClass('active');
+            });
+        });
+
+        // 종류 버튼 그룹
+        $('.category-group').each(function() {
+            const $catGroup = $(this);
+            const $catAllBtn = $catGroup.find('button:first-child');
+            const $catBtns = $catGroup.find('button:not(:first-child)');
+
+            $catBtns.click(function() {
+                $catAllBtn.removeClass('active');
+                $catBtns.removeClass('active');
+                $(this).addClass('active');
+            });
+
+            $catAllBtn.click(function() {
+                $catBtns.removeClass('active');
+                $catAllBtn.addClass('active');
+            });
+        });
+    });
 </script>
 
 <div class="row">
@@ -15,40 +49,72 @@
         <div class="card card-body">
             <div class="d-flex">
                 <div>
-                    <!-- 1줄 -->
                     <div class="d-flex align-items-center mb-2">
-                        <label class="form-label mb-0 mr-0" style="width: 100px;">
+                        <label class="form-label mb-0 mr-0" style="width: 70px;">
                             운동 선택
                         </label>
-                        <button class="btn btn-primary mr-2">수영</button>
-                        <button class="btn btn-outline-primary mr-3">헬스</button>
 
-                        <div id="categoryButtons" class="d-flex flex-wrap">
-                            <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
-                            <button class="btn btn-sm btn-outline-secondary m-1">가슴</button>
-                            <button class="btn btn-sm btn-outline-secondary m-1">등</button>
-                            <button class="btn btn-sm btn-outline-secondary m-1">하체</button>
-                            <button class="btn btn-sm btn-outline-secondary m-1">어깨</button>
-                            <button class="btn btn-sm btn-outline-secondary m-1">팔</button>
+                        {{#typeCode}}
+                            {{#isFirst}}
+                                <button class="btn btn-sm btn-primary mr-2" style="min-width: 15%;">{{codeDesc}}</button>
+                            {{/isFirst}}
+                            {{^isFirst}}
+                                <button class="btn btn-sm btn-outline-primary mr-2" style="min-width: 15%;">{{codeDesc}}</button>
+                            {{/isFirst}}
+                        {{/typeCode}}
+
+                        <label for="tplName" class="form-label mb-0 ml-3 mr-2">
+                            템플릿
+                        </label>
+
+                        <div class="d-flex" style="flex:1; max-width: 400px;">
+                            <input type="text" id="tplName" class="form-control" placeholder="템플릿 검색">
                         </div>
                     </div>
 
-                    <!-- 2줄 -->
+                    <!-- 2줄: Phase + Category -->
                     <div class="d-flex align-items-center">
-                        <label for="tplName" class="form-label mb-0 mr-0"style="width: 100px;">
-                            템플릿 검색
-                        </label>
-                        <input type="text" id="tplName" class="form-control" placeholder="운동명 또는 분류 검색">
+
+                        <!-- Phase -->
+                        <div class="d-flex align-items-center mr-4">
+                            <label class="form-label mb-0 mr-0" style="width: 70px;">
+                                운동 순서
+                            </label>
+                            <div class="d-flex flex-wrap phase-group">
+                                <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
+                                {{#tplPhase}}
+                                    <button class="btn btn-sm btn-outline-secondary m-1">{{codeDesc}}</button>
+                                {{/tplPhase}}
+                            </div>
+                        </div>
+
+                        <!-- 구분선 -->
+                        <div style="width:1px; height:30px; background:#ddd;"></div>
+
+                        <!-- Category -->
+                        <div class="d-flex align-items-center ml-4">
+                            <label class="form-label mb-0 mr-2">
+                                종류
+                            </label>
+                            <div class="d-flex flex-wrap category-group">
+                                <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
+                                {{#tplCategory}}
+                                    <button class="btn btn-sm btn-outline-secondary m-1">{{codeDesc}}</button>
+                                {{/tplCategory}}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
-                <!-- 검색 버튼 -->
-                <div class="ml-2 d-flex align-items-stretch">
+                <!-- 검색 버튼 (2행 병합 느낌) -->
+                <div class="ml-3 d-flex align-items-stretch">
                     <button class="btn btn-primary d-flex align-items-center justify-content-center"
-                            style="width: 70px;">
+                            style="width: 80px;">
                         검색
                     </button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -59,17 +125,26 @@
         </h5>
         <div class="card card-body p-0">
             <div class="list-group">
-                <a href="#" class="list-group-item">asdf</a>
-                <a href="#" class="list-group-item active">asdf</a>
-                <a href="#" class="list-group-item">asdf</a>
-                <a href="#" class="list-group-item">asdf</a>
-                <a href="#" class="list-group-item">asdf</a>
+                {{#tplList}}
+                    <a href="#" class="list-group-item">{{tplName}}</a>
+                {{/tplList}}
             </div>
         </div>
     </div>
     <div class="col-6">
         <h5 class="card-header border-1">템플릿 조회 / 추가</h5>
         <div class="card card-body">
+            <div id="emptyTemplate" class="text-center">
+                <div class="text-muted" style="padding: 80px 0;">
+                    <div style="font-size: 40px;">📋</div>
+                    <div style="font-size: 18px; margin-top: 10px;">
+                        템플릿을 선택해주세요
+                    </div>
+                    <div style="font-size: 13px;">
+                        왼쪽 목록에서 선택하면 상세 정보가 표시됩니다
+                    </div>
+                </div>
+            </div>
             <div class="col-12 mb-4">
                 <label for="siteName" class="form-label">템플릿 이름</label>
                 <input type="text" class="form-control" id="siteName">
@@ -78,6 +153,7 @@
             <div class="col-12 mb-4">
                 <label for="siteName" class="form-label">운동 목록</label>
                 <div class="list-group">
+
                     <div class="list-group-item">
 
                         <!-- 1줄: 분류 -->
@@ -156,5 +232,3 @@
 <!-- ============================================================== -->
 <!-- end main  -->
 <!-- ============================================================== -->
-
-{{> layout/footer }}

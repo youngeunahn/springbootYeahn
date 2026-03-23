@@ -4,12 +4,22 @@
 
 <mapper namespace="ExerciseTemplateMapper">
 
-    <select id="selectTplTypeCode">
-        SELECT TYPE_CODE, CODE_DESC
-        FROM TB_COMM_CODE
-        WHERE USE_YN = 'Y'
-        AND DEL_YN = 'N'
-        AND TYPE_CLASS='TPL_TYPE_CODE'
+    <select id="selectTplList" resultType="com.yeahn.template.dto.TemplateDto">
+        SELECT
+           tpl.TPL_SEQ tplSeq
+           , tpl.TPL_NAME tplName
+        FROM TB_EXER_TPL tpl
+        INNER JOIN TB_EXER exer
+        ON tpl.TPL_SEQ = exer.TPL_SEQ
+        INNER JOIN TB_EXER_ATTR attr
+        ON exer.TPL_ATTR_SEQ = attr.TPL_ATTR_SEQ
+        WHERE tpl.USE_YN = 'Y'
+        AND tpl.DEL_YN = 'N'
+        AND attr.TPL_TYPE_CODE = #{tplTypeCode}
+        GROUP BY tpl.TPL_SEQ
+           , tpl.TPL_NAME
+           , attr.TPL_TYPE_CODE
+        ORDER BY tpl.SORT_ORDER
     </select>
 
 </mapper>
