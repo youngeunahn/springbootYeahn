@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CommonMapper">
+
+    <select id="selectCodeList" resultType="com.yeahn.common.code.CodeDto">
+        SELECT
+            TYPE_CODE typeCode
+            , CODE_DESC codeDesc
+            , SORT_ORDER sortOrder
+        FROM TB_COMM_CODE
+        WHERE USE_YN = 'Y'
+        AND DEL_YN = 'N'
+        AND TYPE_CLASS = #{typeClass}
+        <if test="ref1 != null and ref1 != ''">
+            AND REF_1 = #{ref1}
+        </if>
+        ORDER BY SORT_ORDER
+    </select>
+
+</mapper>
