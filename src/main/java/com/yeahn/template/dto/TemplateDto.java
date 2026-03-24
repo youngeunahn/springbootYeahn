@@ -2,11 +2,16 @@ package com.yeahn.template.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TemplateDto {
     private Integer tplSeq;
     private String tplName;
     private String tplPhase;
+
+    private List<String> tplPhaseList;
+    private List<String> tplCategoryList;
 
     private Integer tplAttrSeq;
     private String tplTypeCode;

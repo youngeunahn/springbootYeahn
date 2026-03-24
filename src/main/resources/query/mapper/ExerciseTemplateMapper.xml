@@ -4,7 +4,7 @@
 
 <mapper namespace="ExerciseTemplateMapper">
 
-    <select id="selectTplList" resultType="com.yeahn.template.dto.TemplateDto">
+    <select id="getTplList" resultType="com.yeahn.template.dto.TemplateDto">
         SELECT
            tpl.TPL_SEQ tplSeq
            , tpl.TPL_NAME tplName
@@ -17,6 +17,43 @@
         WHERE tpl.USE_YN = 'Y'
         AND tpl.DEL_YN = 'N'
         AND attr.TPL_TYPE_CODE = #{tplTypeCode}
+        GROUP BY tpl.TPL_SEQ
+           , tpl.TPL_NAME
+           , attr.TPL_TYPE_CODE
+        ORDER BY tpl.SORT_ORDER
+    </select>
+
+    <select id="searchTplList"
+            parameterType="com.yeahn.template.dto.TemplateSearchDto"
+            resultType="com.yeahn.template.dto.TemplateDto">
+        SELECT
+           tpl.TPL_SEQ tplSeq
+           , tpl.TPL_NAME tplName
+           , FN_GET_COMM_CODE_DESC('TPL_PHASE', tpl.TPL_PHASE) tplPhase
+        FROM TB_EXER_TPL tpl
+        INNER JOIN TB_EXER exer
+        ON tpl.TPL_SEQ = exer.TPL_SEQ
+        INNER JOIN TB_EXER_ATTR attr
+        ON exer.TPL_ATTR_SEQ = attr.TPL_ATTR_SEQ
+        WHERE tpl.USE_YN = 'Y'
+        AND tpl.DEL_YN = 'N'
+        <if test="tplType != null and tplType != ''">
+            AND attr.TPL_TYPE_CODE = #{tplType}
+        </if>
+
+        <if test="tplPhase != null and tplPhase.size() > 0">
+            AND tpl.TPL_PHASE IN
+            <foreach collection="tplPhase" item="phase" open="(" separator="," close=")">
+                #{phase}
+            </foreach>
+        </if>
+
+        <if test="tplCategory != null and tplCategory.size() > 0">
+            AND attr.TPL_CATEGORY_CODE IN
+            <foreach collection="tplCategory" item="cat" open="(" separator="," close=")">
+                #{cat}
+            </foreach>
+        </if>
         GROUP BY tpl.TPL_SEQ
            , tpl.TPL_NAME
            , attr.TPL_TYPE_CODE

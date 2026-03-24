@@ -3,14 +3,15 @@ package com.yeahn.template.controller;
 import com.yeahn.common.code.CodeDto;
 import com.yeahn.common.code.CodeService;
 import com.yeahn.template.dto.TemplateDto;
+import com.yeahn.template.dto.TemplateSearchDto;
 import com.yeahn.template.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,7 +27,6 @@ public class TemplateController {
     public String list(
             @RequestParam String menuCode,
             @RequestParam(required = false, defaultValue = "SWIM") String typeCode,
-            @RequestParam(required = false, defaultValue = "") String tplPhase,
             Model model) {
 
         // 메뉴코드
@@ -43,5 +43,11 @@ public class TemplateController {
         model.addAttribute("tplList", templateService.getTplList(tplDto));
 
         return "exercise/template/list";
+    }
+
+    @PostMapping
+    @ResponseBody
+    public List<TemplateDto> list(@RequestBody TemplateSearchDto searchDto) {
+        return templateService.searchTplList(searchDto);
     }
 }

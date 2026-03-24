@@ -14,13 +14,13 @@
 
             $phaseBtns.click(function() {
                 $phaseAllBtn.removeClass('active');
-                $phaseBtns.removeClass('active');
-                $(this).addClass('active');
+                $(this).toggleClass('active');
+                $(this).blur();
             });
 
             $phaseAllBtn.click(function() {
                 $phaseBtns.removeClass('active');
-                $phaseAllBtn.addClass('active');
+                $(this).toggleClass('active');
             });
         });
 
@@ -32,13 +32,13 @@
 
             $catBtns.click(function() {
                 $catAllBtn.removeClass('active');
-                $catBtns.removeClass('active');
-                $(this).addClass('active');
+                $(this).toggleClass('active');
+                $(this).blur();
             });
 
             $catAllBtn.click(function() {
                 $catBtns.removeClass('active');
-                $catAllBtn.addClass('active');
+                $(this).toggleClass('active');
             });
         });
 
@@ -47,6 +47,57 @@
             const menuCode = $('[name=menuCode]').val();
             const typeCode = $(this).data('type');
             window.location.href = `/exercise/templates?menuCode=${menuCode}&typeCode=${typeCode}`;
+        });
+
+        // 검색 버튼 클릭
+        $('#searchBtn').on('click', function() {
+            const tplType = $('button[name="tplType"][data-selected="true"]').data('type');
+            const tplPhase = [];
+            const tplCategory = [];
+
+            $('.phase-group button.active:not(:first-child)').each(function() {
+                tplPhase.push($(this).data('type'));
+            });
+
+            $('.category-group button.active:not(:first-child)').each(function() {
+                tplCategory.push($(this).data('type'));
+            });
+
+            if ($('.phase-group button:first-child').hasClass('active')) tplPhase.length = 0;
+            if ($('.category-group button:first-child').hasClass('active')) tplCategory.length = 0;
+
+            const requestData = {
+                tplType: tplType,
+                tplPhase: tplPhase,
+                tplCategory: tplCategory
+            };
+
+            $.ajax({
+                url: '/exercise/templates',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestData),
+                success: function(data) {
+                    let html = '';
+
+                    if (data.length === 0) {
+                        html = `<div class="p-3 text-center text-muted">데이터 없음</div>`;
+                    } else {
+                        data.forEach(function(tpl) {
+                            html += `
+                            <a href="#" class="list-group-item justify-content-between align-items-center">
+                                <span class="badge badge-primary mr-2">${tpl.tplPhase ?? ''}</span>
+                                <span>${tpl.tplName ?? ''}</span>
+                            </a>
+                            `;
+                        });
+                    }
+
+                    $('#tplListContainer').html(html);
+                }
+            });
+
+
         });
     });
 </script>
@@ -63,7 +114,11 @@
                         </label>
 
                         {{#typeCode}}
-                            <button class="btn btn-sm btn{{^isChecked}}-outline{{/isChecked}}-primary mr-2" name="tplType" data-type="{{typeCode}}" style="min-width: 15%;">{{codeDesc}}</button>
+                            <button class="btn btn-sm btn{{^isChecked}}-outline{{/isChecked}}-primary mr-2"
+                                    name="tplType"
+                                    data-type="{{typeCode}}"
+                                    data-selected="{{isChecked}}"
+                                    style="min-width: 15%;">{{codeDesc}}</button>
                         {{/typeCode}}
 
                         <label for="tplName" class="form-label mb-0 ml-3 mr-2">
@@ -86,7 +141,7 @@
                             <div class="d-flex flex-wrap phase-group">
                                 <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
                                 {{#tplPhase}}
-                                    <button class="btn btn-sm btn-outline-secondary m-1">{{codeDesc}}</button>
+                                    <button class="btn btn-sm btn-outline-secondary m-1" data-type="{{typeCode}}">{{codeDesc}}</button>
                                 {{/tplPhase}}
                             </div>
                         </div>
@@ -102,7 +157,7 @@
                             <div class="d-flex flex-wrap category-group">
                                 <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
                                 {{#tplCategory}}
-                                    <button class="btn btn-sm btn-outline-secondary m-1">{{codeDesc}}</button>
+                                    <button class="btn btn-sm btn-outline-secondary m-1" data-type="{{typeCode}}">{{codeDesc}}</button>
                                 {{/tplCategory}}
                             </div>
                         </div>
@@ -112,7 +167,7 @@
 
                 <!-- 검색 버튼 (2행 병합 느낌) -->
                 <div class="ml-3 d-flex align-items-stretch">
-                    <button class="btn btn-primary d-flex align-items-center justify-content-center"
+                    <button id="searchBtn" class="btn btn-primary d-flex align-items-center justify-content-center"
                             style="width: 80px;">
                         검색
                     </button>
@@ -127,7 +182,7 @@
             <a href="#" id="childMenuCreate" class="btn btn-primary float-right text-white btn-xs" data-toggle="modal" data-target="#insertMenuCodeModal" style="">템플릿 추가</a>
         </h5>
         <div class="card card-body p-0">
-            <div class="list-group">
+            <div class="list-group" id="tplListContainer">
                 {{#tplList}}
                     <a href="#" class="list-group-item justify-content-between align-items-center">
                         <span class="badge badge-primary mr-2">{{tplPhase}}</span>
