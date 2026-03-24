@@ -8,6 +8,7 @@
         SELECT
            tpl.TPL_SEQ tplSeq
            , tpl.TPL_NAME tplName
+           , FN_GET_COMM_CODE_DESC('TPL_PHASE', tpl.TPL_PHASE) tplPhase
         FROM TB_EXER_TPL tpl
         INNER JOIN TB_EXER exer
         ON tpl.TPL_SEQ = exer.TPL_SEQ

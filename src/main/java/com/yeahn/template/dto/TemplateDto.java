@@ -6,6 +6,7 @@ import lombok.Data;
 public class TemplateDto {
     private Integer tplSeq;
     private String tplName;
+    private String tplPhase;
 
     private Integer tplAttrSeq;
     private String tplTypeCode;

@@ -41,9 +41,17 @@
                 $catAllBtn.addClass('active');
             });
         });
+
+        // 운동 선택 클릭이벤트
+        $('[name=tplType]').on('click', function() {
+            const menuCode = $('[name=menuCode]').val();
+            const typeCode = $(this).data('type');
+            window.location.href = `/exercise/templates?menuCode=${menuCode}&typeCode=${typeCode}`;
+        });
     });
 </script>
 
+<input type="hidden" name="menuCode" value="{{menuCode}}">
 <div class="row">
     <div class="col-10">
         <div class="card card-body">
@@ -55,12 +63,7 @@
                         </label>
 
                         {{#typeCode}}
-                            {{#isFirst}}
-                                <button class="btn btn-sm btn-primary mr-2" style="min-width: 15%;">{{codeDesc}}</button>
-                            {{/isFirst}}
-                            {{^isFirst}}
-                                <button class="btn btn-sm btn-outline-primary mr-2" style="min-width: 15%;">{{codeDesc}}</button>
-                            {{/isFirst}}
+                            <button class="btn btn-sm btn{{^isChecked}}-outline{{/isChecked}}-primary mr-2" name="tplType" data-type="{{typeCode}}" style="min-width: 15%;">{{codeDesc}}</button>
                         {{/typeCode}}
 
                         <label for="tplName" class="form-label mb-0 ml-3 mr-2">
@@ -126,7 +129,10 @@
         <div class="card card-body p-0">
             <div class="list-group">
                 {{#tplList}}
-                    <a href="#" class="list-group-item">{{tplName}}</a>
+                    <a href="#" class="list-group-item justify-content-between align-items-center">
+                        <span class="badge badge-primary mr-2">{{tplPhase}}</span>
+                        <span>{{tplName}}</span>
+                    </a>
                 {{/tplList}}
             </div>
         </div>

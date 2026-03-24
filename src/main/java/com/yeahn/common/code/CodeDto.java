@@ -9,7 +9,7 @@ public class CodeDto {
     private String codeDesc;
     private Integer sortOrder;
     private String ref1;
-    private boolean isFirst;
+    private boolean isChecked;
 
     public CodeDto(String typeClass) {
         this.typeClass = typeClass;
