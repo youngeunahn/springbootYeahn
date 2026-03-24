@@ -52,6 +52,7 @@
         // 검색 버튼 클릭
         $('#searchBtn').on('click', function() {
             const tplType = $('button[name="tplType"][data-selected="true"]').data('type');
+            const tplName = $('#tplName').val();
             const tplPhase = [];
             const tplCategory = [];
 
@@ -68,6 +69,7 @@
 
             const requestData = {
                 tplType: tplType,
+                tplName: tplName,
                 tplPhase: tplPhase,
                 tplCategory: tplCategory
             };

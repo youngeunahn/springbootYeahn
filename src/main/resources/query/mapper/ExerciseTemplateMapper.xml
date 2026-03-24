@@ -41,6 +41,13 @@
             AND attr.TPL_TYPE_CODE = #{tplType}
         </if>
 
+        <if test="tplName != null and tplName != ''">
+            AND (
+            MATCH(tpl.TPL_NAME) AGAINST(CONCAT('+', #{tplName}, '*') IN BOOLEAN MODE)
+            OR tpl.TPL_NAME LIKE CONCAT('%', #{tplName}, '%')
+            )
+        </if>
+
         <if test="tplPhase != null and tplPhase.size() > 0">
             AND tpl.TPL_PHASE IN
             <foreach collection="tplPhase" item="phase" open="(" separator="," close=")">
