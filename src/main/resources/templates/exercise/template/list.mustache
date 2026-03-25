@@ -98,10 +98,140 @@
                     $('#tplListContainer').html(html);
                 }
             });
+        });
 
+        $('#childMenuCreate').on('click', function() {
+            $.get('/api/codes/TPL_PHASE', function(data) {
+                let html = '';
 
+                data.forEach((item, idx) => {
+                    html += `
+                        <button type="button"
+                            class="btn btn-sm btn-outline-secondary m-1 ${idx === 0 ? 'active' : ''}"
+                            value="${item.typeCode}">
+                            ${item.codeDesc}
+                        </button>
+                    `;
+                });
+
+                $('#phaseArea').html(html);
+            });
+
+            $('#emptyTemplate').hide();
+            $('#templateForm').slideDown();
+        });
+
+        $('#cancelTemplateBtn').on('click', function() {
+            $('#templateForm').slideUp();
+        });
+
+        // 템플릿 추가폼 운동 순서 클릭 이벤트
+        $(document).on('click', '#phaseArea .btn', function() {
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('#addExerciseBtn').on('click', function() {
+            addExercise();
         });
     });
+
+    function addExercise() {
+
+        let $item = $('<div>', { class: 'list-group-item' });
+        let $partWrap = $('<div>', { class: 'ml-4 mb-2' });
+        let $partGroup = $('<div>', {
+            class: 'btn-group btn-group-sm',
+            role: 'group'
+        });
+
+        $partGroup.append(
+                $('<button>', {
+                    type: 'button',
+                    class: 'btn btn-outline-secondary m-1 active',
+                    text: '상체'
+                }),
+                $('<button>', {
+                    type: 'button',
+                    class: 'btn btn-outline-secondary m-1',
+                    text: '하체'
+                }),
+                $('<button>', {
+                    type: 'button',
+                    class: 'btn btn-outline-secondary m-1',
+                    text: '전신'
+                })
+        );
+
+        $partWrap.append($partGroup);
+
+        let $row = $('<div>', { class: 'd-flex align-items-center' });
+        let $drag = $('<span>', {
+            class: 'mr-2 drag-handle text-muted',
+            text: '☰'
+        });
+        let $select = $('<select>', {
+            class: 'form-control form-control-sm mr-2',
+            style: 'width: 80px; background-position: 90% 52%'
+        });
+        $select.append(
+                $('<option>', { value: '근력', text: '근력' }),
+                $('<option>', { value: '유산소', text: '유산소' })
+        );
+
+        let $name = $('<input>', {
+            type: 'text',
+            class: 'form-control form-control-sm mr-2',
+            placeholder: '운동명',
+            style: 'width: 120px;'
+        });
+
+        let $set = $('<input>', {
+            type: 'number',
+            class: 'form-control form-control-sm mr-1',
+            placeholder: '세트',
+            style: 'width: 70px;'
+        });
+
+        let $setLabel = $('<span>', {
+            class: 'mr-2',
+            text: '세트'
+        });
+
+        let $rep = $('<input>', {
+            type: 'number',
+            class: 'form-control form-control-sm mr-1',
+            placeholder: '횟수',
+            style: 'width: 70px;'
+        });
+
+        let $repLabel = $('<span>', {
+            class: 'mr-2',
+            text: '회'
+        });
+
+        $row.append(
+                $drag,
+                $select,
+                $name,
+                $set,
+                $setLabel,
+                $rep,
+                $repLabel
+        );
+
+        let $memoWrap = $('<div>', { class: 'mt-2 ml-4' });
+
+        let $memo = $('<input>', {
+            type: 'text',
+            class: 'form-control form-control-sm',
+            placeholder: '메모 입력'
+        });
+
+        $memoWrap.append($memo);
+        $item.append($partWrap, $row, $memoWrap);
+        $('#addExerciseBtn').before($item);
+    }
 </script>
 
 <input type="hidden" name="menuCode" value="{{menuCode}}">
@@ -208,86 +338,158 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 mb-4">
-                <label for="siteName" class="form-label">템플릿 이름</label>
-                <input type="text" class="form-control" id="siteName">
-            </div>
 
-            <div class="col-12 mb-4">
-                <label for="siteName" class="form-label">운동 목록</label>
-                <div class="list-group">
-
-                    <div class="list-group-item">
-
-                        <!-- 1줄: 분류 -->
-                        <div class="small text-primary mb-1 ml-4">
-                            가슴 > 프레스 > 바벨
-                        </div>
-
-                        <!-- 2줄: 운동 + 세트 -->
-                        <div class="d-flex align-items-center">
-                            <span class="mr-2 drag-handle text-muted">☰</span>
-                            <span>벤치프레스</span>
-                            <span class="badge badge-info ml-2">3세트</span>
-                            <span class="badge badge-info ml-1">10회</span>
-                        </div>
-
-                        <!-- 3줄: 메모 -->
-                        <div class="text-muted small mt-1 ml-4">
-                            메모메모메모
-                        </div>
-                    </div>
-
-                    <div class="list-group-item">
-                        <!-- 1줄: 분류 -->
-                        <div class="small text-primary mb-1 ml-4">
-                            가슴 > 프레스 > 바벨
-                        </div>
-
-                        <!-- 2줄: 운동 + 세트 -->
-                        <div class="d-flex align-items-center">
-                            <span class="mr-2 drag-handle text-muted">☰</span>
-                            <span>벤치프레스</span>
-                            <span class="badge badge-info ml-2">3세트</span>
-                            <span class="badge badge-info ml-1">10회</span>
-                        </div>
-
-                        <!-- 3줄: 메모 -->
-                        <div class="text-muted small mt-1 ml-4">
-                            메모메모메모
-                        </div>
-                    </div>
-
-                    <div class="list-group-item">
-
-                        <!-- 1줄: 분류 -->
-                        <div class="small text-primary mb-1 ml-4">
-                            가슴 > 프레스 > 바벨
-                        </div>
-
-                        <!-- 2줄: 운동 + 세트 -->
-                        <div class="d-flex align-items-center">
-                            <span class="mr-2 drag-handle text-muted">☰</span>
-                            <span>벤치프레스</span>
-                            <span class="badge badge-info ml-2">3세트</span>
-                            <span class="badge badge-info ml-1">10회</span>
-                        </div>
-
-                        <!-- 3줄: 메모 -->
-                        <div class="text-muted small mt-1 ml-4">
-                            메모메모메모
-                        </div>
-                    </div>
-
-                    <button class="btn btn-sm btn-primary mt-2" onclick="addExercise()">
-                        + 운동 추가
-                    </button>
+            <div id="templateForm" style="display: none">
+                <div class="col-12 mb-1">
+                    <label class="form-label">운동 순서</label>
+                    <div id="phaseArea" class="btn-group btn-group-sm mr-2" role="group"></div>
                 </div>
+
+                <div class="col-12 mb-4">
+                    <label for="siteName" class="form-label">템플릿 이름</label>
+                    <input type="text" class="form-control" id="siteName">
+                </div>
+
+                <div class="col-12 mb-4">
+                    <label for="siteName" class="form-label">운동 목록</label>
+                    <div class="list-group">
+
+                        <div class="list-group-item">
+
+                            <div class="ml-4 mb-2">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary m-1 active">상체</button>
+                                    <button type="button" class="btn btn-outline-secondary m-1">하체</button>
+                                    <button type="button" class="btn btn-outline-secondary m-1">전신</button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+
+                                <span class="mr-2 drag-handle text-muted">☰</span>
+
+                                <select class="form-control form-control-sm mr-2"
+                                       style="width: 80px; background-position: 90% 52%">
+                                    <option value="근력">근력</option>
+                                    <option value="유산소">유산소</option>
+                                </select>
+
+                                <input type="text" class="form-control form-control-sm mr-2"
+                                       placeholder="운동명" style="width: 120px;">
+
+                                <input type="number" class="form-control form-control-sm mr-1"
+                                       placeholder="세트" style="width: 70px;">
+                                <span class="mr-2">세트</span>
+
+                                <input type="number" class="form-control form-control-sm mr-1"
+                                       placeholder="횟수" style="width: 70px;">
+                                <span class="mr-2">회</span>
+
+                            </div>
+
+                            <div class="mt-2 ml-4">
+                                <input type="text" class="form-control form-control-sm"
+                                       placeholder="메모 입력">
+                            </div>
+
+                        </div>
+
+                        <button id="addExerciseBtn" class="btn btn-sm btn-primary mt-2">
+                            + 운동 추가
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center" style="">
+                    <button class="btn btn-primary border-1 text-white" style="position: center;">등록</button>
+                    <button type="button" class="btn btn-secondary">취소</button>
+                </div>
+
             </div>
 
-            <div class="text-center" style="">
-                <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
-                <button type="button" class="btn btn-secondary">삭제</button>
+            <div style="display:none;">
+                <div class="col-12 mb-4">
+                    <label for="siteName" class="form-label">템플릿 이름</label>
+                    <input type="text" class="form-control" id="siteName">
+                </div>
+
+                <div class="col-12 mb-4">
+                    <label for="siteName" class="form-label">운동 목록</label>
+                    <div class="list-group">
+
+                        <div class="list-group-item">
+
+                            <!-- 1줄: 분류 -->
+                            <div class="small text-primary mb-1 ml-4">
+                                가슴 > 프레스 > 바벨
+                            </div>
+
+                            <!-- 2줄: 운동 + 세트 -->
+                            <div class="d-flex align-items-center">
+                                <span class="mr-2 drag-handle text-muted">☰</span>
+                                <span>벤치프레스</span>
+                                <span class="badge badge-info ml-2">3세트</span>
+                                <span class="badge badge-info ml-1">10회</span>
+                            </div>
+
+                            <!-- 3줄: 메모 -->
+                            <div class="text-muted small mt-1 ml-4">
+                                메모메모메모
+                            </div>
+                        </div>
+
+                        <div class="list-group-item">
+                            <!-- 1줄: 분류 -->
+                            <div class="small text-primary mb-1 ml-4">
+                                가슴 > 프레스 > 바벨
+                            </div>
+
+                            <!-- 2줄: 운동 + 세트 -->
+                            <div class="d-flex align-items-center">
+                                <span class="mr-2 drag-handle text-muted">☰</span>
+                                <span>벤치프레스</span>
+                                <span class="badge badge-info ml-2">3세트</span>
+                                <span class="badge badge-info ml-1">10회</span>
+                            </div>
+
+                            <!-- 3줄: 메모 -->
+                            <div class="text-muted small mt-1 ml-4">
+                                메모메모메모
+                            </div>
+                        </div>
+
+                        <div class="list-group-item">
+
+                            <!-- 1줄: 분류 -->
+                            <div class="small text-primary mb-1 ml-4">
+                                가슴 > 프레스 > 바벨
+                            </div>
+
+                            <!-- 2줄: 운동 + 세트 -->
+                            <div class="d-flex align-items-center">
+                                <span class="mr-2 drag-handle text-muted">☰</span>
+                                <span>벤치프레스</span>
+                                <span class="badge badge-info ml-2">3세트</span>
+                                <span class="badge badge-info ml-1">10회</span>
+                            </div>
+
+                            <!-- 3줄: 메모 -->
+                            <div class="text-muted small mt-1 ml-4">
+                                메모메모메모
+                            </div>
+                        </div>
+
+                        <button class="btn btn-sm btn-primary mt-2" onclick="addExercise()">
+                            + 운동 추가
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center" style="">
+                    <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
+                    <button type="button" class="btn btn-secondary">삭제</button>
+                </div>
+
             </div>
         </div>
     </div>

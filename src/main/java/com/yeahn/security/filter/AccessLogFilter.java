@@ -16,7 +16,7 @@ import java.io.IOException;
 
 import static com.yeahn.common.CommonUtils.getIP;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class AccessLogFilter extends OncePerRequestFilter {
 
