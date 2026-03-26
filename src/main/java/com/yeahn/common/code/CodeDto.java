@@ -11,6 +11,8 @@ public class CodeDto {
     private String ref1;
     private boolean isChecked;
 
+    public CodeDto() {}
+
     public CodeDto(String typeClass) {
         this.typeClass = typeClass;
     }
