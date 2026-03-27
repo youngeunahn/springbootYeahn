@@ -1,7 +1,10 @@
-### Example user template template
-### Example user template
+# 설정 파일 및 비밀 정보 제외
+global.properties
+*.properties
+*.xml
+.env
 
-# IntelliJ project files
+# 인텔리제이 설정 파일 제외
 .idea
 *.iml
 out
