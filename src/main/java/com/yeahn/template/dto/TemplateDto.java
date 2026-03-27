@@ -2,13 +2,15 @@ package com.yeahn.template.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TemplateDto {
-    private Integer tplSeq;
+    private Long tplSeq;
     private String tplName;
     private String tplPhase;
 
-    private Integer tplAttrSeq;
+    private Long tplAttrSeq;
     private String tplTypeCode;
     private String tplExerName;
     private String tplCategoryCode;
@@ -18,6 +20,8 @@ public class TemplateDto {
     private Integer tplTotalDistance; // 수영 전용 총 거리
     private String tplNote;           // 추가 메모 / 설명
     private Integer tplSortOrder;     // 운동 순서 정렬용
+
+    private List<TemplateDto> exercises;
 
     private String useYn;
     private String delYn;

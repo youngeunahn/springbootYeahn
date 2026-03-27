@@ -7,7 +7,9 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,5 +23,21 @@ public class TemplateMapper {
 
     public List<TemplateDto> searchTplList(TemplateSearchDto dto) {
         return sqlSession.selectList("ExerciseTemplateMapper.searchTplList", dto);
+    }
+
+    public void insertTemplate(TemplateDto tplDto) {
+        sqlSession.insert("ExerciseTemplateMapper.insertTemplate", tplDto);
+    }
+
+    public void insertExercise(TemplateDto exerDto) {
+        sqlSession.insert("ExerciseTemplateMapper.insertExercise", exerDto);
+    }
+
+    public void insertRelation(Long tplSeq, Long tplAttrSeq) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("tplSeq", tplSeq);
+        param.put("tplAttrSeq", tplAttrSeq);
+
+        sqlSession.insert("ExerciseTemplateMapper.insertRelation", param);
     }
 }

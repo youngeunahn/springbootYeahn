@@ -67,4 +67,56 @@
         ORDER BY tpl.SORT_ORDER
     </select>
 
+    <insert id="insertTemplate" parameterType="TemplateRequest" useGeneratedKeys="true" keyProperty="tplSeq">
+        INSERT INTO TB_EXER_TPL (
+            TPL_NAME
+            , TPL_PHASE
+            , SORT_ORDER
+            , USE_YN
+            , DEL_YN
+            , INS_DT
+        ) VALUES (
+            #{tplName}
+            , #{tplPhase}
+            , #{sortOrder}
+            , 'Y'
+            , 'N'
+            , NOW()
+        )
+    </insert>
+
+    <insert id="insertExercise" parameterType="ExerciseDto" useGeneratedKeys="true" keyProperty="tplAttrSeq">
+        INSERT INTO TB_EXER_ATTR (
+            TPL_TYPE_CODE
+            , TPL_EXER_NAME
+            , TPL_CATEGORY_CODE
+            , TPL_KIND_CODE
+            , TPL_NOTE
+            , TPL_SORT_ORDER
+            , USE_YN
+            , DEL_YN
+            , INS_DT
+        ) VALUES (
+            #{tplTypeCode}
+            , #{tplExerName}
+            , #{tplCategoryCode}
+            , #{tplKindCode}
+            , #{tplNote}
+            , #{tplSortOrder}
+            , 'Y'
+            , 'N'
+            , NOW()
+        )
+    </insert>
+
+    <insert id="insertRelation">
+        INSERT INTO TB_EXER (
+            TPL_SEQ
+            , TPL_ATTR_SEQ
+        ) VALUES (
+            #{tplSeq}
+            , #{tplAttrSeq}
+        )
+    </insert>
+
 </mapper>
