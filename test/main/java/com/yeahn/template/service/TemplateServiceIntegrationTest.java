@@ -78,7 +78,7 @@ public class TemplateServiceIntegrationTest {
         // [Then] 2. 연동된 운동 정보(Exercise) 상세 검증 (DB 직접 조회로 데이터 정합성 확인)
         Integer exerciseCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM TB_EXER WHERE TPL_SEQ = ?", Integer.class, generatedTplSeq);
-        assertEquals(1, exerciseCount, "매핑된 운동 데이터가 DB에 1개 존재해야 합니다.");
+        assertEquals(1, exerciseCount, "연동된 운동 데이터가 DB에 1개 존재해야 합니다.");
 
         String savedExerName = jdbcTemplate.queryForObject(
                 "SELECT attr.TPL_EXER_NAME FROM TB_EXER_ATTR attr " +
