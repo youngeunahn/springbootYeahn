@@ -18,8 +18,6 @@
         AND tpl.DEL_YN = 'N'
         AND attr.TPL_TYPE_CODE = #{tplTypeCode}
         GROUP BY tpl.TPL_SEQ
-           , tpl.TPL_NAME
-           , attr.TPL_TYPE_CODE
         ORDER BY tpl.SORT_ORDER
     </select>
 
@@ -62,12 +60,10 @@
             </foreach>
         </if>
         GROUP BY tpl.TPL_SEQ
-           , tpl.TPL_NAME
-           , attr.TPL_TYPE_CODE
         ORDER BY tpl.SORT_ORDER
     </select>
 
-    <insert id="insertTemplate" parameterType="TemplateRequest" useGeneratedKeys="true" keyProperty="tplSeq">
+    <insert id="insertTemplate" parameterType="com.yeahn.template.dto.TemplateDto" useGeneratedKeys="true" keyProperty="tplSeq">
         INSERT INTO TB_EXER_TPL (
             TPL_NAME
             , TPL_PHASE
@@ -78,14 +74,14 @@
         ) VALUES (
             #{tplName}
             , #{tplPhase}
-            , #{sortOrder}
+            , #{tplSortOrder}
             , 'Y'
             , 'N'
             , NOW()
         )
     </insert>
 
-    <insert id="insertExercise" parameterType="ExerciseDto" useGeneratedKeys="true" keyProperty="tplAttrSeq">
+    <insert id="insertExercise" parameterType="com.yeahn.template.dto.TemplateDto" useGeneratedKeys="true" keyProperty="tplAttrSeq">
         INSERT INTO TB_EXER_ATTR (
             TPL_TYPE_CODE
             , TPL_EXER_NAME
