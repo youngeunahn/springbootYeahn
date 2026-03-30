@@ -63,6 +63,34 @@
         ORDER BY tpl.SORT_ORDER
     </select>
 
+    <select id="getTplDetail" parameterType="long" resultType="com.yeahn.template.dto.TemplateDto">
+        SELECT
+            tpl.TPL_SEQ tplSeq
+            , tpl.TPL_NAME tplName
+            , tpl.TPL_PHASE tplPhase
+        FROM TB_EXER_TPL tpl
+        WHERE tpl.TPL_SEQ = #{tplSeq}
+        AND tpl.USE_YN = 'Y'
+        AND tpl.DEL_YN = 'N'
+    </select>
+
+    <select id="getExerList" parameterType="long" resultType="com.yeahn.template.dto.TemplateDto">
+        SELECT
+            attr.TPL_ATTR_SEQ tplAttrSeq
+            , attr.TPL_TYPE_CODE tplTypeCode
+            , attr.TPL_EXER_NAME tplExerName
+            , attr.TPL_CATEGORY_CODE tplCategoryCode
+            , attr.TPL_KIND_CODE tplKindCode
+            , attr.TPL_NOTE tplNote
+            , attr.TPL_SORT_ORDER tplSortOrder
+        FROM TB_EXER exer
+        JOIN TB_EXER_ATTR attr ON exer.TPL_ATTR_SEQ = attr.TPL_ATTR_SEQ
+        WHERE exer.TPL_SEQ = #{tplSeq}
+        AND attr.USE_YN = 'Y'
+        AND attr.DEL_YN = 'N'
+        ORDER BY attr.TPL_SORT_ORDER
+    </select>
+
     <insert id="insertTemplate" parameterType="com.yeahn.template.dto.TemplateDto" useGeneratedKeys="true" keyProperty="tplSeq">
         INSERT INTO TB_EXER_TPL (
             TPL_NAME

@@ -25,6 +25,14 @@ public class TemplateMapper {
         return sqlSession.selectList("ExerciseTemplateMapper.searchTplList", dto);
     }
 
+    public TemplateDto getTplDetail(Long tplSeq) {
+        return sqlSession.selectOne("ExerciseTemplateMapper.getTplDetail", tplSeq);
+    }
+
+    public List<TemplateDto> getExerList(Long tplSeq) {
+        return sqlSession.selectList("ExerciseTemplateMapper.getExerList", tplSeq);
+    }
+
     public void insertTemplate(TemplateDto tplDto) {
         sqlSession.insert("ExerciseTemplateMapper.insertTemplate", tplDto);
     }

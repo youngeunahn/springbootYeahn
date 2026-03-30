@@ -76,7 +76,15 @@ public class TemplateServiceIntegrationTest {
         assertFalse(searchResult.isEmpty(), "생성한 템플릿 이름으로 검색 결과가 존재해야 합니다.");
         assertEquals(1, searchResult.size(), "중복 없이 1개의 템플릿만 조회되어야 합니다.");
 
-        // [Then] 2. 연동된 운동 정보(Exercise) 상세 검증 (DB 직접 조회로 데이터 정합성 확인)
+        // [Then] 2. 템플릿 상세 조회 검증 (Service 메서드 활용)
+        TemplateDto detailResult = templateService.getTplDetail(generatedTplSeq);
+        assertNotNull(detailResult, "상세 조회 결과가 존재해야 합니다.");
+        assertEquals(uniqueTplName, detailResult.getTplName());
+        assertNotNull(detailResult.getExercises(), "연동된 운동 리스트가 포함되어야 합니다.");
+        assertEquals(1, detailResult.getExercises().size());
+        assertEquals(exerciseName, detailResult.getExercises().get(0).getTplExerName());
+
+        // [Then] 3. 연동된 운동 정보(Exercise) 상세 검증 (DB 직접 조회로 데이터 정합성 확인)
         Integer exerciseCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM TB_EXER WHERE TPL_SEQ = ?", Integer.class, generatedTplSeq);
         assertEquals(1, exerciseCount, "연동된 운동 데이터가 DB에 1개 존재해야 합니다.");

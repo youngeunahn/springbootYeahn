@@ -87,7 +87,7 @@
                     } else {
                         data.forEach(function(tpl) {
                             html += `
-                            <a href="#" class="list-group-item justify-content-between align-items-center">
+                            <a href="#" class="list-group-item justify-content-between align-items-center" data-seq="${tpl.tplSeq}">
                                 <span class="badge badge-primary mr-2">${tpl.tplPhase ?? ''}</span>
                                 <span>${tpl.tplName ?? ''}</span>
                             </a>
@@ -96,6 +96,57 @@
                     }
 
                     $('#tplListContainer').html(html);
+                }
+            });
+        });
+
+        // 템플릿 리스트 아이템 클릭 (상세조회)
+        $('#tplListContainer').on('click', '.list-group-item', function(e) {
+            e.preventDefault();
+            const tplSeq = $(this).data('seq');
+            if (!tplSeq) return;
+
+            $.ajax({
+                url: `/api/exercise/templates/${tplSeq}`,
+                type: 'GET',
+                success: function(data) {
+                    $('#templateForm').empty();
+                    let $clone = $('#templateFormBase').clone();
+                    $clone.removeAttr('id').show();
+
+                    $clone.find('#siteName').val(data.tplName);
+                    $clone.find('#saveTemplateBtn').text('수정').attr('id', 'updateTemplateBtn');
+                    $clone.find('#cancelTemplateBtnClone').attr('id', 'closeDetailBtn');
+
+                    // Phase 정보 세팅
+                    $.get('/api/codes/TPL_PHASE', function(codes) {
+                        let html = '';
+                        codes.forEach(code => {
+                            const active = (code.typeCode == data.tplPhase) ? 'active' : '';
+                            html += `<button type="button" class="btn btn-sm btn-outline-secondary m-1 ${active}" value="${code.typeCode}">${code.codeDesc}</button>`;
+                        });
+                        $clone.find('#phaseArea').html(html);
+                    });
+
+                    // UI 표시
+                    $('#emptyTemplate').hide();
+                    $('#templateForm').append($clone).slideDown();
+
+                    // 운동 목록 표시
+                    if (data.exercises && data.exercises.length > 0) {
+                        data.exercises.forEach(function(exer) {
+                            addExerciseWithData($clone.find('#addExerciseBtn'), exer);
+                        });
+                    }
+
+                    // 취소(닫기) 버튼 이벤트
+                    $clone.find('#closeDetailBtn').on('click', function() {
+                        $('#templateForm').slideUp();
+                        $('#emptyTemplate').show();
+                    });
+                },
+                error: function() {
+                    alert('상세 정보를 불러오는 데 실패했습니다.');
                 }
             });
         });
@@ -234,6 +285,109 @@
             $(this).closest('div.list-group-item').remove();
         });
     });
+
+    function addExerciseWithData($beforeEl, data) {
+        const tplType = $('button[name="tplType"][data-selected="true"]').data('type');
+
+        let $item = $('<div>', { class: 'list-group-item' });
+        let $partWrap = $('<div>', { class: 'ml-4 mb-2' });
+        let $partGroup = $('<div>', {
+            class: 'btn-group btn-group-sm exercise-part-group',
+            role: 'group'
+        });
+
+        $partWrap.append($partGroup);
+
+        let $row = $('<div>', { class: 'd-flex align-items-center' });
+        let $drag = $('<span>', {
+            class: 'mr-2 drag-handle text-muted',
+            text: '☰'
+        });
+
+        let $select = "";
+        if (tplType == "GYM") {
+            $select = $('<select>', {
+                class: 'form-control form-control-sm mr-2',
+                style: 'width: 80px; background-position: 90% 52%'
+            });
+        }
+
+        let $name = $('<input>', {
+            type: 'text',
+            class: 'form-control form-control-sm mr-2',
+            placeholder: '운동명',
+            style: 'width: 50%;',
+            value: data.tplExerName || ''
+        });
+
+        $row.append(
+            $drag,
+            $select,
+            $name
+        );
+
+        let $memoWrap = $('<div>', { class: 'mt-2 ml-4' });
+        let $memo = $('<input>', {
+            type: 'text',
+            class: 'form-control form-control-sm',
+            placeholder: '메모 입력',
+            value: data.tplNote || ''
+        });
+
+        let $deleteBtn = $('<button>', {
+            type: 'button',
+            class: 'btn btn-sm btn-secondary exercise-delete-btn position-absolute',
+            html: '&times;',
+            title: '삭제',
+            css: {
+                top: '8px',
+                right: '8px',
+                padding: '4px 10px',
+                fontSize: '16px',
+                lineHeight: '1',
+                borderRadius: '4px'
+            }
+        });
+
+        // 코드 정보 채우기
+        $.ajax({
+            url: '/api/exercise/templates',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ ref1: tplType }),
+            success: function(codeData) {
+                if (codeData && codeData.tplCate) {
+                    codeData.tplCate.forEach(function(item){
+                        const active = (item.typeCode == data.tplCategoryCode) ? ' active' : '';
+                        $partGroup.append(
+                            $('<button>', {
+                                type: 'button',
+                                class: 'btn btn-sm btn-outline-secondary m-1' + active,
+                                text: item.codeDesc,
+                                value: item.typeCode
+                            }),
+                        );
+                    });
+                }
+
+                if (codeData && codeData.tplKind && $select) {
+                    codeData.tplKind.forEach(function(item){
+                        $select.append(
+                            $('<option>', {
+                                value: item.typeCode,
+                                text: item.codeDesc,
+                                selected: (item.typeCode == data.tplKindCode)
+                            }),
+                        );
+                    });
+                }
+            }
+        });
+
+        $memoWrap.append($memo, $deleteBtn);
+        $item.append($partWrap, $row, $memoWrap);
+        $beforeEl.before($item);
+    }
 
     function addExercise() {
 
@@ -421,7 +575,7 @@
         <div class="card card-body p-0">
             <div class="list-group" id="tplListContainer">
                 {{#tplList}}
-                    <a href="#" class="list-group-item justify-content-between align-items-center">
+                    <a href="#" class="list-group-item justify-content-between align-items-center" data-seq="{{tplSeq}}">
                         <span class="badge badge-primary mr-2">{{tplPhase}}</span>
                         <span>{{tplName}}</span>
                     </a>

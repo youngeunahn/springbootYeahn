@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -79,6 +79,47 @@ class TemplateServiceUnitTest {
     }
 
     @Test
+    @DisplayName("템플릿 상세 조회 테스트 - 성공")
+    void getTplDetail_Success_Test() {
+        // given
+        Long tplSeq = 1L;
+        TemplateDto mockTpl = new TemplateDto();
+        mockTpl.setTplSeq(tplSeq);
+        mockTpl.setTplName("상세 테스트");
+
+        List<TemplateDto> mockExerList = Arrays.asList(new TemplateDto(), new TemplateDto());
+        
+        when(templateMapper.getTplDetail(tplSeq)).thenReturn(mockTpl);
+        when(templateMapper.getExerList(tplSeq)).thenReturn(mockExerList);
+
+        // when
+        TemplateDto result = templateService.getTplDetail(tplSeq);
+
+        // then
+        assertNotNull(result);
+        assertEquals(tplSeq, result.getTplSeq());
+        assertEquals(2, result.getExercises().size());
+        verify(templateMapper, times(1)).getTplDetail(tplSeq);
+        verify(templateMapper, times(1)).getExerList(tplSeq);
+    }
+
+    @Test
+    @DisplayName("템플릿 상세 조회 테스트 - 데이터 없음")
+    void getTplDetail_NotFound_Test() {
+        // given
+        Long tplSeq = 999L;
+        when(templateMapper.getTplDetail(tplSeq)).thenReturn(null);
+
+        // when
+        TemplateDto result = templateService.getTplDetail(tplSeq);
+
+        // then
+        assertNull(result);
+        verify(templateMapper, times(1)).getTplDetail(tplSeq);
+        verify(templateMapper, never()).getExerList(anyLong());
+    }
+
+    @Test
     @DisplayName("템플릿 생성 테스트 - 운동 포함")
     void createTemplate_WithExercises_Test() {
         // given
@@ -93,6 +134,7 @@ class TemplateServiceUnitTest {
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn("testUser");
+        // getIP(req) 내부에서 null 체크를 통과하도록 설정
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
         doAnswer(invocation -> {

@@ -51,4 +51,9 @@ public class TemplateApiController {
     public Long create(@RequestBody TemplateDto request, HttpServletRequest req) {
         return templateService.createTemplate(request, req);
     }
+
+    @GetMapping("/exercise/templates/{tplSeq}")
+    public TemplateDto detail(@PathVariable Long tplSeq) {
+        return templateService.getTplDetail(tplSeq);
+    }
 }
