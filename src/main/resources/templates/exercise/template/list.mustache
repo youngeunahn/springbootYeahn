@@ -82,7 +82,7 @@
                 success: function(data) {
                     let html = '';
 
-                    if (data.length === 0) {
+                    if (!data || data.length === 0) {
                         html = `<div class="p-3 text-center text-muted">데이터 없음</div>`;
                     } else {
                         data.forEach(function(tpl) {
@@ -122,13 +122,15 @@
                 const $phaseArea = $(this);
                 $.get('/api/codes/TPL_PHASE', function(data) {
                     let html = '';
-                    data.forEach((item, idx) => {
-                        html += `<button type="button"
-                                    class="btn btn-sm btn-outline-secondary m-1 ${idx === 0 ? 'active' : ''}"
-                                    value="${item.typeCode}">
-                                    ${item.codeDesc}
-                            </button>`;
-                    });
+                    if (data && data.forEach) {
+                        data.forEach((item, idx) => {
+                            html += `<button type="button"
+                                        class="btn btn-sm btn-outline-secondary m-1 ${idx === 0 ? 'active' : ''}"
+                                        value="${item.typeCode}">
+                                        ${item.codeDesc}
+                                </button>`;
+                        });
+                    }
                     $phaseArea.html(html);
                 });
             });
@@ -140,8 +142,67 @@
 
             // 취소 버튼 이벤트
             $clone.find('#cancelTemplateBtnClone').off('click').on('click', function() {
-                $('#templateForm').slideUp();
+                $('#templateForm').hide();
+                $('#emptyTemplate').show();
             });
+
+            // 등록 버튼 이벤트
+            $clone.find('#saveTemplateBtn').off('click').on('click', function () {
+                const tplName = $clone.find('input[id^="siteName"]').val();
+                const tplPhase = $clone.find('div[id^="phaseArea"] button.active').val();
+                const tplTypeCode = $('button[name="tplType"][data-selected="true"]').data('type');
+
+                const exercises = [];
+                $clone.find('.list-group .list-group-item').each(function(index) {
+                    const $item = $(this);
+                    const tplCategoryCode = $item.find('.exercise-part-group button.active').val();
+                    const tplKindCode = $item.find('select').val();
+                    const tplExerName = $item.find('input[placeholder="운동명"]').val();
+                    const tplNote = $item.find('input[placeholder="메모 입력"]').val();
+
+                    if (tplExerName) {
+                        exercises.push({
+                            tplCategoryCode: tplCategoryCode,
+                            tplKindCode: tplKindCode,
+                            tplExerName: tplExerName,
+                            tplNote: tplNote,
+                            tplSortOrder: index + 1
+                        });
+                    }
+                });
+
+                if (!tplName) {
+                    alert('템플릿 이름을 입력해주세요.');
+                    return;
+                }
+
+                if (exercises.length === 0) {
+                    alert('운동을 하나 이상 추가해주세요.');
+                    return;
+                }
+
+                const requestData = {
+                    tplTypeCode: tplTypeCode,
+                    tplName: tplName,
+                    tplPhase: tplPhase,
+                    exercises: exercises
+                };
+
+                $.ajax({
+                    url: '/api/exercise/templates/create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function(data) {
+                        alert('템플릿이 등록되었습니다.');
+                        location.reload();
+                    },
+                    error: function(err) {
+                        alert('등록에 실패했습니다.');
+                        console.error(err);
+                    }
+                });
+            })
 
             addExercise($(this).closest('#templateForm'));
             $('#templateForm').slideDown();
@@ -244,23 +305,28 @@
             contentType: 'application/json',
             data: JSON.stringify({ ref1: tplType }),
             success: function(data) {
-                data.tplCate.forEach(function(item){
-                    $partGroup.append(
-                            $('<button>', {
-                                type: 'button',
-                                class: 'btn btn-outline-secondary m-1' + (item.checked ? ' active' : ''),
-                                text: item.codeDesc
-                            }),
-                    );
-                });
+                if (data && data.tplCate) {
+                    data.tplCate.forEach(function(item){
+                        $partGroup.append(
+                                $('<button>', {
+                                    type: 'button',
+                                    class: 'btn btn-sm btn-outline-secondary m-1' + (item.checked ? ' active' : ''),
+                                    text: item.codeDesc,
+                                    value: item.typeCode
+                                }),
+                        );
+                    });
+                }
 
-                data.tplKind.forEach(function(item){
-                    $select.append(
-                            $('<option>', {
-                                value: item.typeCode
-                                , text: item.codeDesc }),
-                    );
-                });
+                if (data && data.tplKind) {
+                    data.tplKind.forEach(function(item){
+                        $select.append(
+                                $('<option>', {
+                                    value: item.typeCode
+                                    , text: item.codeDesc }),
+                        );
+                    });
+                }
             },
             error: function(err) {
                 console.error('템플릿 코드 조회 실패', err);
@@ -491,7 +557,7 @@
     </div>
 
     <div class="text-center">
-        <button class="btn btn-primary border-1 text-white">등록</button>
+        <button class="btn btn-primary border-1 text-white" id="saveTemplateBtn" >등록</button>
         <button type="button" class="btn btn-secondary" id="cancelTemplateBtnClone">취소</button>
     </div>
 </div>

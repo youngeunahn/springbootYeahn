@@ -36,6 +36,7 @@ public class TemplateService {
         TemplateDto tplDto = new TemplateDto();
         tplDto.setTplName(request.getTplName());
         tplDto.setTplPhase(request.getTplPhase());
+        tplDto.setTplTypeCode(request.getTplTypeCode());
         tplDto.setTplSortOrder(request.getTplSortOrder());
         tplDto.setUseYn("Y");
         tplDto.setDelYn("N");
@@ -47,6 +48,7 @@ public class TemplateService {
 
         if (request.getExercises() != null) {
             for (TemplateDto ex : request.getExercises()) {
+                ex.setTplTypeCode(tplDto.getTplTypeCode());
                 ex.setInsUserId(userId);
                 ex.setInsIp(ip);
                 templateMapper.insertExercise(ex);
