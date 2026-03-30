@@ -48,7 +48,9 @@ public class TemplateService {
 
         if (request.getExercises() != null) {
             for (TemplateDto ex : request.getExercises()) {
-                ex.setTplTypeCode(tplDto.getTplTypeCode());
+                if (tplDto.getTplTypeCode() != null) {
+                    ex.setTplTypeCode(tplDto.getTplTypeCode());
+                }
                 ex.setInsUserId(userId);
                 ex.setInsIp(ip);
                 templateMapper.insertExercise(ex);

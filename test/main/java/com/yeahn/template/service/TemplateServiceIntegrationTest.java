@@ -57,6 +57,7 @@ public class TemplateServiceIntegrationTest {
         TemplateDto createRequest = new TemplateDto();
         createRequest.setTplName(uniqueTplName);
         createRequest.setTplPhase("1단계");
+        createRequest.setTplTypeCode(testTypeCode);
         createRequest.setTplSortOrder(1);
 
         TemplateDto exercise = new TemplateDto();
@@ -94,6 +95,7 @@ public class TemplateServiceIntegrationTest {
         String complexTplName = "COMPLEX_" + UUID.randomUUID().toString().substring(0, 8);
         TemplateDto createRequest = new TemplateDto();
         createRequest.setTplName(complexTplName);
+        createRequest.setTplTypeCode("MULTI_TYPE");
         
         createRequest.setExercises(Arrays.asList(
                 createExerciseDto("운동1"), createExerciseDto("운동2"), createExerciseDto("운동3")
