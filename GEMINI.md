@@ -22,6 +22,23 @@
 - JDK 1.8
 - Maven 3.x 이상
 
+## 주요 비즈니스 도메인
+
+### 1. 운동 템플릿 관리 (Exercise Template)
+- **도메인 위치**: `com.yeahn.template.*`
+- **테이블 구조**:
+    - `TB_EXER_TPL`: 템플릿의 마스터 정보 (이름, 단계, 정렬 순서 등)를 저장.
+    - `TB_EXER_ATTR`: 개별 운동의 속성 (운동명, 종류, 카테고리, 메모 등)을 저장. `TPL_TYPE_CODE`로 운동군(수영, 헬스 등)을 구분.
+    - `TB_EXER`: 템플릿(`TPL_SEQ`)과 운동 속성(`TPL_ATTR_SEQ`)을 연결하는 맵핑 테이블.
+- **주요 로직**:
+    - 템플릿 등록 시 `TemplateService.createTemplate`에서 **트랜잭션**을 통해 [템플릿 생성 -> 개별 운동 생성 -> 관계 연결] 순서로 처리함.
+    - `SORT_ORDER`는 시스템 내에서 자동으로 관리됨.
+
+## API 컨벤션
+- **경로**: `/api/exercise/templates/**`
+- **조회 (`POST`)**: 운동 종류별 카테고리 및 하위 코드 리스트 반환.
+- **등록 (`POST`)**: `/api/exercise/templates/create` - `TemplateDto` 객체를 통해 템플릿과 포함된 운동 리스트를 한 번에 저장.
+
 ## 프로젝트 구조 및 개발 컨벤션
 
 - **Controller Layer:** `com.yeahn.*.controller` 패키지에 위치하며, `@Controller` 및 `@ResponseBody`를 사용하여 일반 뷰와 JSON API를 처리합니다.
