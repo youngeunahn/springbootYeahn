@@ -120,37 +120,93 @@
 
         function renderTemplateView(data) {
             const $view = $('#templateView');
+            const $container = $view.find('.list-group');
+            
             $('#templateForm').hide();
             $('#emptyTemplate').hide();
 
-            // 제목 및 기본정보
+            // 템플릿 제목 및 단계 설정
             $view.find('#viewTplName').text(data.tplName);
             $view.find('#viewTplPhase').text(data.tplPhase || '-');
 
-            // 운동 목록 렌더링
-            let html = '';
+            // 기존 목록 삭제
+            $container.empty();
+
             if (data.exercises && data.exercises.length > 0) {
-                data.exercises.forEach(function(exer) {
-                    html += `
-                    <div class="list-group-item">
-                        <div class="small text-primary mb-1 ml-4">
-                            ${exer.tplCategoryCode || ''} ${exer.tplKindCode ? '> ' + exer.tplKindCode : ''}
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <span class="mr-2 text-muted">☰</span>
-                            <span class="font-weight-bold">${exer.tplExerName}</span>
-                            ${exer.tplMeasure1 ? `<span class="badge badge-info ml-2">${exer.tplMeasure1}세트</span>` : ''}
-                            ${exer.tplMeasure2 ? `<span class="badge badge-info ml-1">${exer.tplMeasure2}회</span>` : ''}
-                        </div>
-                        ${exer.tplNote ? `<div class="text-muted small mt-1 ml-4">${exer.tplNote}</div>` : ''}
-                    </div>`;
+                data.exercises.forEach(function(exer, index) {
+                    // 메인 아이템 생성
+                    const $item = $('<div>', {
+                        class: 'px-0 py-3 border-bottom',
+                        style: 'background: transparent;'
+                    });
+
+                    // 1행: 번호, 운동명, 세트/횟수
+                    const $row1 = $('<div>', { class: 'd-flex justify-content-between align-items-center mb-2' });
+                    
+                    const $titleArea = $('<div>', { class: 'd-flex align-items-center' });
+                    $titleArea.append($('<span>', {
+                        class: 'badge badge-light border mr-2 text-muted',
+                        style: 'width: 28px; height: 28px; line-height: 20px; font-size: 0.9rem; display: inline-block; vertical-align: middle; text-align: center; padding: 3px 0;',
+                        text: index + 1
+                    }));
+                    $titleArea.append($('<h6>', {
+                        class: 'mb-0 font-weight-bold text-dark',
+                        style: 'font-size: 1.1rem;',
+                        text: exer.tplExerName
+                    }));
+
+                    const $measureArea = $('<div>', { class: 'text-right' });
+                    if (exer.tplMeasure1) {
+                        $measureArea.append($('<span>', {
+                            class: 'badge badge-info badge-pill px-2 py-1 mr-1',
+                            style: 'font-size: 0.85rem;',
+                            text: exer.tplMeasure1 + '세트'
+                        }));
+                    }
+                    if (exer.tplMeasure2) {
+                        $measureArea.append($('<span>', {
+                            class: 'badge badge-secondary badge-pill px-2 py-1',
+                            style: 'font-size: 0.85rem;',
+                            text: exer.tplMeasure2 + '회'
+                        }));
+                    }
+                    
+                    $row1.append($titleArea, $measureArea);
+
+                    // 2행: 카테고리 정보 및 메모
+                    const $contentArea = $('<div>', { style: 'margin-left: 36px;' });
+                    
+                    const $category = $('<div>', {
+                        class: 'mb-1',
+                        style: 'font-size: 0.9rem; color: #6c757d;'
+                    });
+                    $category.append($('<span>', {
+                        class: 'text-primary font-weight-bold',
+                        text: exer.tplCategoryCode || ''
+                    }));
+                    if (exer.tplKindCode) {
+                        $category.append($('<span>', { class: 'mx-2 text-light', text: '|' }));
+                        $category.append($('<span>', { text: exer.tplKindCode }));
+                    }
+
+                    $contentArea.append($category);
+
+                    if (exer.tplNote) {
+                        $contentArea.append($('<div>', {
+                            class: 'bg-light p-2 rounded text-muted mt-2 border-left border-primary',
+                            style: 'border-width: 3px !important; font-size: 0.9rem; line-height: 1.4;',
+                            text: exer.tplNote
+                        }));
+                    }
+
+                    $item.append($row1, $contentArea);
+                    $container.append($item);
                 });
             } else {
-                html = '<div class="p-4 text-center text-muted">등록된 운동이 없습니다.</div>';
+                $container.html('<div class="p-5 text-center text-muted">등록된 운동이 없습니다.</div>');
             }
-            $view.find('.list-group').html(html);
 
-            $view.slideDown();
+            $view.fadeIn();
         }
 
         $('#childMenuCreate').on('click', function() {
@@ -604,84 +660,27 @@
             </div>
 
             <div id="templateView" style="display: none">
-                <div class="col-12 mb-4">
-                    <label for="siteName" class="form-label">템플릿 이름</label>
-                    <input type="text" class="form-control" id="siteName">
-                </div>
-
-                <div class="col-12 mb-4">
-                    <label for="siteName" class="form-label">운동 목록</label>
-                    <div class="list-group">
-
-                        <div class="list-group-item">
-
-                            <!-- 1줄: 분류 -->
-                            <div class="small text-primary mb-1 ml-4">
-                                가슴 > 프레스 > 바벨
-                            </div>
-
-                            <!-- 2줄: 운동 + 세트 -->
-                            <div class="d-flex align-items-center">
-                                <span class="mr-2 drag-handle text-muted">☰</span>
-                                <span>벤치프레스</span>
-                                <span class="badge badge-info ml-2">3세트</span>
-                                <span class="badge badge-info ml-1">10회</span>
-                            </div>
-
-                            <!-- 3줄: 메모 -->
-                            <div class="text-muted small mt-1 ml-4">
-                                메모메모메모
-                            </div>
-                        </div>
-
-                        <div class="list-group-item">
-                            <!-- 1줄: 분류 -->
-                            <div class="small text-primary mb-1 ml-4">
-                                가슴 > 프레스 > 바벨
-                            </div>
-
-                            <!-- 2줄: 운동 + 세트 -->
-                            <div class="d-flex align-items-center">
-                                <span class="mr-2 drag-handle text-muted">☰</span>
-                                <span>벤치프레스</span>
-                                <span class="badge badge-info ml-2">3세트</span>
-                                <span class="badge badge-info ml-1">10회</span>
-                            </div>
-
-                            <!-- 3줄: 메모 -->
-                            <div class="text-muted small mt-1 ml-4">
-                                메모메모메모
-                            </div>
-                        </div>
-
-                        <div class="list-group-item">
-
-                            <!-- 1줄: 분류 -->
-                            <div class="small text-primary mb-1 ml-4">
-                                가슴 > 프레스 > 바벨
-                            </div>
-
-                            <!-- 2줄: 운동 + 세트 -->
-                            <div class="d-flex align-items-center">
-                                <span class="mr-2 drag-handle text-muted">☰</span>
-                                <span>벤치프레스</span>
-                                <span class="badge badge-info ml-2">3세트</span>
-                                <span class="badge badge-info ml-1">10회</span>
-                            </div>
-
-                            <!-- 3줄: 메모 -->
-                            <div class="text-muted small mt-1 ml-4">
-                                메모메모메모
-                            </div>
-                        </div>
+                <!-- 템플릿 헤더: 제목 및 관리 버튼 -->
+                <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-4">
+                    <div>
+                        <span id="viewTplPhase" class="badge badge-pill badge-primary mb-1"></span>
+                        <h4 id="viewTplName" class="font-weight-bold mb-0 text-dark"></h4>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary px-3" onclick="fn_update();">수정</button>
+                        <button class="btn btn-sm btn-outline-danger ml-1 px-3" onclick="if(confirm('정말 삭제하시겠습니까?')) alert('삭제 기능 구현 예정');">삭제</button>
                     </div>
                 </div>
 
-                <div class="text-center" style="">
-                    <button class="btn btn-primary border-1 text-white" style="position: center;" onclick="fn_update();">수정</button>
-                    <button type="button" class="btn btn-secondary">삭제</button>
+                <!-- 상세 운동 구성 목록 -->
+                <div class="mb-2">
+                    <h6 class="text-muted font-weight-bold mb-3 d-flex align-items-center">
+                        <span class="mr-2">📋</span> 상세 운동 구성
+                    </h6>
+                    <div class="list-group list-group-flush border-top border-bottom" style="max-height: 550px; overflow-y: auto;">
+                        <!-- renderTemplateView 함수에서 생성된 항목이 여기에 삽입됩니다 -->
+                    </div>
                 </div>
-
             </div>
         </div>
     </div>

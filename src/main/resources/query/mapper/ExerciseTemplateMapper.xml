@@ -67,7 +67,7 @@
         SELECT
             tpl.TPL_SEQ tplSeq
             , tpl.TPL_NAME tplName
-            , tpl.TPL_PHASE tplPhase
+            , FN_GET_COMM_CODE_DESC('TPL_PHASE', tpl.TPL_PHASE) tplPhase
         FROM TB_EXER_TPL tpl
         WHERE tpl.TPL_SEQ = #{tplSeq}
         AND tpl.USE_YN = 'Y'
@@ -79,8 +79,8 @@
             attr.TPL_ATTR_SEQ tplAttrSeq
             , attr.TPL_TYPE_CODE tplTypeCode
             , attr.TPL_EXER_NAME tplExerName
-            , attr.TPL_CATEGORY_CODE tplCategoryCode
-            , attr.TPL_KIND_CODE tplKindCode
+            , FN_GET_COMM_CODE_DESC('TPL_CATEGORY', attr.TPL_CATEGORY_CODE) tplCategoryCode
+            , FN_GET_COMM_CODE_DESC('TPL_KIND_CODE', attr.TPL_KIND_CODE) tplKindCode
             , attr.TPL_NOTE tplNote
             , attr.TPL_SORT_ORDER tplSortOrder
         FROM TB_EXER exer
