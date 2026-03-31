@@ -110,46 +110,48 @@
                 url: `/api/exercise/templates/${tplSeq}`,
                 type: 'GET',
                 success: function(data) {
-                    $('#templateForm').empty();
-                    let $clone = $('#templateFormBase').clone();
-                    $clone.removeAttr('id').show();
-
-                    $clone.find('#siteName').val(data.tplName);
-                    $clone.find('#saveTemplateBtn').text('수정').attr('id', 'updateTemplateBtn');
-                    $clone.find('#cancelTemplateBtnClone').attr('id', 'closeDetailBtn');
-
-                    // Phase 정보 세팅
-                    $.get('/api/codes/TPL_PHASE', function(codes) {
-                        let html = '';
-                        codes.forEach(code => {
-                            const active = (code.typeCode == data.tplPhase) ? 'active' : '';
-                            html += `<button type="button" class="btn btn-sm btn-outline-secondary m-1 ${active}" value="${code.typeCode}">${code.codeDesc}</button>`;
-                        });
-                        $clone.find('#phaseArea').html(html);
-                    });
-
-                    // UI 표시
-                    $('#emptyTemplate').hide();
-                    $('#templateForm').append($clone).slideDown();
-
-                    // 운동 목록 표시
-                    if (data.exercises && data.exercises.length > 0) {
-                        data.exercises.forEach(function(exer) {
-                            addExerciseWithData($clone.find('#addExerciseBtn'), exer);
-                        });
-                    }
-
-                    // 취소(닫기) 버튼 이벤트
-                    $clone.find('#closeDetailBtn').on('click', function() {
-                        $('#templateForm').slideUp();
-                        $('#emptyTemplate').show();
-                    });
+                    renderTemplateView(data);
                 },
                 error: function() {
                     alert('상세 정보를 불러오는 데 실패했습니다.');
                 }
             });
         });
+
+        function renderTemplateView(data) {
+            const $view = $('#templateView');
+            $('#templateForm').hide();
+            $('#emptyTemplate').hide();
+
+            // 제목 및 기본정보
+            $view.find('#viewTplName').text(data.tplName);
+            $view.find('#viewTplPhase').text(data.tplPhase || '-');
+
+            // 운동 목록 렌더링
+            let html = '';
+            if (data.exercises && data.exercises.length > 0) {
+                data.exercises.forEach(function(exer) {
+                    html += `
+                    <div class="list-group-item">
+                        <div class="small text-primary mb-1 ml-4">
+                            ${exer.tplCategoryCode || ''} ${exer.tplKindCode ? '> ' + exer.tplKindCode : ''}
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="mr-2 text-muted">☰</span>
+                            <span class="font-weight-bold">${exer.tplExerName}</span>
+                            ${exer.tplMeasure1 ? `<span class="badge badge-info ml-2">${exer.tplMeasure1}세트</span>` : ''}
+                            ${exer.tplMeasure2 ? `<span class="badge badge-info ml-1">${exer.tplMeasure2}회</span>` : ''}
+                        </div>
+                        ${exer.tplNote ? `<div class="text-muted small mt-1 ml-4">${exer.tplNote}</div>` : ''}
+                    </div>`;
+                });
+            } else {
+                html = '<div class="p-4 text-center text-muted">등록된 운동이 없습니다.</div>';
+            }
+            $view.find('.list-group').html(html);
+
+            $view.slideDown();
+        }
 
         $('#childMenuCreate').on('click', function() {
 
@@ -601,7 +603,7 @@
             <div id="templateForm" style="display: none">
             </div>
 
-            <div style="display:none;">
+            <div id="templateView" style="display: none">
                 <div class="col-12 mb-4">
                     <label for="siteName" class="form-label">템플릿 이름</label>
                     <input type="text" class="form-control" id="siteName">
@@ -672,10 +674,6 @@
                                 메모메모메모
                             </div>
                         </div>
-
-                        <button class="btn btn-sm btn-primary mt-2" onclick="addExercise()">
-                            + 운동 추가
-                        </button>
                     </div>
                 </div>
 
