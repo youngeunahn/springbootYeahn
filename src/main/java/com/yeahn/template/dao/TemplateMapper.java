@@ -48,4 +48,8 @@ public class TemplateMapper {
 
         sqlSession.insert("ExerciseTemplateMapper.insertRelation", param);
     }
+
+    public void updateExerciseOrders(List<TemplateDto> list) {
+        sqlSession.update("ExerciseTemplateMapper.updateExerciseOrders", list);
+    }
 }

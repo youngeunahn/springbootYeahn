@@ -147,4 +147,20 @@
         )
     </insert>
 
+    <update id="updateExerciseOrders" parameterType="java.util.List">
+        UPDATE TB_EXER_ATTR
+        SET TPL_SORT_ORDER = CASE
+            <foreach collection="list" item="item">
+                WHEN TPL_ATTR_SEQ = #{item.tplAttrSeq} THEN #{item.tplSortOrder}
+            </foreach>
+        END,
+        UPD_DT = NOW(),
+        UPD_IP = #{list[0].updIp},
+        UPD_USER_ID = #{list[0].updUserId}
+        WHERE TPL_ATTR_SEQ IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.tplAttrSeq}
+        </foreach>
+    </update>
+
 </mapper>

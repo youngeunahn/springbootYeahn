@@ -33,7 +33,8 @@
 - **주요 로직**:
     - 템플릿 등록 시 `TemplateService.createTemplate`에서 **트랜잭션**을 통해 [템플릿 생성 -> 개별 운동 생성 -> 관계 연결] 순서로 처리함.
     - `SORT_ORDER`는 시스템 내에서 자동으로 관리됨.
-    - `src/main/resources/templates/exercise/template/list.mustache` 파일에서 상세 운동 구성 리스트에 jQuery UI Sortable을 활용한 드래그앤드롭 재정렬 기능을 추가함. (UI에서만 적용)
+    - `src/main/resources/templates/exercise/template/list.mustache` 파일에서 상세 운동 구성 리스트에 jQuery UI Sortable을 활용한 드래그앤드롭 재정렬 기능을 구현함.
+    - **순서 변경 반영**: Sortable의 `update` 이벤트 시 정렬된 `tplAttrSeq` 리스트를 서버로 전송하여 DB의 `TPL_SORT_ORDER`를 즉시 업데이트함. (성공 시 하단 Toast 알림 제공)
 - **UI 레이아웃**:
     - **상세 뷰**: 각 운동 항목은 한 줄로 표시되며, `[번호] [카테고리|종류] [운동명]` 순서로 배치함. 메모는 항목 하단에 들여쓰기된 별도 블록으로 표시.
     - **화면 전환**: 템플릿 추가 클릭 시 기존 상세 조회 화면(`#templateView`)은 숨기고 등록 폼(`#templateForm`)을 활성화함. (추가 버튼은 계속 노출 유지)
@@ -42,6 +43,7 @@
 - **경로**: `/api/exercise/templates/**`
 - **조회 (`POST`)**: 운동 종류별 카테고리 및 하위 코드 리스트 반환.
 - **등록 (`POST`)**: `/api/exercise/templates/create` - `TemplateDto` 객체를 통해 템플릿과 포함된 운동 리스트를 한 번에 저장.
+- **순서 변경 (`POST`)**: `/api/exercise/templates/reorder` - 변경된 운동 목록(`exercises`)의 `tplAttrSeq`와 `tplSortOrder`를 받아 배치 업데이트 수행.
 
 ## 프로젝트 구조 및 개발 컨벤션
 
@@ -50,6 +52,8 @@
 - **DAO/DTO:** 
   - `com.yeahn.*.dao`: MyBatis와 연동되는 인터페이스
   - `com.yeahn.*.dto`: 데이터 전달 객체 (Lombok 활용)
+- **Persistence (MyBatis) 컨벤션:**
+  - **Batch Update:** 다량의 데이터나 순서(Order) 변경 시, 루프를 통한 개별 쿼리 대신 MyBatis의 `<foreach>`와 `CASE WHEN` 구문을 사용하여 단일 쿼리로 처리하여 성능을 최적화합니다.
 - **Security:**
   - `SecurityConfig.java`: 인증/인가 설정. 기본적으로 `/login`, `/signUp`을 제외한 모든 경로는 `ADMIN` 권한이 필요합니다.
   - `BCryptPasswordEncoder`를 사용하여 비밀번호를 암호화합니다.

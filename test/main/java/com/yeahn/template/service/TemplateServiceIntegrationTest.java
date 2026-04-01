@@ -125,6 +125,68 @@ public class TemplateServiceIntegrationTest {
         assertEquals(3, savedExerciseCount, "DB에 저장된 운동 매핑 데이터 개수가 3개여야 합니다.");
     }
 
+    @Test
+    @DisplayName("운동 순서 변경 통합 테스트 - DB 반영 여부 확인")
+    void reorderExercises_Integration_Test() {
+        // [Given] 3개의 운동이 포함된 템플릿 생성
+        TemplateDto createRequest = new TemplateDto();
+        createRequest.setTplName("ORDER_TEST");
+        createRequest.setTplTypeCode("ORDER_TYPE");
+        createRequest.setExercises(Arrays.asList(
+                createExerciseDto("운동1"), createExerciseDto("운동2"), createExerciseDto("운동3")
+        ));
+
+        Long tplSeq = templateService.createTemplate(createRequest, request);
+
+        // 생성된 운동들의 tplAttrSeq 목록 조회
+        List<Long> attrSeqs = jdbcTemplate.queryForList(
+                "SELECT TPL_ATTR_SEQ FROM TB_EXER WHERE TPL_SEQ = ? ORDER BY TPL_ATTR_SEQ",
+                Long.class, tplSeq
+        );
+
+        // [When] 순서 변경 요청 구성 (역순으로 변경: 3, 2, 1)
+        TemplateDto reorderRequest = new TemplateDto();
+        reorderRequest.setTplSeq(tplSeq);
+
+        TemplateDto ex1 = new TemplateDto();
+        ex1.setTplAttrSeq(attrSeqs.get(0));
+        ex1.setTplSortOrder(3); // 원래 1 -> 3
+
+        TemplateDto ex2 = new TemplateDto();
+        ex2.setTplAttrSeq(attrSeqs.get(1));
+        ex2.setTplSortOrder(2); // 원래 2 -> 2
+
+        TemplateDto ex3 = new TemplateDto();
+        ex3.setTplAttrSeq(attrSeqs.get(2));
+        ex3.setTplSortOrder(1); // 원래 3 -> 1
+
+        reorderRequest.setExercises(Arrays.asList(ex1, ex2, ex3));
+
+        // 순서 변경 실행
+        templateService.reorderExercises(reorderRequest, request);
+
+        // [Then] DB에서 변경된 순서 검증
+        Integer order1 = jdbcTemplate.queryForObject(
+                "SELECT TPL_SORT_ORDER FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?",
+                Integer.class, attrSeqs.get(0));
+        Integer order2 = jdbcTemplate.queryForObject(
+                "SELECT TPL_SORT_ORDER FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?",
+                Integer.class, attrSeqs.get(1));
+        Integer order3 = jdbcTemplate.queryForObject(
+                "SELECT TPL_SORT_ORDER FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?",
+                Integer.class, attrSeqs.get(2));
+
+        assertEquals(3, order1, "운동1의 순서가 3으로 변경되어야 합니다.");
+        assertEquals(2, order2, "운동2의 순서가 2로 유지되어야 합니다.");
+        assertEquals(1, order3, "운동3의 순서가 1로 변경되어야 합니다.");
+
+        // UPD_USER_ID 검증
+        String updUser = jdbcTemplate.queryForObject(
+                "SELECT UPD_USER_ID FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?",
+                String.class, attrSeqs.get(0));
+        assertEquals("test_admin", updUser, "수정자 ID가 올바르게 저장되어야 합니다.");
+    }
+
     private TemplateDto createExerciseDto(String name) {
         TemplateDto dto = new TemplateDto();
         dto.setTplExerName(name);

@@ -52,6 +52,11 @@ public class TemplateApiController {
         return templateService.createTemplate(request, req);
     }
 
+    @PostMapping("/exercise/templates/reorder")
+    public void reorder(@RequestBody TemplateDto request, HttpServletRequest req) {
+        templateService.reorderExercises(request, req);
+    }
+
     @GetMapping("/exercise/templates/{tplSeq}")
     public TemplateDto detail(@PathVariable Long tplSeq) {
         return templateService.getTplDetail(tplSeq);

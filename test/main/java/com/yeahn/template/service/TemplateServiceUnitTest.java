@@ -180,4 +180,36 @@ class TemplateServiceUnitTest {
         verify(templateMapper, never()).insertExercise(any(TemplateDto.class));
         verify(templateMapper, never()).insertRelation(anyLong(), any());
     }
+
+    @Test
+    @DisplayName("운동 순서 변경 테스트")
+    void reorderExercises_Test() {
+        // given
+        TemplateDto requestDto = new TemplateDto();
+        requestDto.setTplSeq(123L);
+
+        TemplateDto ex1 = new TemplateDto();
+        ex1.setTplAttrSeq(501L);
+        ex1.setTplSortOrder(1);
+
+        TemplateDto ex2 = new TemplateDto();
+        ex2.setTplAttrSeq(502L);
+        ex2.setTplSortOrder(2);
+
+        requestDto.setExercises(Arrays.asList(ex1, ex2));
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("adminUser");
+        when(request.getRemoteAddr()).thenReturn("10.0.0.1");
+
+        // when
+        templateService.reorderExercises(requestDto, request);
+
+        // then
+        verify(templateMapper, times(1)).updateExerciseOrders(anyList());
+        assertEquals("adminUser", ex1.getUpdUserId());
+        assertEquals("10.0.0.1", ex1.getUpdIp());
+        assertEquals("adminUser", ex2.getUpdUserId());
+        assertEquals("10.0.0.1", ex2.getUpdIp());
+    }
 }

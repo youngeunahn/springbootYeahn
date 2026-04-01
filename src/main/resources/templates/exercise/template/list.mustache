@@ -133,11 +133,15 @@
             $container.empty();
 
             if (data.exercises && data.exercises.length > 0) {
+                // 컨테이너에 tplSeq 저장 (순서 변경 시 사용)
+                $('#exerciseListSortable').data('tpl-seq', data.tplSeq);
+
                 data.exercises.forEach(function(exer, index) {
                     // 메인 아이템 생성
                     const $item = $('<div>', {
                         class: 'px-0 py-3 border-bottom',
-                        style: 'background: transparent;'
+                        style: 'background: transparent;',
+                        'data-attr-seq': exer.tplAttrSeq
                     });
 
                     // 1행: 번호, 운동명, 카테고리 정보
@@ -189,10 +193,43 @@
                     $item.append($row1, $contentArea);
                     $container.append($item);
                 });
+
                 $('#exerciseListSortable').sortable({
                     handle: '.badge-light',
                     axis: 'y',
                     update: function(event, ui) {
+                        const tplSeq = $(this).data('tpl-seq');
+                        const exercises = [];
+
+                        $(this).children().each(function(index) {
+                            const attrSeq = $(this).data('attr-seq');
+                            if (attrSeq) {
+                                exercises.push({
+                                    tplAttrSeq: attrSeq,
+                                    tplSortOrder: index + 1
+                                });
+                            }
+                            // UI상 번호 배지도 업데이트
+                            $(this).find('.badge-light').text(index + 1);
+                        });
+
+                        if (exercises.length > 0) {
+                            $.ajax({
+                                url: '/api/exercise/templates/reorder',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    tplSeq: tplSeq,
+                                    exercises: exercises
+                                }),
+                                success: function() {
+                                    showToast('순서가 저장되었습니다.');
+                                },
+                                error: function() {
+                                    alert('순서 변경 저장에 실패했습니다.');
+                                }
+                            });
+                        }
                     }
                 });
             } else {
@@ -200,6 +237,18 @@
             }
 
             $view.fadeIn();
+        }
+
+        function showToast(message) {
+            const $toast = $('<div>', {
+                class: 'alert alert-success position-fixed',
+                style: 'bottom: 20px; right: 20px; z-index: 9999; display: none; min-width: 200px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);',
+                text: message
+            }).appendTo('body');
+
+            $toast.fadeIn().delay(1500).fadeOut(function() {
+                $(this).remove();
+            });
         }
 
         $('#childMenuCreate').on('click', function() {

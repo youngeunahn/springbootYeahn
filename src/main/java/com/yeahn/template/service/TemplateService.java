@@ -68,4 +68,18 @@ public class TemplateService {
 
         return tplSeq;
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void reorderExercises(TemplateDto request, HttpServletRequest req) {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String ip = getIP(req);
+
+        if (request.getExercises() != null) {
+            for (TemplateDto ex : request.getExercises()) {
+                ex.setUpdUserId(userId);
+                ex.setUpdIp(ip);
+            }
+            templateMapper.updateExerciseOrders(request.getExercises());
+        }
+    }
 }
