@@ -34,6 +34,9 @@
     - 템플릿 등록 시 `TemplateService.createTemplate`에서 **트랜잭션**을 통해 [템플릿 생성 -> 개별 운동 생성 -> 관계 연결] 순서로 처리함.
     - `SORT_ORDER`는 시스템 내에서 자동으로 관리됨.
     - `src/main/resources/templates/exercise/template/list.mustache` 파일에서 상세 운동 구성 리스트에 jQuery UI Sortable을 활용한 드래그앤드롭 재정렬 기능을 추가함. (UI에서만 적용)
+- **UI 레이아웃**:
+    - **상세 뷰**: 각 운동 항목은 한 줄로 표시되며, `[번호] [카테고리|종류] [운동명]` 순서로 배치함. 메모는 항목 하단에 들여쓰기된 별도 블록으로 표시.
+    - **화면 전환**: 템플릿 추가 클릭 시 기존 상세 조회 화면(`#templateView`)은 숨기고 등록 폼(`#templateForm`)을 활성화함. (추가 버튼은 계속 노출 유지)
 
 ## API 컨벤션
 - **경로**: `/api/exercise/templates/**`

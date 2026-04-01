@@ -140,39 +140,43 @@
                         style: 'background: transparent;'
                     });
 
-                    // 1행: 번호, 운동명, 세트/횟수
-                    const $row1 = $('<div>', { class: 'd-flex justify-content-between align-items-center mb-2' });
+                    // 1행: 번호, 운동명, 카테고리 정보
+                    const $row1 = $('<div>', { class: 'd-flex justify-content-between align-items-center mb-0' });
                     
-                    const $titleArea = $('<div>', { class: 'd-flex align-items-center' });
+                    const $titleArea = $('<div>', { class: 'd-flex align-items-center flex-wrap' });
+                    // 1. 번호 배지
                     $titleArea.append($('<span>', {
                         class: 'badge badge-light border mr-2 text-muted',
                         style: 'width: 28px; height: 28px; line-height: 20px; font-size: 0.9rem; display: inline-block; vertical-align: middle; text-align: center; padding: 3px 0; cursor: grab;',
                         text: index + 1
                     }));
+
+                    // 2. 카테고리 정보 (제목 왼쪽으로 이동)
+                    const $categoryInfo = $('<span>', {
+                        class: 'mr-2',
+                        style: 'font-size: 0.85rem; color: #6c757d;'
+                    });
+                    $categoryInfo.append($('<span>', {
+                        class: 'text-primary font-weight-bold',
+                        text: exer.tplCategoryCode || ''
+                    }));
+                    if (exer.tplKindCode) {
+                        $categoryInfo.append($('<span>', { class: 'mx-1 text-light', text: '|' }));
+                        $categoryInfo.append($('<span>', { text: exer.tplKindCode }));
+                    }
+                    $titleArea.append($categoryInfo);
+
+                    // 3. 운동명 (제목)
                     $titleArea.append($('<h6>', {
                         class: 'mb-0 font-weight-bold text-dark',
                         style: 'font-size: 1.1rem;',
                         text: exer.tplExerName
                     }));
+                    
                     $row1.append($titleArea);
 
-                    // 2행: 카테고리 정보 및 메모
+                    // 2행: 메모 (메모가 있을 때만 표시)
                     const $contentArea = $('<div>', { style: 'margin-left: 36px;' });
-                    
-                    const $category = $('<div>', {
-                        class: 'mb-1',
-                        style: 'font-size: 0.9rem; color: #6c757d;'
-                    });
-                    $category.append($('<span>', {
-                        class: 'text-primary font-weight-bold',
-                        text: exer.tplCategoryCode || ''
-                    }));
-                    if (exer.tplKindCode) {
-                        $category.append($('<span>', { class: 'mx-2 text-light', text: '|' }));
-                        $category.append($('<span>', { text: exer.tplKindCode }));
-                    }
-
-                    $contentArea.append($category);
 
                     if (exer.tplNote) {
                         $contentArea.append($('<div>', {
@@ -214,6 +218,7 @@
             });
 
             $('#emptyTemplate').hide();
+            $('#templateView').hide();
             $('#templateForm').append($clone);
 
             $clone.find('.btn-group').first().each(function() {
@@ -242,6 +247,7 @@
             $clone.find('#cancelTemplateBtnClone').off('click').on('click', function() {
                 $('#templateForm').hide();
                 $('#emptyTemplate').show();
+                $('#childMenuCreate').show();
             });
 
             // 등록 버튼 이벤트
