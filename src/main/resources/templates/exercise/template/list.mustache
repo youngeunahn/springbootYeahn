@@ -146,7 +146,7 @@
                     const $titleArea = $('<div>', { class: 'd-flex align-items-center' });
                     $titleArea.append($('<span>', {
                         class: 'badge badge-light border mr-2 text-muted',
-                        style: 'width: 28px; height: 28px; line-height: 20px; font-size: 0.9rem; display: inline-block; vertical-align: middle; text-align: center; padding: 3px 0;',
+                        style: 'width: 28px; height: 28px; line-height: 20px; font-size: 0.9rem; display: inline-block; vertical-align: middle; text-align: center; padding: 3px 0; cursor: grab;',
                         text: index + 1
                     }));
                     $titleArea.append($('<h6>', {
@@ -154,24 +154,7 @@
                         style: 'font-size: 1.1rem;',
                         text: exer.tplExerName
                     }));
-
-                    const $measureArea = $('<div>', { class: 'text-right' });
-                    if (exer.tplMeasure1) {
-                        $measureArea.append($('<span>', {
-                            class: 'badge badge-info badge-pill px-2 py-1 mr-1',
-                            style: 'font-size: 0.85rem;',
-                            text: exer.tplMeasure1 + '세트'
-                        }));
-                    }
-                    if (exer.tplMeasure2) {
-                        $measureArea.append($('<span>', {
-                            class: 'badge badge-secondary badge-pill px-2 py-1',
-                            style: 'font-size: 0.85rem;',
-                            text: exer.tplMeasure2 + '회'
-                        }));
-                    }
-                    
-                    $row1.append($titleArea, $measureArea);
+                    $row1.append($titleArea);
 
                     // 2행: 카테고리 정보 및 메모
                     const $contentArea = $('<div>', { style: 'margin-left: 36px;' });
@@ -201,6 +184,12 @@
 
                     $item.append($row1, $contentArea);
                     $container.append($item);
+                });
+                $('#exerciseListSortable').sortable({
+                    handle: '.badge-light',
+                    axis: 'y',
+                    update: function(event, ui) {
+                    }
                 });
             } else {
                 $container.html('<div class="p-5 text-center text-muted">등록된 운동이 없습니다.</div>');
@@ -677,7 +666,7 @@
                     <h6 class="text-muted font-weight-bold mb-3 d-flex align-items-center">
                         <span class="mr-2">📋</span> 상세 운동 구성
                     </h6>
-                    <div class="list-group list-group-flush border-top border-bottom" style="max-height: 550px; overflow-y: auto;">
+                    <div id="exerciseListSortable" class="list-group list-group-flush border-top border-bottom" style="max-height: 550px; overflow-y: auto;">
                         <!-- renderTemplateView 함수에서 생성된 항목이 여기에 삽입됩니다 -->
                     </div>
                 </div>
