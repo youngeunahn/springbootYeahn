@@ -212,4 +212,69 @@ class TemplateServiceUnitTest {
         assertEquals("adminUser", ex2.getUpdUserId());
         assertEquals("10.0.0.1", ex2.getUpdIp());
     }
+
+    @Test
+    @DisplayName("템플릿 수정 테스트 - 업데이트/추가/삭제 복합 시나리오")
+    void updateTemplate_Complex_Test() {
+        // given
+        Long tplSeq = 100L;
+        TemplateDto requestDto = new TemplateDto();
+        requestDto.setTplSeq(tplSeq);
+        requestDto.setTplName("수정된 템플릿");
+
+        // 1. 기존 항목 (유지 및 업데이트 대상)
+        TemplateDto exExisting = new TemplateDto();
+        exExisting.setTplAttrSeq(501L);
+        exExisting.setTplExerName("기존 운동 수정");
+
+        // 2. 신규 항목 (추가 대상)
+        TemplateDto exNew = new TemplateDto();
+        exNew.setTplExerName("새로운 운동");
+
+        requestDto.setExercises(Arrays.asList(exExisting, exNew));
+
+        // DB에 현재 저장된 상태 (501L: 유지, 502L: 삭제 대상)
+        TemplateDto currentEx1 = new TemplateDto(); currentEx1.setTplAttrSeq(501L);
+        TemplateDto currentEx2 = new TemplateDto(); currentEx2.setTplAttrSeq(502L);
+        when(templateMapper.getExerList(tplSeq)).thenReturn(Arrays.asList(currentEx1, currentEx2));
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("updateUser");
+        when(request.getRemoteAddr()).thenReturn("1.1.1.1");
+
+        // when
+        templateService.updateTemplate(requestDto, request);
+
+        // then
+        // 1. 마스터 업데이트 검증
+        verify(templateMapper, times(1)).updateTemplate(requestDto);
+
+        // 2. 기존 항목(501L) 업데이트 검증
+        verify(templateMapper, times(1)).updateExercise(argThat(ex -> ex.getTplAttrSeq().equals(501L)));
+
+        // 3. 신규 항목 삽입 및 관계 연결 검증
+        verify(templateMapper, times(1)).insertExercise(argThat(ex -> ex.getTplAttrSeq() == null));
+        verify(templateMapper, times(1)).insertRelation(eq(tplSeq), any());
+
+        // 4. 제외된 항목(502L) Soft Delete 검증
+        verify(templateMapper, times(1)).deleteExerciseBySeq(502L);
+    }
+
+    @Test
+    @DisplayName("템플릿 삭제 테스트")
+    void deleteTemplate_Test() {
+        // given
+        Long tplSeq = 200L;
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("deleteUser");
+        when(request.getRemoteAddr()).thenReturn("2.2.2.2");
+
+        // when
+        templateService.deleteTemplate(tplSeq, request);
+
+        // then
+        verify(templateMapper, times(1)).deleteTemplate(any(TemplateDto.class));
+        verify(templateMapper, times(1)).deleteRelationByTplSeq(tplSeq);
+        verify(templateMapper, times(1)).deleteExerciseByTplSeq(any(TemplateDto.class));
+    }
 }

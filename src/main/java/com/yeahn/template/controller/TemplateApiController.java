@@ -57,6 +57,16 @@ public class TemplateApiController {
         templateService.reorderExercises(request, req);
     }
 
+    @PostMapping("/exercise/templates/update")
+    public void update(@RequestBody TemplateDto request, HttpServletRequest req) {
+        templateService.updateTemplate(request, req);
+    }
+
+    @PostMapping("/exercise/templates/delete/{tplSeq}")
+    public void delete(@PathVariable Long tplSeq, HttpServletRequest req) {
+        templateService.deleteTemplate(tplSeq, req);
+    }
+
     @GetMapping("/exercise/templates/{tplSeq}")
     public TemplateDto detail(@PathVariable Long tplSeq) {
         return templateService.getTplDetail(tplSeq);

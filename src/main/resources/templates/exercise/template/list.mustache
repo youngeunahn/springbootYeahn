@@ -162,11 +162,11 @@
                     });
                     $categoryInfo.append($('<span>', {
                         class: 'text-primary font-weight-bold',
-                        text: exer.tplCategoryCode || ''
+                        text: exer.tplCategoryDesc || ''
                     }));
-                    if (exer.tplKindCode) {
+                    if (exer.tplKindDesc) {
                         $categoryInfo.append($('<span>', { class: 'mx-1 text-light', text: '|' }));
-                        $categoryInfo.append($('<span>', { text: exer.tplKindCode }));
+                        $categoryInfo.append($('<span>', { text: exer.tplKindDesc }));
                     }
                     $titleArea.append($categoryInfo);
 
@@ -239,6 +239,41 @@
             $view.fadeIn();
         }
 
+        // 수정 버튼 클릭
+        $(document).on('click', '.btn-edit-tpl', function() {
+            const tplSeq = $('#exerciseListSortable').data('tpl-seq');
+            if (!tplSeq) return;
+
+            $.ajax({
+                url: `/api/exercise/templates/${tplSeq}`,
+                type: 'GET',
+                success: function(data) {
+                    openTemplateForm(data);
+                },
+                error: function() {
+                    alert('상세 정보를 불러오는 데 실패했습니다.');
+                }
+            });
+        });
+
+        // 삭제 버튼 클릭
+        $(document).on('click', '.btn-delete-tpl', function() {
+            const tplSeq = $('#exerciseListSortable').data('tpl-seq');
+            if (!tplSeq || !confirm('정말 삭제하시겠습니까?')) return;
+
+            $.ajax({
+                url: `/api/exercise/templates/delete/${tplSeq}`,
+                type: 'POST',
+                success: function() {
+                    alert('삭제되었습니다.');
+                    location.reload();
+                },
+                error: function() {
+                    alert('삭제에 실패했습니다.');
+                }
+            });
+        });
+
         function showToast(message) {
             const $toast = $('<div>', {
                 class: 'alert alert-success position-fixed',
@@ -251,59 +286,73 @@
             });
         }
 
-        $('#childMenuCreate').on('click', function() {
-
+        function openTemplateForm(data) {
+            const isUpdate = !!(data && data.tplSeq);
             $('#templateForm').empty();
 
             let $clone = $('#templateFormBase').clone();
             $clone.removeAttr('id');
             $clone.show();
 
-            $clone.find('input, select, div[id]').each(function(index) {
-                const $el = $(this);
-                if ($el.attr('id')) {
-                    $el.attr('id', $el.attr('id') + '_' + Date.now());
-                }
+            // ID 고유화
+            const timestamp = Date.now();
+            $clone.find('[id]').each(function() {
+                $(this).attr('id', $(this).attr('id') + '_' + timestamp);
             });
 
             $('#emptyTemplate').hide();
             $('#templateView').hide();
             $('#templateForm').append($clone);
 
-            $clone.find('.btn-group').first().each(function() {
-                const $phaseArea = $(this);
-                $.get('/api/codes/TPL_PHASE', function(data) {
-                    let html = '';
-                    if (data && data.forEach) {
-                        data.forEach((item, idx) => {
-                            html += `<button type="button"
-                                        class="btn btn-sm btn-outline-secondary m-1 ${idx === 0 ? 'active' : ''}"
-                                        value="${item.typeCode}">
-                                        ${item.codeDesc}
-                                </button>`;
-                        });
-                    }
-                    $phaseArea.html(html);
+            // 제목 설정 및 시퀀스 저장
+            if (isUpdate) {
+                $clone.find('input[id^="siteName"]').val(data.tplName);
+                $clone.find('button[id^="saveTemplateBtn"]').text('수정');
+                $clone.attr('data-tpl-seq', data.tplSeq);
+            }
+
+            // Phase 코드 조회 및 선택
+            const $phaseArea = $clone.find('div[id^="phaseArea"]');
+            $.get('/api/codes/TPL_PHASE', function(codeList) {
+                let html = '';
+                if (codeList && codeList.forEach) {
+                    codeList.forEach((item, idx) => {
+                        let activeClass = '';
+                        if (isUpdate) {
+                            if (data.tplPhase === item.codeDesc) activeClass = 'active';
+                        } else if (idx === 0) {
+                            activeClass = 'active';
+                        }
+                        html += `<button type="button" class="btn btn-sm btn-outline-secondary m-1 ${activeClass}" value="${item.typeCode}">${item.codeDesc}</button>`;
+                    });
+                }
+                $phaseArea.html(html);
+            });
+
+            // 운동 목록 추가
+            const $addBtn = $clone.find('button[id^="addExerciseBtn"]');
+            if (isUpdate && data.exercises) {
+                data.exercises.forEach(ex => {
+                    addExerciseWithData($addBtn, ex);
                 });
-            });
+            } else {
+                addExercise($addBtn);
+            }
 
-            // addExercise 버튼 이벤트 (clone 내부)
-            $clone.find('#addExerciseBtn').off('click').on('click', function() {
-                addExercise($(this).closest('#templateForm'));
-            });
-
-            // 취소 버튼 이벤트
-            $clone.find('#cancelTemplateBtnClone').off('click').on('click', function() {
+            // 이벤트 바인딩
+            $addBtn.on('click', function() { addExercise($(this)); });
+            
+            $clone.find('button[id^="cancelTemplateBtnClone"]').on('click', function() {
                 $('#templateForm').hide();
-                $('#emptyTemplate').show();
-                $('#childMenuCreate').show();
+                if (isUpdate) $('#templateView').show();
+                else { $('#emptyTemplate').show(); $('#childMenuCreate').show(); }
             });
 
-            // 등록 버튼 이벤트
-            $clone.find('#saveTemplateBtn').off('click').on('click', function () {
+            $clone.find('button[id^="saveTemplateBtn"]').on('click', function () {
                 const tplName = $clone.find('input[id^="siteName"]').val();
                 const tplPhase = $clone.find('div[id^="phaseArea"] button.active').val();
                 const tplTypeCode = $('button[name="tplType"][data-selected="true"]').data('type');
+                const tplSeq = $clone.attr('data-tpl-seq');
 
                 const exercises = [];
                 $clone.find('.list-group .list-group-item').each(function(index) {
@@ -312,9 +361,11 @@
                     const tplKindCode = $item.find('select').val();
                     const tplExerName = $item.find('input[placeholder="운동명"]').val();
                     const tplNote = $item.find('input[placeholder="메모 입력"]').val();
+                    const tplAttrSeq = $item.attr('data-attr-seq');
 
                     if (tplExerName) {
                         exercises.push({
+                            tplAttrSeq: tplAttrSeq,
                             tplCategoryCode: tplCategoryCode,
                             tplKindCode: tplKindCode,
                             tplExerName: tplExerName,
@@ -324,45 +375,36 @@
                     }
                 });
 
-                if (!tplName) {
-                    alert('템플릿 이름을 입력해주세요.');
-                    return;
-                }
-
-                if (exercises.length === 0) {
-                    alert('운동을 하나 이상 추가해주세요.');
-                    return;
-                }
+                if (!tplName) { alert('템플릿 이름을 입력해주세요.'); return; }
+                if (exercises.length === 0) { alert('운동을 하나 이상 추가해주세요.'); return; }
 
                 const requestData = {
+                    tplSeq: tplSeq,
                     tplTypeCode: tplTypeCode,
                     tplName: tplName,
                     tplPhase: tplPhase,
                     exercises: exercises
                 };
 
+                const url = isUpdate ? '/api/exercise/templates/update' : '/api/exercise/templates/create';
                 $.ajax({
-                    url: '/api/exercise/templates/create',
+                    url: url,
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(requestData),
-                    success: function(data) {
-                        alert('템플릿이 등록되었습니다.');
+                    success: function() {
+                        alert(isUpdate ? '템플릿이 수정되었습니다.' : '템플릿이 등록되었습니다.');
                         location.reload();
                     },
-                    error: function(err) {
-                        alert('등록에 실패했습니다.');
-                        console.error(err);
-                    }
+                    error: function() { alert('처리에 실패했습니다.'); }
                 });
-            })
+            });
 
-            addExercise($(this).closest('#templateForm'));
             $('#templateForm').slideDown();
-        });
+        }
 
-        $('#cancelTemplateBtn').on('click', function() {
-            $('#templateForm').slideUp();
+        $('#childMenuCreate').on('click', function() {
+            openTemplateForm();
         });
 
         // 템플릿 추가폼 운동 순서 클릭 이벤트
@@ -373,14 +415,8 @@
 
         // 템플릿 추가폼 운동 종류 클릭 이벤트
         $(document).on('click', '.exercise-part-group .btn', function() {
-            const $group = $(this).closest('.exercise-part-group');
-
-            $group.find('.btn').removeClass('active');
+            $(this).siblings().removeClass('active');
             $(this).addClass('active');
-        });
-
-        $('#addExerciseBtn').on('click', function() {
-            addExercise();
         });
 
         $(document).on('click', '.exercise-delete-btn', function() {
@@ -388,70 +424,23 @@
         });
     });
 
-    function addExerciseWithData($beforeEl, data) {
+    function addExerciseWithData($addBtn, data) {
         const tplType = $('button[name="tplType"][data-selected="true"]').data('type');
-
-        let $item = $('<div>', { class: 'list-group-item' });
+        let $item = $('<div>', { class: 'list-group-item', 'data-attr-seq': data ? data.tplAttrSeq : '' });
         let $partWrap = $('<div>', { class: 'ml-4 mb-2' });
-        let $partGroup = $('<div>', {
-            class: 'btn-group btn-group-sm exercise-part-group',
-            role: 'group'
-        });
-
+        let $partGroup = $('<div>', { class: 'btn-group btn-group-sm exercise-part-group', role: 'group' });
         $partWrap.append($partGroup);
 
         let $row = $('<div>', { class: 'd-flex align-items-center' });
-        let $drag = $('<span>', {
-            class: 'mr-2 drag-handle text-muted',
-            text: '☰'
-        });
-
-        let $select = "";
-        if (tplType == "GYM") {
-            $select = $('<select>', {
-                class: 'form-control form-control-sm mr-2',
-                style: 'width: 80px; background-position: 90% 52%'
-            });
-        }
-
-        let $name = $('<input>', {
-            type: 'text',
-            class: 'form-control form-control-sm mr-2',
-            placeholder: '운동명',
-            style: 'width: 50%;',
-            value: data.tplExerName || ''
-        });
-
-        $row.append(
-            $drag,
-            $select,
-            $name
-        );
+        let $drag = $('<span>', { class: 'mr-2 drag-handle text-muted', text: '☰' });
+        let $select = (tplType == "GYM") ? $('<select>', { class: 'form-control form-control-sm mr-2', style: 'width: 80px;' }) : "";
+        let $name = $('<input>', { type: 'text', class: 'form-control form-control-sm mr-2', placeholder: '운동명', style: 'width: 50%;', value: data ? data.tplExerName : '' });
+        $row.append($drag, $select, $name);
 
         let $memoWrap = $('<div>', { class: 'mt-2 ml-4' });
-        let $memo = $('<input>', {
-            type: 'text',
-            class: 'form-control form-control-sm',
-            placeholder: '메모 입력',
-            value: data.tplNote || ''
-        });
+        let $memo = $('<input>', { type: 'text', class: 'form-control form-control-sm', placeholder: '메모 입력', value: data ? data.tplNote : '' });
+        let $deleteBtn = $('<button>', { type: 'button', class: 'btn btn-sm btn-secondary exercise-delete-btn position-absolute', html: '&times;', css: { top: '8px', right: '8px' } });
 
-        let $deleteBtn = $('<button>', {
-            type: 'button',
-            class: 'btn btn-sm btn-secondary exercise-delete-btn position-absolute',
-            html: '&times;',
-            title: '삭제',
-            css: {
-                top: '8px',
-                right: '8px',
-                padding: '4px 10px',
-                fontSize: '16px',
-                lineHeight: '1',
-                borderRadius: '4px'
-            }
-        });
-
-        // 코드 정보 채우기
         $.ajax({
             url: '/api/exercise/templates',
             type: 'POST',
@@ -460,27 +449,13 @@
             success: function(codeData) {
                 if (codeData && codeData.tplCate) {
                     codeData.tplCate.forEach(function(item){
-                        const active = (item.typeCode == data.tplCategoryCode) ? ' active' : '';
-                        $partGroup.append(
-                            $('<button>', {
-                                type: 'button',
-                                class: 'btn btn-sm btn-outline-secondary m-1' + active,
-                                text: item.codeDesc,
-                                value: item.typeCode
-                            }),
-                        );
+                        const active = (data && item.typeCode == data.tplCategoryCode) ? ' active' : '';
+                        $partGroup.append($('<button>', { type: 'button', class: 'btn btn-sm btn-outline-secondary m-1' + active, text: item.codeDesc, value: item.typeCode }));
                     });
                 }
-
                 if (codeData && codeData.tplKind && $select) {
                     codeData.tplKind.forEach(function(item){
-                        $select.append(
-                            $('<option>', {
-                                value: item.typeCode,
-                                text: item.codeDesc,
-                                selected: (item.typeCode == data.tplKindCode)
-                            }),
-                        );
+                        $select.append($('<option>', { value: item.typeCode, text: item.codeDesc, selected: (data && item.typeCode == data.tplKindCode) }));
                     });
                 }
             }
@@ -488,110 +463,11 @@
 
         $memoWrap.append($memo, $deleteBtn);
         $item.append($partWrap, $row, $memoWrap);
-        $beforeEl.before($item);
+        $addBtn.before($item);
     }
 
-    function addExercise() {
-
-        const tplType = $('button[name="tplType"][data-selected="true"]').data('type');
-
-        let $item = $('<div>', { class: 'list-group-item' });
-        let $partWrap = $('<div>', { class: 'ml-4 mb-2' });
-        let $partGroup = $('<div>', {
-            class: 'btn-group btn-group-sm exercise-part-group',
-            role: 'group'
-        });
-
-        $partWrap.append($partGroup);
-
-        let $row = $('<div>', { class: 'd-flex align-items-center' });
-        let $drag = $('<span>', {
-            class: 'mr-2 drag-handle text-muted',
-            text: '☰'
-        });
-
-        let $select = "";
-        if (tplType == "GYM") {
-            $select = $('<select>', {
-                class: 'form-control form-control-sm mr-2',
-                style: 'width: 80px; background-position: 90% 52%'
-            });
-        }
-
-        let $name = $('<input>', {
-            type: 'text',
-            class: 'form-control form-control-sm mr-2',
-            placeholder: '운동명',
-            style: 'width: 50%;'
-        });
-
-        $row.append(
-                $drag,
-                $select,
-                $name
-        );
-
-        let $memoWrap = $('<div>', { class: 'mt-2 ml-4' });
-
-        let $memo = $('<input>', {
-            type: 'text',
-            class: 'form-control form-control-sm',
-            placeholder: '메모 입력'
-        });
-
-        let $deleteBtn = $('<button>', {
-            type: 'button',
-            class: 'btn btn-sm btn-secondary exercise-delete-btn position-absolute',
-            html: '&times;',
-            title: '삭제',
-            css: {
-                top: '8px',
-                right: '8px',
-                padding: '4px 10px',
-                fontSize: '16px',
-                lineHeight: '1',
-                borderRadius: '4px'
-            }
-        });
-
-        // tplCategory 옵션 채우기
-        $.ajax({
-            url: '/api/exercise/templates',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ ref1: tplType }),
-            success: function(data) {
-                if (data && data.tplCate) {
-                    data.tplCate.forEach(function(item){
-                        $partGroup.append(
-                                $('<button>', {
-                                    type: 'button',
-                                    class: 'btn btn-sm btn-outline-secondary m-1' + (item.checked ? ' active' : ''),
-                                    text: item.codeDesc,
-                                    value: item.typeCode
-                                }),
-                        );
-                    });
-                }
-
-                if (data && data.tplKind) {
-                    data.tplKind.forEach(function(item){
-                        $select.append(
-                                $('<option>', {
-                                    value: item.typeCode
-                                    , text: item.codeDesc }),
-                        );
-                    });
-                }
-            },
-            error: function(err) {
-                console.error('템플릿 코드 조회 실패', err);
-            }
-        });
-
-        $memoWrap.append($memo, $deleteBtn);
-        $item.append($partWrap, $row, $memoWrap);
-        $('#addExerciseBtn').before($item);
+    function addExercise($addBtn) {
+        addExerciseWithData($addBtn, null);
     }
 </script>
 
@@ -602,35 +478,18 @@
             <div class="d-flex">
                 <div>
                     <div class="d-flex align-items-center mb-2">
-                        <label class="form-label mb-0 mr-0" style="width: 70px;">
-                            운동 선택
-                        </label>
-
+                        <label class="form-label mb-0 mr-0" style="width: 70px;">운동 선택</label>
                         {{#typeCode}}
-                            <button class="btn btn-sm btn{{^isChecked}}-outline{{/isChecked}}-primary mr-2"
-                                    name="tplType"
-                                    data-type="{{typeCode}}"
-                                    data-selected="{{isChecked}}"
-                                    style="min-width: 15%;">{{codeDesc}}</button>
+                            <button class="btn btn-sm btn{{^isChecked}}-outline{{/isChecked}}-primary mr-2" name="tplType" data-type="{{typeCode}}" data-selected="{{isChecked}}" style="min-width: 15%;">{{codeDesc}}</button>
                         {{/typeCode}}
-
-                        <label for="tplName" class="form-label mb-0 ml-3 mr-2">
-                            템플릿
-                        </label>
-
+                        <label for="tplName" class="form-label mb-0 ml-3 mr-2">템플릿</label>
                         <div class="d-flex" style="flex:1; max-width: 400px;">
                             <input type="text" id="tplName" class="form-control" placeholder="템플릿 검색">
                         </div>
                     </div>
-
-                    <!-- 2줄: Phase + Category -->
                     <div class="d-flex align-items-center">
-
-                        <!-- Phase -->
                         <div class="d-flex align-items-center mr-4">
-                            <label class="form-label mb-0 mr-0" style="width: 70px;">
-                                운동 순서
-                            </label>
+                            <label class="form-label mb-0 mr-0" style="width: 70px;">운동 순서</label>
                             <div class="d-flex flex-wrap phase-group">
                                 <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
                                 {{#tplPhase}}
@@ -638,15 +497,9 @@
                                 {{/tplPhase}}
                             </div>
                         </div>
-
-                        <!-- 구분선 -->
                         <div style="width:1px; height:30px; background:#ddd;"></div>
-
-                        <!-- Category -->
                         <div class="d-flex align-items-center ml-4">
-                            <label class="form-label mb-0 mr-2">
-                                종류
-                            </label>
+                            <label class="form-label mb-0 mr-2">종류</label>
                             <div class="d-flex flex-wrap category-group">
                                 <button class="btn btn-sm btn-outline-secondary active m-1">전체</button>
                                 {{#tplCategory}}
@@ -654,25 +507,17 @@
                                 {{/tplCategory}}
                             </div>
                         </div>
-
                     </div>
                 </div>
-
-                <!-- 검색 버튼 (2행 병합 느낌) -->
                 <div class="ml-3 d-flex align-items-stretch">
-                    <button id="searchBtn" class="btn btn-primary d-flex align-items-center justify-content-center"
-                            style="width: 80px;">
-                        검색
-                    </button>
+                    <button id="searchBtn" class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 80px;">검색</button>
                 </div>
-
             </div>
         </div>
     </div>
     <div class="col-4">
-        <h5 class="card-header border-1">
-            템플릿 리스트
-            <a href="#" id="childMenuCreate" class="btn btn-primary float-right text-white btn-xs" data-toggle="modal" data-target="#insertMenuCodeModal" style="">템플릿 추가</a>
+        <h5 class="card-header border-1">템플릿 리스트
+            <a href="#" id="childMenuCreate" class="btn btn-primary float-right text-white btn-xs">템플릿 추가</a>
         </h5>
         <div class="card card-body p-0">
             <div class="list-group" id="tplListContainer">
@@ -691,71 +536,48 @@
             <div id="emptyTemplate" class="text-center">
                 <div class="text-muted" style="padding: 80px 0;">
                     <div style="font-size: 40px;">📋</div>
-                    <div style="font-size: 18px; margin-top: 10px;">
-                        템플릿을 선택해주세요
-                    </div>
-                    <div style="font-size: 13px;">
-                        왼쪽 목록에서 선택하면 상세 정보가 표시됩니다
-                    </div>
+                    <div style="font-size: 18px; margin-top: 10px;">템플릿을 선택해주세요</div>
+                    <div style="font-size: 13px;">왼쪽 목록에서 선택하면 상세 정보가 표시됩니다</div>
                 </div>
             </div>
-
-            <div id="templateForm" style="display: none">
-            </div>
-
+            <div id="templateForm" style="display: none"></div>
             <div id="templateView" style="display: none">
-                <!-- 템플릿 헤더: 제목 및 관리 버튼 -->
                 <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-4">
                     <div>
                         <span id="viewTplPhase" class="badge badge-pill badge-primary mb-1"></span>
                         <h4 id="viewTplName" class="font-weight-bold mb-0 text-dark"></h4>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-primary px-3" onclick="fn_update();">수정</button>
-                        <button class="btn btn-sm btn-outline-danger ml-1 px-3" onclick="if(confirm('정말 삭제하시겠습니까?')) alert('삭제 기능 구현 예정');">삭제</button>
+                        <button class="btn btn-sm btn-outline-primary px-3 btn-edit-tpl">수정</button>
+                        <button class="btn btn-sm btn-outline-danger ml-1 px-3 btn-delete-tpl">삭제</button>
                     </div>
                 </div>
-
-                <!-- 상세 운동 구성 목록 -->
                 <div class="mb-2">
-                    <h6 class="text-muted font-weight-bold mb-3 d-flex align-items-center">
-                        <span class="mr-2">📋</span> 상세 운동 구성
-                    </h6>
-                    <div id="exerciseListSortable" class="list-group list-group-flush border-top border-bottom" style="max-height: 550px; overflow-y: auto;">
-                        <!-- renderTemplateView 함수에서 생성된 항목이 여기에 삽입됩니다 -->
-                    </div>
+                    <h6 class="text-muted font-weight-bold mb-3 d-flex align-items-center"><span class="mr-2">📋</span> 상세 운동 구성</h6>
+                    <div id="exerciseListSortable" class="list-group list-group-flush border-top border-bottom" style="max-height: 550px; overflow-y: auto;"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 숨겨진 기본 템플릿 (clone 용) -->
 <div id="templateFormBase" style="display:none;">
     <div class="col-12 mb-1">
         <label class="form-label">운동 순서</label>
         <div id="phaseArea" class="btn-group btn-group-sm mr-2" role="group"></div>
     </div>
-
     <div class="col-12 mb-4">
         <label class="form-label">템플릿 이름</label>
         <input type="text" class="form-control" id="siteName">
     </div>
-
     <div class="col-12 mb-4">
         <label class="form-label">운동 목록</label>
         <div class="list-group">
-            <button id="addExerciseBtn" class="btn btn-sm btn-primary mt-2">
-                + 운동 추가
-            </button>
+            <button id="addExerciseBtn" class="btn btn-sm btn-primary mt-2">+ 운동 추가</button>
         </div>
     </div>
-
     <div class="text-center">
-        <button class="btn btn-primary border-1 text-white" id="saveTemplateBtn" >등록</button>
+        <button class="btn btn-primary border-1 text-white" id="saveTemplateBtn">등록</button>
         <button type="button" class="btn btn-secondary" id="cancelTemplateBtnClone">취소</button>
     </div>
 </div>
-<!-- ============================================================== -->
-<!-- end main  -->
-<!-- ============================================================== -->

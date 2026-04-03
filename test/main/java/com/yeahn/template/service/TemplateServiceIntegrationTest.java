@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -187,10 +188,108 @@ public class TemplateServiceIntegrationTest {
         assertEquals("test_admin", updUser, "수정자 ID가 올바르게 저장되어야 합니다.");
     }
 
+    @Test
+    @DisplayName("템플릿 수정 통합 테스트 - 업데이트/추가/삭제 복합 검증")
+    void templateUpdate_Integration_Test() {
+        // [Given] 1. 초기 데이터 생성 (운동 2개 포함)
+        TemplateDto createRequest = new TemplateDto();
+        createRequest.setTplName("INIT_TPL");
+        createRequest.setTplTypeCode("UPDATE_TEST");
+
+        TemplateDto ex1 = createExerciseDto("기존운동1");
+        TemplateDto ex2 = createExerciseDto("기존운동2");
+        createRequest.setExercises(Arrays.asList(ex1, ex2));
+
+        Long tplSeq = templateService.createTemplate(createRequest, request);
+
+        // 생성된 운동 ID(tplAttrSeq) 가져오기
+        List<Long> attrSeqs = jdbcTemplate.queryForList(
+                "SELECT TPL_ATTR_SEQ FROM TB_EXER WHERE TPL_SEQ = ? ORDER BY TPL_ATTR_SEQ", Long.class, tplSeq);
+        Long idToKeep = attrSeqs.get(0);
+        Long idToDelete = attrSeqs.get(1);
+
+        // [When] 2. 수정 요청 구성
+        TemplateDto updateRequest = new TemplateDto();
+        updateRequest.setTplSeq(tplSeq);
+        updateRequest.setTplName("UPDATED_TPL"); // 이름 변경
+        updateRequest.setTplTypeCode("UPDATE_TEST");
+
+        // (1) 기존 운동1 유지 및 이름 변경
+        TemplateDto exKeep = new TemplateDto();
+        exKeep.setTplAttrSeq(idToKeep);
+        exKeep.setTplExerName("이름변경운동1");
+        exKeep.setTplSortOrder(1);
+
+        // (2) 신규 운동 추가 (기존 운동2는 리스트에서 제외하여 삭제 유도)
+        TemplateDto exNew = createExerciseDto("신규추가운동");
+        exNew.setTplSortOrder(2);
+
+        updateRequest.setExercises(Arrays.asList(exKeep, exNew));
+
+        templateService.updateTemplate(updateRequest, request);
+
+        // [Then] 3. DB 정합성 검증
+        // 템플릿 마스터 정보 변경 확인
+        String updatedTplName = jdbcTemplate.queryForObject(
+                "SELECT TPL_NAME FROM TB_EXER_TPL WHERE TPL_SEQ = ?", String.class, tplSeq);
+        assertEquals("UPDATED_TPL", updatedTplName);
+
+        // 기존 운동1: 이름 변경 및 유지 확인
+        String nameAfterUpdate = jdbcTemplate.queryForObject(
+                "SELECT TPL_EXER_NAME FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?", String.class, idToKeep);
+        assertEquals("이름변경운동1", nameAfterUpdate);
+
+        // 기존 운동2: Soft Delete(DEL_YN='Y') 확인
+        String delYn = jdbcTemplate.queryForObject(
+                "SELECT DEL_YN FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?", String.class, idToDelete);
+        assertEquals("Y", delYn);
+
+        // 신규 운동: 추가 확인
+        Integer newExCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM TB_EXER_ATTR attr " +
+                        "INNER JOIN TB_EXER exer ON attr.TPL_ATTR_SEQ = exer.TPL_ATTR_SEQ " +
+                        "WHERE exer.TPL_SEQ = ? AND attr.TPL_EXER_NAME = '신규추가운동'", Integer.class, tplSeq);
+        assertEquals(1, newExCount);
+    }
+
+    @Test
+    @DisplayName("템플릿 삭제 통합 테스트 - Soft Delete 검증")
+    void templateDelete_Integration_Test() {
+        // [Given] 삭제할 템플릿 생성
+        TemplateDto createRequest = new TemplateDto();
+        createRequest.setTplName("DELETE_ME");
+        createRequest.setTplTypeCode("DEL_TEST");
+        createRequest.setExercises(Arrays.asList(createExerciseDto("삭제될운동")));
+
+        Long tplSeq = templateService.createTemplate(createRequest, request);
+        Long attrSeq = jdbcTemplate.queryForObject(
+                "SELECT TPL_ATTR_SEQ FROM TB_EXER WHERE TPL_SEQ = ?", Long.class, tplSeq);
+
+        // [When] 삭제 실행
+        templateService.deleteTemplate(tplSeq, request);
+
+        // [Then] 1. 템플릿 마스터 Soft Delete 확인
+        String tplDelYn = jdbcTemplate.queryForObject(
+                "SELECT DEL_YN FROM TB_EXER_TPL WHERE TPL_SEQ = ?", String.class, tplSeq);
+        assertEquals("Y", tplDelYn);
+
+        // [Then] 2. 운동 속성 Soft Delete 확인
+        String attrDelYn = jdbcTemplate.queryForObject(
+                "SELECT DEL_YN FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?", String.class, attrSeq);
+        assertEquals("Y", attrDelYn);
+
+        // [Then] 3. 관계 데이터 삭제 확인
+        Integer relCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM TB_EXER WHERE TPL_SEQ = ?", Integer.class, tplSeq);
+        assertEquals(0, relCount, "관계 정보는 물리 삭제되어야 합니다.");
+    }
+
     private TemplateDto createExerciseDto(String name) {
         TemplateDto dto = new TemplateDto();
         dto.setTplExerName(name);
         dto.setTplTypeCode("MULTI_TYPE");
+        dto.setTplCategoryCode("CAT01");
+        dto.setTplKindCode("KIND01");
         return dto;
     }
 }

@@ -1,49 +1,35 @@
-# [PRD] 상세 운동 구성 순서 변경 기능 (Server-side)
+# PRD: 운동 템플릿 관리 기능 고도화 (수정/삭제) - 완료
 
 ## 1. 개요
-현재 `exercise/template/list.mustache` 화면에서 jQuery UI Sortable을 통해 상세 조회된 운동 리스트의 순서를 UI상에서 변경할 수 있습니다. 하지만 변경된 순서가 서버에 저장되지 않아 새로고침 시 초기화됩니다. 본 기능은 변경된 순서를 DB(`TB_EXER` 테이블의 `SORT_ORDER`)에 반영하는 것을 목표로 합니다.
+현재 `springbootYeahn` 프로젝트의 운동 템플릿 관리 시스템에 기존에 없던 수정 및 삭제 기능을 구현하여 관리 효율성을 높였습니다.
 
-## 2. 사용자 시나리오
-1. 관리자가 특정 템플릿의 상세 정보를 조회합니다.
-2. 상세 조회된 운동 리스트에서 왼쪽의 핸들(번호 배지)을 잡고 드래그하여 순서를 바꿉니다.
-3. 드래그가 끝나는 시점에 시스템은 변경된 순서 정보를 서버로 전송합니다.
-4. 서버는 해당 정보를 바탕으로 DB의 순서(`SORT_ORDER`)를 업데이트합니다.
-5. 업데이트 완료 후 사용자에게 성공 메시지(또는 토스트 알림)를 표시합니다.
+## 2. 목표 (달성)
+- **템플릿 수정**: 기존 템플릿의 마스터 정보 및 연결된 상세 운동 목록을 유지/변경/삭제할 수 있는 기능 구현 완료.
+- **템플릿 삭제**: 사용하지 않는 템플릿을 안전하게 Soft Delete 처리하는 기능 구현 완료.
 
-## 3. 기술적 요구사항
+## 3. 상세 요구사항 및 구현 내용
 
-### 3.1 Frontend (기존 mustache 수정)
-- **이벤트 핸들링**: `sortable`의 `update` 콜백 함수 내에서 정렬된 후의 시퀀스 ID 리스트를 추출합니다.
-- **데이터 구조**: `{ tplSeq: 1, exercises: [{ tplExerSeq: 101, tplSortOrder: 1 }, ...] }` 형태의 JSON 데이터를 구성합니다.
-- **API 호출**: `POST /api/exercise/templates/reorder` 비동기 호출.
+### 3.1 템플릿 수정 (Template Edit)
+- **UI/UX**: 
+    - 상세 보기(`templateView`)에서 '수정' 버튼 클릭 시 `openTemplateForm` 호출을 통해 수정 모드로 전환.
+    - 기존 템플릿 이름, 단계, 운동 목록(카테고리, 종류, 이름, 메모 등)이 정확히 로드됨.
+    - 각 운동 항목의 ID(`tplAttrSeq`)를 유지하여 불필요한 데이터 증식을 방지.
+- **Backend API**: 
+    - `POST /api/exercise/templates/update`: 
+        - 마스터 정보(`TB_EXER_TPL`) 업데이트.
+        - 운동 상세(`TB_EXER_ATTR`)는 ID 존재 시 **Update**, 부재 시 **Insert** 처리.
+        - 요청에서 제외된 기존 항목은 `DEL_YN = 'Y'` 처리.
 
-### 3.2 Backend (Java/Spring)
-- **Controller**:
-    - 순서 변경 요청을 받을 `@PostMapping` 엔드포인트를 추가합니다.
-- **Service**:
-    - `@Transactional` 내에서 동작하며, 리스트로 받은 각 운동 매핑 항목의 `SORT_ORDER` 값을 업데이트합니다.
-- **Mapper (MyBatis)**:
-    - `TB_EXER` 테이블의 `SORT_ORDER`를 업데이트하는 쿼리를 작성합니다.
+### 3.2 템플릿 삭제 (Template Delete)
+- **UI/UX**: 
+    - '삭제' 버튼 클릭 시 브라우저 컨펌창을 통해 확인 절차 수행.
+    - 삭제 완료 후 목록 갱신 및 초기 화면 이동.
+- **Backend API**: 
+    - `POST /api/exercise/templates/delete/{tplSeq}`:
+        - 마스터 정보 및 연결된 모든 운동 상세를 **Soft Delete** 처리.
+        - 매핑 관계(`TB_EXER`)는 **물리 삭제**하여 데이터 정합성 유지.
 
-### 3.3 Database
-- **대상 테이블**: `TB_EXER` (템플릿-운동 속성 매핑 테이블)
-- **수정 컬럼**: `SORT_ORDER` (또는 `TPL_SORT_ORDER`)
-
-## 4. 상세 설계 (예시)
-
-### 4.1 API 명세
-- **Endpoint**: `POST /api/exercise/templates/reorder`
-- **Request Body**:
-```json
-{
-  "tplSeq": 123,
-  "exercises": [
-    { "tplExerSeq": 501, "tplSortOrder": 1 },
-    { "tplExerSeq": 502, "tplSortOrder": 2 }
-  ]
-}
-```
-
-## 5. 유의사항
-- **트랜잭션**: 업데이트 도중 오류 발생 시 전체 롤백되어야 합니다.
-- **성능**: 대량의 운동이 포함된 경우 MyBatis의 `<foreach>`를 이용한 Batch Update를 고려합니다.
+## 4. 기술적 해결 사항
+- **데이터 정합성**: 마스터-상세 관계를 고려하여 상세 데이터를 먼저 처리한 후 관계를 정리하는 순서로 로직 최적화.
+- **MyBatis 문법**: MySQL의 `UPDATE ... JOIN` 문법을 활용하여 효율적인 다중 테이블 상태 변경 처리.
+- **테스트 보장**: `TemplateServiceUnitTest` 및 `TemplateServiceIntegrationTest`를 통해 업데이트/추가/삭제 복합 시나리오 검증 완료.

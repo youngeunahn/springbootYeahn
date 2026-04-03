@@ -14,7 +14,9 @@ public class TemplateDto {
     private String tplTypeCode;
     private String tplExerName;
     private String tplCategoryCode;
+    private String tplCategoryDesc;
     private String tplKindCode;       // 근력/유산소/스트레칭
+    private String tplKindDesc;
     private Integer tplMeasure1;      // 세트 / 거리 등
     private Integer tplMeasure2;      // 횟수 / 바퀴 등
     private Integer tplTotalDistance; // 수영 전용 총 거리

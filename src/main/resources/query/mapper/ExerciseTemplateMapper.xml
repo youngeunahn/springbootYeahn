@@ -79,8 +79,10 @@
             attr.TPL_ATTR_SEQ tplAttrSeq
             , attr.TPL_TYPE_CODE tplTypeCode
             , attr.TPL_EXER_NAME tplExerName
-            , FN_GET_COMM_CODE_DESC('TPL_CATEGORY', attr.TPL_CATEGORY_CODE) tplCategoryCode
-            , FN_GET_COMM_CODE_DESC('TPL_KIND_CODE', attr.TPL_KIND_CODE) tplKindCode
+            , attr.TPL_CATEGORY_CODE tplCategoryCode
+            , FN_GET_COMM_CODE_DESC('TPL_CATEGORY', attr.TPL_CATEGORY_CODE) tplCategoryDesc
+            , attr.TPL_KIND_CODE tplKindCode
+            , FN_GET_COMM_CODE_DESC('TPL_KIND_CODE', attr.TPL_KIND_CODE) tplKindDesc
             , attr.TPL_NOTE tplNote
             , attr.TPL_SORT_ORDER tplSortOrder
         FROM TB_EXER exer
@@ -137,6 +139,23 @@
         )
     </insert>
 
+    <update id="updateExercise" parameterType="com.yeahn.template.dto.TemplateDto">
+        UPDATE TB_EXER_ATTR
+        SET TPL_EXER_NAME = #{tplExerName}
+            , TPL_CATEGORY_CODE = #{tplCategoryCode}
+            , TPL_KIND_CODE = #{tplKindCode}
+            , TPL_NOTE = #{tplNote}
+            , TPL_SORT_ORDER = #{tplSortOrder}
+            , UPD_DT = NOW()
+        WHERE TPL_ATTR_SEQ = #{tplAttrSeq}
+    </update>
+
+    <update id="deleteExerciseBySeq" parameterType="long">
+        UPDATE TB_EXER_ATTR
+        SET DEL_YN = 'Y', UPD_DT = NOW()
+        WHERE TPL_ATTR_SEQ = #{_parameter}
+    </update>
+
     <insert id="insertRelation">
         INSERT INTO TB_EXER (
             TPL_SEQ
@@ -161,6 +180,39 @@
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item.tplAttrSeq}
         </foreach>
+    </update>
+
+    <update id="updateTemplate" parameterType="com.yeahn.template.dto.TemplateDto">
+        UPDATE TB_EXER_TPL
+        SET TPL_NAME = #{tplName}
+            , TPL_PHASE = #{tplPhase}
+            , UPD_USER_ID = #{updUserId}
+            , UPD_IP = #{updIp}
+            , UPD_DT = NOW()
+        WHERE TPL_SEQ = #{tplSeq}
+    </update>
+
+    <update id="deleteTemplate" parameterType="com.yeahn.template.dto.TemplateDto">
+        UPDATE TB_EXER_TPL
+        SET DEL_YN = 'Y'
+            , UPD_USER_ID = #{updUserId}
+            , UPD_IP = #{updIp}
+            , UPD_DT = NOW()
+        WHERE TPL_SEQ = #{tplSeq}
+    </update>
+
+    <delete id="deleteRelationByTplSeq" parameterType="long">
+        DELETE FROM TB_EXER WHERE TPL_SEQ = #{tplSeq}
+    </delete>
+
+    <update id="deleteExerciseByTplSeq" parameterType="com.yeahn.template.dto.TemplateDto">
+        UPDATE TB_EXER_ATTR attr, TB_EXER exer
+        SET attr.DEL_YN = 'Y'
+            , attr.UPD_USER_ID = #{updUserId}
+            , attr.UPD_IP = #{updIp}
+            , attr.UPD_DT = NOW()
+        WHERE attr.TPL_ATTR_SEQ = exer.TPL_ATTR_SEQ
+        AND exer.TPL_SEQ = #{tplSeq}
     </update>
 
 </mapper>
