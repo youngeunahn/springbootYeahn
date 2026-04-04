@@ -1,0 +1,371 @@
+{{> layout/header }}
+{{> layout/leftmenu }}
+{{> layout/gnb }}
+<!-- ============================================================== -->
+<!-- main  -->
+<!-- ============================================================== -->
+<script>
+    $(document).ready(function() {
+        const typeCode = $('button[name="planType"][data-selected="true"]').data('type') || 'GYM';
+
+        // 유형에 따른 이모지 설정
+        if (typeCode === 'SWIM') {
+            $('#emptyPlanEmoji').text('🏊');
+        } else {
+            $('#emptyPlanEmoji').text('🔥');
+        }
+
+        // 유형 선택
+        $('[name=planType]').on('click', function() {
+            const menuCode = $('[name=menuCode]').val();
+            window.location.href = `/exercise/plan?menuCode=${menuCode}&typeCode=` + $(this).data('type');
+        });
+
+        // 추가 버튼 클릭 이벤트
+        $(document).on('click', '#btnCreatePlan, #btnEmptyCreatePlan', function(e) {
+            e.preventDefault();
+            openPlanForm();
+        });
+
+        // 계획 작성 폼 열기
+        function openPlanForm(data) {
+            const isUpdate = !!data;
+            $('#emptyPlan').addClass('d-none').removeClass('d-flex');
+            $('#planView').addClass('d-none');
+            const $formContainer = $('#planForm');
+            $formContainer.empty().removeClass('d-none');
+
+            const $form = $('#planFormBase').clone().removeAttr('id').show();
+            $formContainer.append($form);
+
+            if ($.fn.datepicker) { $form.find('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' }); }
+            if (!isUpdate) {
+                $form.find('[name=planDate]').val(new Date().toISOString().split('T')[0]);
+                addExerciseRow($form.find('.exercise-list'));
+            }
+
+            $form.find('.btn-add-exercise').on('click', function() { addExerciseRow($form.find('.exercise-list')); });
+            $form.find('.btn-cancel-form').on('click', function() {
+                $formContainer.addClass('d-none');
+                if (isUpdate) $('#planView').removeClass('d-none');
+                else $('#emptyPlan').removeClass('d-none').addClass('d-flex');
+            });
+            $form.find('.btn-save-plan').on('click', function() { alert('저장 API 연동 필요'); });
+        }
+
+        // 운동 항목 행 추가 (jQuery 객체 생성 방식)
+        function addExerciseRow($container, data) {
+            const $item = $('<div/>', { 
+                class: 'p-3 mb-2 bg-white border rounded shadow-xs position-relative exercise-item',
+                style: 'padding-right: 45px !important;' 
+            });
+            
+            // 삭제 버튼 (위치 및 스타일 개선)
+            $item.append($('<button/>', {
+                type: 'button',
+                class: 'close position-absolute text-danger',
+                style: 'top: 8px; right: 12px; z-index: 10; outline: none; font-size: 1.5rem;',
+                html: '&times;',
+                click: function() { $(this).closest('.exercise-item').remove(); }
+            }));
+
+            const $row = $('<div/>', { class: 'form-row' }).appendTo($item);
+            
+            const cols = [
+                { cls: 'col-6', label: '운동명', name: 'exerName', ph: '운동 이름', val: data ? data.planExerName : '' },
+                { cls: 'col-2', label: '세트', name: 'sets', ph: 'Set', val: data ? data.planSets : '', center: true },
+                { cls: 'col-2', label: '횟수', name: 'reps', ph: 'Reps', val: data ? data.planReps : '', center: true },
+                { cls: 'col-2', label: '시간/거리', name: 'time', ph: 'Min/Km', val: data ? (data.planTime || '') : '', center: true }
+            ];
+
+            cols.forEach(c => {
+                const $col = $('<div/>', { class: c.cls }).appendTo($row);
+                $col.append($('<label/>', { class: 'text-muted mb-1' + (c.center ? ' text-center d-block' : ''), text: c.label }));
+                $col.append($('<input/>', { 
+                    type: 'text', 
+                    name: c.name, 
+                    class: 'form-control form-control-sm' + (c.center ? ' text-center' : ''), 
+                    placeholder: c.ph, 
+                    value: c.val 
+                }));
+            });
+
+            $item.append($('<input/>', {
+                type: 'text',
+                name: 'memo',
+                class: 'form-control form-control-sm mt-2 border-0 bg-light',
+                placeholder: '메모를 입력하세요',
+                value: data ? data.planExercise : ''
+            }));
+
+            $container.append($item);
+        }
+
+        // 검색용 시작일 datepicker
+        $('#searchStartDate').datepicker({
+            dateFormat: 'yy-mm-dd',
+            onSelect: function(selectedDate) {
+                $('#searchEndDate').datepicker('option', 'minDate', selectedDate);
+            }
+        });
+
+        // 검색용 종료일 datepicker
+        $('#searchEndDate').datepicker({
+            dateFormat: 'yy-mm-dd',
+            onSelect: function(selectedDate) {
+                $('#searchStartDate').datepicker('option', 'maxDate', selectedDate);
+            }
+        });
+
+        // 필터 토글 버튼
+        $('#btnToggleFilter').on('click', function() {
+            $('#advancedFilter').slideToggle(200);
+            $(this).toggleClass('text-primary text-muted');
+        });
+
+        // 검색 초기화
+        $('#btnSearchReset').on('click', function() {
+            $('#searchPlanName, #searchStartDate, #searchEndDate').val('');
+            $('#searchStartDate, #searchEndDate').datepicker('option', { minDate: null, maxDate: null });
+            $('#advancedFilter').slideUp(200);
+            $('#btnToggleFilter').removeClass('text-primary').addClass('text-muted');
+        });
+
+        // 검색 실행 (조회 버튼)
+        $('#btnSearchApply').on('click', function() {
+            const planName = $('#searchPlanName').val();
+            const startDate = $('#searchStartDate').val();
+            const endDate = $('#searchEndDate').val();
+            const menuCode = $('[name=menuCode]').val();
+            const typeCode = $('button[name="planType"][data-selected="true"]').data('type') || 'GYM';
+
+            let url = `/exercise/plan?menuCode=${menuCode}&typeCode=${typeCode}`;
+            if (planName) url += `&planName=${encodeURIComponent(planName)}`;
+            if (startDate) url += `&startDate=${startDate}`;
+            if (endDate) url += `&endDate=${endDate}`;
+
+            window.location.href = url;
+        });
+
+        // 라이브러리 검색 (jQuery 객체 생성 방식)
+        $('#tplLibSearch').on('keyup', function() {
+            const kw = $(this).val();
+            if (!kw) { $('#tplListOrigin').show(); $('#tplSearchResult').hide(); return; }
+            $.get('/exercise/plan/search-exercises', { keyword: kw, typeCode: typeCode }, function(data) {
+                $('#tplListOrigin').hide();
+                const $result = $('#tplSearchResult').empty().show();
+                $result.append($('<div/>', { class: 'p-2 bg-light text-muted border-bottom', text: '개별 운동 검색 결과' }));
+                
+                data.forEach(ex => {
+                    const $div = $('<div/>', { class: 'd-flex align-items-center p-2 border-bottom' });
+                    const $check = $('<input/>', {
+                        type: 'checkbox',
+                        class: 'ex-check',
+                        'data-name': ex.tplExerName,
+                        'data-sets': ex.tplMeasure1 || '',
+                        'data-reps': ex.tplMeasure2 || '',
+                        'data-memo': ex.tplNote || ''
+                    });
+                    const $label = $('<label/>', {
+                        class: 'mb-0 ml-2 cursor-pointer',
+                        text: `${ex.tplExerName}${ex.tplNote ? ' | ' + ex.tplNote : ''}`,
+                        click: function() { $check.prop('checked', !$check.prop('checked')); }
+                    });
+                    $result.append($div.append($check).append($label));
+                });
+            });
+        });
+
+        // 라이브러리에서 운동 담기
+        $('#btnAddSelected').on('click', function() {
+            const $checked = $('.ex-check:checked');
+            const $container = $('#planForm .exercise-list');
+            if ($container.length === 0 || $('#planForm').hasClass('d-none')) { alert('작성 폼을 먼저 열어주세요.'); return; }
+            $checked.each(function() {
+                const $ex = $(this);
+                addExerciseRow($container, { planExerName: $ex.data('name'), planSets: $ex.data('sets'), planReps: $ex.data('reps'), planExercise: $ex.data('memo') });
+                $ex.prop('checked', false);
+            });
+            showToast($checked.length + '개의 운동이 추가되었습니다.');
+        });
+
+        // 템플릿 클릭 시 상세 운동 표시 (jQuery 객체 생성 방식)
+        $('#tplListOrigin').on('click', '.list-group-item', function() {
+            const $this = $(this);
+            const $area = $this.next('.tpl-exercises');
+            const $icon = $this.find('i.fas');
+
+            // 이미 열려있는 경우 닫기
+            if ($area.is(':visible')) {
+                $area.slideUp(200);
+                $icon.css('transform', 'rotate(0deg)');
+                return;
+            }
+
+            // 다른 열려있는 항목들 닫기
+            $('.tpl-exercises').slideUp(200);
+            $('#tplListOrigin i.fas').css('transform', 'rotate(0deg)');
+
+            // 데이터 로드 및 펼치기
+            if ($area.children().length === 0) {
+                $.get(`/api/exercise/templates/` + $this.data('seq'), function(data) {
+                    $area.empty();
+                    data.exercises.forEach(ex => {
+                        const $div = $('<div/>', { class: 'd-flex align-items-center p-2 border-bottom bg-light', style: 'padding-left: 30px !important;' });
+                        const $check = $('<input/>', {
+                            type: 'checkbox',
+                            class: 'ex-check',
+                            'data-name': ex.tplExerName,
+                            'data-sets': ex.tplMeasure1 || '',
+                            'data-reps': ex.tplMeasure2 || '',
+                            'data-memo': ex.tplNote || ''
+                        });
+                        const $span = $('<span/>', { class: 'ml-2', text: `${ex.tplExerName}${ex.tplNote ? ' | ' + ex.tplNote : ''}` });
+                        $area.append($div.append($check).append($span));
+                    });
+                    $area.slideDown(200);
+                    $icon.css('transform', 'rotate(180deg)');
+                });
+            } else {
+                $area.slideDown(200);
+                $icon.css('transform', 'rotate(180deg)');
+            }
+        });
+
+        function showToast(msg) {
+            const $t = $('<div class="alert alert-success position-fixed fixed-bottom m-3 shadow" style="width: fit-content; left: 50%; transform: translateX(-50%); z-index: 9999;"></div>').text(msg).appendTo('body');
+            $t.fadeIn().delay(1500).fadeOut(() => $t.remove());
+        }
+    });
+</script>
+
+<input type="hidden" name="menuCode" value="{{menuCode}}">
+
+<div class="row no-gutters" style="height: calc(100vh - 180px);">
+    <!-- 1. 왼쪽: 운동 계획 목록 -->
+    <div class="col-lg-3 h-100 pr-2">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex align-items-center py-2">
+                <span class="mr-auto">운동 계획</span>
+                <div class="btn-group btn-group-xs mr-2">
+                    {{#typeCode}}
+                        <button class="btn btn-xs btn{{^isChecked}}-outline{{/isChecked}}-primary" name="planType" data-type="{{typeCode}}" data-selected="{{isChecked}}">{{codeDesc}}</button>
+                    {{/typeCode}}
+                </div>
+                <button id="btnCreatePlan" class="btn btn-primary btn-xs">추가</button>
+            </div>
+            <!-- 검색 필터 영역 -->
+            <div class="p-2 bg-white border-bottom shadow-xs">
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent border-0 text-muted"><i class="fas fa-search"></i></span>
+                    </div>
+                    <input type="text" id="searchPlanName" class="form-control border-0 shadow-none px-1" placeholder="계획명 검색...">
+                    <div class="input-group-append">
+                        <button class="btn btn-link text-muted p-1 d-flex align-items-center" type="button" id="btnToggleFilter" style="text-decoration:none;">
+                            <i class="fas fa-filter mr-1"></i>
+                            <span class="small">기간검색</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 확장 필터 -->
+                <div id="advancedFilter" class="mt-2 p-2 bg-light rounded border" style="display:none;">
+                    <div class="d-flex align-items-center bg-white rounded border px-1">
+                        <input type="text" id="searchStartDate" class="form-control form-control-sm border-0 shadow-none bg-transparent text-center px-0" placeholder="시작일" readonly style="cursor:pointer; font-size: 0.85rem;">
+                        <span class="px-1 text-muted">~</span>
+                        <input type="text" id="searchEndDate" class="form-control form-control-sm border-0 shadow-none bg-transparent text-center px-0" placeholder="종료일" readonly style="cursor:pointer; font-size: 0.85rem;">
+                    </div>
+                    <div class="mt-2 d-flex justify-content-between">
+                        <button id="btnSearchReset" class="btn btn-link btn-xs text-muted p-0" style="text-decoration:none;">초기화</button>
+                        <button id="btnSearchApply" class="btn btn-primary btn-xs px-2 shadow-sm">필터 적용</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0 overflow-auto" id="planListContainer">
+                <div class="list-group list-group-flush">
+                    {{#planList}}
+                        <a href="#" class="list-group-item list-group-item-action py-3" data-seq="{{planSeq}}">
+                            <span class="badge badge-primary mr-2">{{planDate}}</span>
+                            <span>{{planName}}</span>
+                        </a>
+                    {{/planList}}
+                    {{^planList}}
+                        <div class="p-5 text-center text-muted">등록된 계획이 없습니다.</div>
+                    {{/planList}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 중앙: 메인 영역 -->
+    <div class="col-lg-6 h-100 px-1">
+        <div class="card h-100 shadow-sm border-0">
+            <!-- 안내 화면 -->
+            <div id="emptyPlan" class="h-100 d-flex flex-column align-items-center justify-content-center bg-light">
+                <div class="text-center mb-4">
+                    <div class="display-4 mb-2" id="emptyPlanEmoji">🔥</div>
+                    <h5 class="text-dark">어떤 운동을 하실 계획인가요?</h5>
+                    <p class="text-muted">목록에서 계획을 선택하거나 아래 버튼을 눌러보세요.</p>
+                </div>
+                <button id="btnEmptyCreatePlan" class="btn btn-primary px-4 rounded-pill">새 운동 계획 만들기</button>
+            </div>
+            <!-- 작성 폼 -->
+            <div id="planForm" class="card-body d-none overflow-auto p-4"></div>
+            <!-- 상세 조회 -->
+            <div id="planView" class="card-body d-none overflow-auto p-4"></div>
+        </div>
+    </div>
+
+    <!-- 3. 오른쪽: 템플릿 라이브러리 -->
+    <div class="col-lg-3 h-100 pl-2">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white py-2"><span>템플릿 라이브러리</span></div>
+            <div class="p-2 bg-light border-bottom">
+                <div class="input-group input-group-sm mb-2">
+                    <input type="text" id="tplLibSearch" class="form-control rounded-pill" placeholder="운동/템플릿 검색...">
+                </div>
+                <button id="btnAddSelected" class="btn btn-info btn-xs btn-block rounded-pill">선택한 운동 추가 ↓</button>
+            </div>
+            <div class="card-body p-0 overflow-auto" id="tplLibContainer">
+                <div id="tplListOrigin" class="list-group list-group-flush">
+                    {{#tplList}}
+                        <div class="tpl-group">
+                            <a href="javascript:void(0);" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-seq="{{tplSeq}}">
+                                <div><span class="badge badge-primary mr-2">{{tplPhase}}</span><span>{{tplName}}</span></div>
+                                <i class="fas fa-chevron-down text-muted"></i>
+                            </a>
+                            <div class="tpl-exercises" style="display: none;"></div>
+                        </div>
+                    {{/tplList}}
+                </div>
+                <div id="tplSearchResult" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 폼 원본 (스크립트에서 복사 사용) -->
+<div id="planFormBase" style="display:none;">
+    <div class="form-row mb-4">
+        <div class="col-md-4">
+            <label class="font-weight-bold text-primary">기록 날짜</label>
+            <input type="text" name="planDate" class="form-control form-control-sm datepicker" readonly>
+        </div>
+        <div class="col-md-8">
+            <label class="font-weight-bold text-primary">운동 제목</label>
+            <input type="text" name="planName" class="form-control form-control-sm" placeholder="계획 제목을 입력하세요">
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-2 pb-2">
+        <span class="text-dark font-weight-bold">운동 목록</span>
+        <button type="button" class="btn btn-xs btn-outline-primary btn-add-exercise">+ 운동 추가</button>
+    </div>
+    <div class="exercise-list mb-4">
+        <!-- 운동 항목이 동적으로 추가됨 -->
+    </div>
+    <div class="text-right pt-3">
+        <button type="button" class="btn btn-sm btn-link text-muted btn-cancel-form mr-2">취소</button>
+        <button type="button" class="btn btn-sm btn-primary btn-save-plan px-4 shadow-sm">운동 계획 저장</button>
+    </div>
+</div>
