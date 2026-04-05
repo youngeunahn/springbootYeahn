@@ -33,6 +33,9 @@ public class PlanController {
         
         // 유형 코드 리스트 (GYM, SWIM 등)
         model.addAttribute("typeCode", codeService.getCodeList(new CodeDto("TPL_TYPE_CODE"), typeCode));
+
+        // 운동 단계 코드 리스트 (Warm-up, Main, Cool-down 등)
+        model.addAttribute("phaseCodes", codeService.getCodeList(new CodeDto("TPL_PHASE"), null));
         
         // 등록된 템플릿 리스트 조회
         TemplateDto tplDto = new TemplateDto();
