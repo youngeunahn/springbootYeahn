@@ -48,6 +48,15 @@
     .plan-form-header { flex-shrink: 0; }
     .plan-form-footer { flex-shrink: 0; }
     .phase-list { flex-grow: 1; overflow-y: auto; min-height: 0; }
+
+    /* 초소형 폼 컨트롤 */
+    .form-control-xs {
+        height: calc(1.2em + 0.5rem + 2px);
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        line-height: 1.2;
+        border-radius: 0.2rem;
+    }
 </style>
 <script>
     $(document).ready(function() {
@@ -94,7 +103,23 @@
                 $form.find('#totalDistanceArea').removeClass('d-none');
             }
 
-            if ($.fn.datepicker) { $form.find('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' }); }
+            if ($.fn.datepicker) { 
+                $form.find('.datepicker').datepicker({ 
+                    dateFormat: 'yy-mm-dd',
+                    beforeShow: function(input, inst) {
+                        // Datepicker 팝업 위치를 우측으로 강제 조정
+                        setTimeout(function() {
+                            const inputOffset = $(input).offset();
+                            const inputWidth = $(input).outerWidth();
+                            const dpWidth = inst.dpDiv.outerWidth();
+                            inst.dpDiv.css({
+                                top: inputOffset.top + $(input).outerHeight(),
+                                left: inputOffset.left + inputWidth - dpWidth
+                            });
+                        }, 0);
+                    }
+                }); 
+            }
             
             if (!isUpdate) {
                 $form.find('[name=planDate]').val(new Date().toISOString().split('T')[0]);
@@ -159,7 +184,6 @@
 
             // 단계 버튼 생성
             phaseCodes.forEach(p => {
-                // 초기값 설정: phaseName이 있거나 없으면 '본운동'을 기본 선택
                 const isSelected = phaseName ? (phaseName === p.desc || phaseName === p.code) : (p.desc === '본운동');
                 if (isSelected) $hiddenInput.val(p.code);
 
@@ -186,7 +210,6 @@
                         const $form = $(this).closest('#planForm');
                         $phase.remove(); 
                         if (typeCode === 'SWIM') updateTotalDistance($form);
-                        // 삭제 후 남은 페이즈가 있다면 첫 번째 페이즈 활성화
                         if ($('.phase-item.active').length === 0) {
                             $('.phase-item').first().addClass('active');
                         }
@@ -211,12 +234,10 @@
 
             $container.append($phase);
 
-            // 활성화 및 강조
             $('.phase-item').removeClass('active');
             $phase.addClass('active').addClass('new-item-highlight');
             setTimeout(() => $phase.removeClass('new-item-highlight'), 2000);
             
-            // 자동 스크롤: 페이즈 추가 시 해당 페이즈 위치로 이동
             setTimeout(() => {
                 const containerOffset = $container.offset().top;
                 const phaseOffset = $phase.offset().top;
@@ -228,20 +249,19 @@
             return $exList;
         }
 
-        // 운동 항목 행 추가
+        // 운동 항목 행 추가 (design-expert 제안 + frontend-expert 교정)
         function addExerciseRow($container, data) {
             $container.find('.empty-ex-guide').hide();
             
             const $item = $('<div/>', { 
-                class: 'p-3 mb-2 bg-white border rounded shadow-xs position-relative exercise-item',
-                style: 'padding-right: 45px !important;' 
+                class: 'p-2 mb-1 bg-white border rounded shadow-xs position-relative exercise-item pr-5'
             });
             
             // 삭제 버튼
             $item.append($('<button/>', {
                 type: 'button',
-                class: 'close position-absolute text-danger',
-                style: 'top: 8px; right: 12px; z-index: 10; outline: none; font-size: 1.5rem;',
+                class: 'close position-absolute text-muted',
+                style: 'top: 50%; right: 10px; transform: translateY(-50%); z-index: 10; outline: none; font-size: 1.2rem; line-height: 1;',
                 html: '&times;',
                 click: function() { 
                     const $form = $(this).closest('#planForm');
@@ -253,32 +273,35 @@
                 }
             }));
 
-            const $row = $('<div/>', { class: 'form-row' }).appendTo($item);
-            const cols = [
-                { cls: 'col-6', label: '운동명', name: 'exerName', ph: '운동 이름', val: data ? data.planExerName : '' },
-                { cls: 'col-2', label: '세트', name: 'sets', ph: 'Set', val: data ? data.planSets : '', center: true },
-                { cls: 'col-2', label: '횟수', name: 'reps', ph: 'Reps', val: data ? data.planReps : '', center: true },
-                { cls: 'col-2', label: typeCode === 'SWIM' ? '거리(m)' : '시간/거리', name: 'time', ph: typeCode === 'SWIM' ? 'Meters' : 'Min/Km', val: data ? (data.planTime || '') : '', center: true }
+            const $row = $('<div/>', { class: 'form-row no-gutters' }).appendTo($item);
+            
+            const $colName = $('<div/>', { class: 'col-5 px-1' }).appendTo($row);
+            $colName.append($('<input/>', { 
+                type: 'text', name: 'exerName', class: 'form-control form-control-sm border-0 font-weight-bold', 
+                placeholder: '운동 이름', value: data ? data.planExerName : '' 
+            }));
+
+            const metrics = [
+                { cls: 'col-2', name: 'sets', ph: 'Set', val: data ? data.planSets : '' },
+                { cls: 'col-2', name: 'reps', ph: 'Reps', val: data ? data.planReps : '' },
+                { cls: 'col-3', name: 'time', ph: typeCode === 'SWIM' ? 'Distance' : 'Time/Dist', val: data ? (data.planTime || '') : '' }
             ];
 
-            cols.forEach(c => {
-                const $col = $('<div/>', { class: c.cls }).appendTo($row);
-                $col.append($('<label/>', { class: 'text-muted mb-1' + (c.center ? ' text-center d-block' : ''), text: c.label }));
+            metrics.forEach(m => {
+                const $col = $('<div/>', { class: m.cls + ' px-1' }).appendTo($row);
                 $col.append($('<input/>', { 
-                    type: 'text', 
-                    name: c.name, 
-                    class: 'form-control form-control-sm' + (c.center ? ' text-center' : ''), 
-                    placeholder: c.ph, 
-                    value: c.val 
+                    type: 'text', name: m.name, class: 'form-control form-control-sm text-center bg-light border-0 rounded-pill', 
+                    placeholder: m.ph, value: m.val, style: 'font-size: 0.75rem;'
                 }));
             });
 
             $item.append($('<input/>', {
                 type: 'text',
                 name: 'memo',
-                class: 'form-control form-control-sm mt-2 border-0 bg-light',
-                placeholder: '메모를 입력하세요',
-                value: data ? data.planExercise : ''
+                class: 'form-control form-control-xs mt-1 border-0 bg-transparent text-muted font-italic',
+                placeholder: '메모 (클릭하여 입력)',
+                value: data ? data.planExercise : '',
+                style: 'font-size: 0.7rem; height: auto; padding: 0 5px;'
             }));
 
             $container.append($item);
@@ -365,22 +388,16 @@
             const $checked = $('.ex-check:checked');
             if ($('#planForm').hasClass('d-none')) { alert('작성 폼을 먼저 열어주세요.'); return; }
             
-            // 1. 활성화된 페이즈 찾기
             let $activePhase = $('.phase-item.active');
-            
-            // 2. 활성화된 게 없다면 마지막 페이즈 선택
             if ($activePhase.length === 0) {
                 $activePhase = $('.phase-item').last();
             }
-            
-            // 3. 페이즈가 아예 없다면 새로 생성
             if ($activePhase.length === 0) {
                 addPhaseBlock($('#planForm .phase-list'), '본운동');
                 $activePhase = $('.phase-item.active');
             }
 
             const $container = $activePhase.find('.exercise-list');
-
             if ($checked.length === 0) { alert('추가할 운동을 먼저 선택해주세요.'); return; }
             
             $checked.each(function() {
@@ -394,7 +411,6 @@
                 $ex.prop('checked', false);
             });
 
-            // 수영 모드일 경우 합산 업데이트
             if (typeCode === 'SWIM') {
                 updateTotalDistance($('#planForm'));
             }
@@ -483,7 +499,6 @@
                 </div>
                 <button id="btnCreatePlan" class="btn btn-primary btn-xs">추가</button>
             </div>
-            <!-- 검색 필터 영역 -->
             <div class="p-2 bg-white border-bottom shadow-xs">
                 <div class="input-group input-group-sm">
                     <div class="input-group-prepend">
@@ -497,8 +512,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- 확장 필터 -->
                 <div id="advancedFilter" class="mt-2 p-2 bg-light rounded border" style="display:none;">
                     <div class="d-flex align-items-center bg-white rounded border px-1">
                         <input type="text" id="searchStartDate" class="form-control form-control-sm border-0 shadow-none bg-transparent text-center px-0" placeholder="시작일" readonly style="cursor:pointer; font-size: 0.85rem;">
@@ -530,7 +543,6 @@
     <!-- 2. 중앙: 메인 영역 -->
     <div class="col-lg-6 h-100 px-1">
         <div class="card h-100 shadow-sm border-0 d-flex flex-column" style="overflow: hidden;">
-            <!-- 안내 화면 -->
             <div id="emptyPlan" class="flex-grow-1 d-flex flex-column align-items-center justify-content-center bg-light" style="min-height: 0;">
                 <div class="text-center mb-4">
                     <div class="display-4 mb-2" id="emptyPlanEmoji">🔥</div>
@@ -539,14 +551,12 @@
                 </div>
                 <button id="btnEmptyCreatePlan" class="btn btn-primary px-4 rounded-pill">새 운동 계획 만들기</button>
             </div>
-            <!-- 작성 폼 -->
             <div id="planForm" class="card-body d-none p-0 flex-grow-1 flex-column" style="min-height: 0;"></div>
-            <!-- 상세 조회 -->
             <div id="planView" class="card-body d-none overflow-auto p-4 flex-grow-1" style="min-height: 0;"></div>
         </div>
     </div>
 
-    <!-- 3. 오른쪽: 라이브러리 (템플릿/기록) -->
+    <!-- 3. 오른쪽: 라이브러리 -->
     <div class="col-lg-3 h-100 pl-2">
         <div class="card h-100 shadow-sm border-0">
             <div class="card-header bg-white p-0">
@@ -568,7 +578,6 @@
                 </div>
             </div>
             <div class="card-body p-0 overflow-auto tab-content" id="tplLibContainer">
-                <!-- 템플릿 탭 -->
                 <div class="tab-pane fade show active" id="tplTabContent" role="tabpanel">
                     <div class="p-2 bg-white border-bottom">
                         <button class="btn btn-info btn-xs btn-block rounded-pill btn-add-selected">선택한 운동 추가 ↓</button>
@@ -585,7 +594,6 @@
                         {{/tplList}}
                     </div>
                 </div>
-                <!-- 과거 기록 탭 (더미 데이터) -->
                 <div class="tab-pane fade" id="recordTabContent" role="tabpanel">
                     <div class="p-2 bg-white border-bottom">
                         <div class="d-flex justify-content-between mb-2">
@@ -595,34 +603,7 @@
                         <button class="btn btn-info btn-xs btn-block rounded-pill btn-add-selected">선택한 운동 추가 ↓</button>
                     </div>
                     <div id="recordListOrigin" class="list-group list-group-flush">
-                        <div class="record-group">
-                            <a href="javascript:void(0);" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-seq="dummy-1">
-                                <div><span class="badge badge-secondary mr-2">26-03-25</span><span>하체 루틴 (더미)</span></div>
-                                <i class="fas fa-chevron-down text-muted"></i>
-                            </a>
-                            <div class="tpl-exercises" style="display: none;">
-                                <div class="d-flex align-items-center p-2 border-bottom bg-light" style="padding-left: 30px !important;">
-                                    <input type="checkbox" class="ex-check" data-name="스쿼트" data-sets="5" data-reps="10" data-memo="80kg">
-                                    <span class="ml-2 cursor-pointer"><strong>스쿼트</strong> <span class="text-primary ml-1">[5S 10R]</span> <span class="text-muted ml-1">| 80kg</span></span>
-                                </div>
-                                <div class="d-flex align-items-center p-2 border-bottom bg-light" style="padding-left: 30px !important;">
-                                    <input type="checkbox" class="ex-check" data-name="레그 프레스" data-sets="4" data-reps="12" data-memo="120kg">
-                                    <span class="ml-2 cursor-pointer"><strong>레그 프레스</strong> <span class="text-primary ml-1">[4S 12R]</span> <span class="text-muted ml-1">| 120kg</span></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="record-group">
-                            <a href="javascript:void(0);" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-seq="dummy-2">
-                                <div><span class="badge badge-secondary mr-2">26-03-23</span><span>가슴/삼두 (더미)</span></div>
-                                <i class="fas fa-chevron-down text-muted"></i>
-                            </a>
-                            <div class="tpl-exercises" style="display: none;">
-                                <div class="d-flex align-items-center p-2 border-bottom bg-light" style="padding-left: 30px !important;">
-                                    <input type="checkbox" class="ex-check" data-name="벤치 프레스" data-sets="5" data-reps="8" data-memo="60kg">
-                                    <span class="ml-2 cursor-pointer"><strong>벤치 프레스</strong> <span class="text-primary ml-1">[5S 8R]</span> <span class="text-muted ml-1">| 60kg</span></span>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- 더미 데이터 -->
                     </div>
                 </div>
                 <div id="tplSearchResult" style="display:none;"></div>
@@ -631,7 +612,7 @@
     </div>
 </div>
 
-<!-- 폼 원본 (스크립트에서 복사 사용) -->
+<!-- 폼 원본 -->
 <div id="planFormBase" class="d-none flex-column flex-grow-1 p-4" style="min-height: 0;">
     <div class="plan-form-header">
         <div class="form-row mb-4">
@@ -654,9 +635,7 @@
             <button type="button" class="btn btn-xs btn-outline-primary btn-add-phase px-3 rounded-pill">+ 페이즈(단계) 추가</button>
         </div>
     </div>
-    <div class="phase-list flex-grow-1 overflow-auto mb-3 pr-2" style="min-height: 0;">
-        <!-- 페이즈(Phase) 블록이 동적으로 추가됨 -->
-    </div>
+    <div class="phase-list flex-grow-1 overflow-auto mb-3 pr-2" style="min-height: 0;"></div>
     <div class="plan-form-footer text-right pt-3 border-top">
         <button type="button" class="btn btn-sm btn-link text-muted btn-cancel-form mr-2">취소</button>
         <button type="button" class="btn btn-sm btn-primary btn-save-plan px-4 shadow-sm">운동 계획 저장</button>
