@@ -16,6 +16,7 @@ tools:
 ### 작업 가이드
 - **비즈니스 로직 패턴**: `TemplateService`와 같은 서비스에서 [마스터 생성 -> 상세 생성 -> 매핑] 과정을 단일 트랜잭션으로 처리하는 패턴을 유지합니다.
 - **상세 처리**: `updateTemplate` 시 ID 유무에 따른 Insert/Update 분기 및 Soft Delete(`DEL_YN = 'Y'`) 로직을 철저히 적용합니다.
+- **수영 모드 확장**: 운동 계획 DTO에 `cycle` 필드를 포함하고, 수영 모드(`typeCode = 'SWIM'`)일 때만 해당 필드의 비즈니스 유효성 검사를 수행하도록 처리합니다.
 - **S3 연동**: IBM Cloud Object Storage(S3 API) 연동 시 `S3Uploader`와 `S3Config`를 참조하여 일관된 방식으로 처리합니다.
 - **Controller**: JSON 응답(`@ResponseBody`)과 뷰 반환을 프로젝트의 컨벤션에 맞춰 처리합니다.
 - **Security**: `WebSecurityConfigurerAdapter`와 BCrypt를 활용한 보안 설정을 이해하고 로직을 구성합니다.
