@@ -71,6 +71,38 @@
             {{/phaseCodes}}
         ];
 
+        // 카테고리 코드 리스트 정의 (서버 API 호출)
+        window.categoryCodes = [];
+        $.get('/api/codes/TPL_CATEGORY_CODE', function(data) {
+            if (data && data.length > 0) {
+                window.categoryCodes = data.map(c => ({ code: c.typeCode, desc: c.codeDesc }));
+                console.log('Category codes loaded from server:', window.categoryCodes);
+            } else {
+                // 데이터가 없을 경우에만 폴백(Fallback) 기본값 사용
+                setFallbackCategories();
+            }
+        }).fail(function() {
+            setFallbackCategories();
+        });
+
+        function setFallbackCategories() {
+            if (typeCode === 'SWIM') {
+                window.categoryCodes = [
+                    { code: 'S_FREE', desc: '자유형' }, { code: 'S_BACK', desc: '배영' },
+                    { code: 'S_BREAST', desc: '평영' }, { code: 'S_FLY', desc: '접영' },
+                    { code: 'S_IM', desc: '개인혼영' }, { code: 'S_DRILL', desc: '드릴' }
+                ];
+            } else {
+                window.categoryCodes = [
+                    { code: 'CHEST', desc: '가슴' }, { code: 'BACK', desc: '등' },
+                    { code: 'LEGS', desc: '하체' }, { code: 'SHOULDER', desc: '어깨' },
+                    { code: 'ARMS', desc: '팔' }, { code: 'ABS', desc: '복근' },
+                    { code: 'CARDIO', desc: '유산소' }
+                ];
+            }
+            console.log('Fallback category codes loaded:', window.categoryCodes);
+        }
+
         // 유형에 따른 이모지 설정
         if (typeCode === 'SWIM') {
             $('#emptyPlanEmoji').text('🏊');
@@ -89,6 +121,81 @@
             e.preventDefault();
             openPlanForm();
         });
+
+        // 계획 목록 클릭 (상세 조회)
+        $(document).on('click', '#planListContainer .list-group-item', function(e) {
+            e.preventDefault();
+            const seq = $(this).data('seq');
+            
+            $.get('/exercise/plan/' + seq, function(data) {
+                renderPlanView(data);
+            });
+        });
+
+        // 상세 화면 렌더링
+        function renderPlanView(data) {
+            $('#emptyPlan').addClass('d-none').removeClass('d-flex');
+            $('#planForm').addClass('d-none').removeClass('d-flex').empty();
+            const $view = $('#planView').empty().removeClass('d-none');
+
+            const $header = $('<div/>', { class: 'd-flex justify-content-between align-items-start mb-4 pb-3 border-bottom' }).appendTo($view);
+            const $titleInfo = $('<div/>').appendTo($header);
+            $titleInfo.append($('<h3/>', { class: 'mb-1 font-weight-bold', text: data.planName }));
+            $titleInfo.append($('<div/>', { class: 'text-muted', html: `<i class="far fa-calendar-alt mr-1"></i> ${data.planDate}` }));
+
+            const $actions = $('<div/>', { class: 'btn-group' }).appendTo($header);
+            $('<button/>', { 
+                class: 'btn btn-outline-primary btn-sm', 
+                html: '<i class="fas fa-edit mr-1"></i> 수정',
+                click: function() { openPlanForm(data); }
+            }).appendTo($actions);
+            $('<button/>', { 
+                class: 'btn btn-outline-danger btn-sm', 
+                html: '<i class="fas fa-trash-alt mr-1"></i> 삭제',
+                click: function() { 
+                    if (confirm('정말 삭제하시겠습니까?')) {
+                        $.post('/exercise/plan/delete/' + data.planSeq, function() {
+                            alert('삭제되었습니다.');
+                            location.reload();
+                        });
+                    }
+                }
+            }).appendTo($actions);
+
+            if (data.details && data.details.length > 0) {
+                // 페이즈별로 그룹화
+                const phases = {};
+                data.details.forEach(d => {
+                    if (!phases[d.planPhase]) phases[d.planPhase] = [];
+                    phases[d.planPhase].push(d);
+                });
+
+                Object.keys(phases).forEach(pCode => {
+                    const pDesc = phaseCodes.find(c => c.code === pCode)?.desc || pCode;
+                    const $pArea = $('<div/>', { class: 'mb-4' }).appendTo($view);
+                    $pArea.append($('<h5/>', { class: 'text-primary font-weight-bold mb-3', html: `<span class="badge badge-primary mr-2">${pDesc}</span>` }));
+                    
+                    const $table = $('<table/>', { class: 'table table-sm table-hover border-bottom' }).appendTo($pArea);
+                    const $thead = $('<thead/>', { class: 'thead-light' }).appendTo($table);
+                    const $trHead = $('<tr/>').appendTo($thead);
+                    ['운동명', 'Set', 'Reps', (typeCode === 'SWIM' ? 'Distance' : 'Time/Dist'), '메모'].forEach(h => {
+                        $('<th/>', { class: 'text-center py-2', text: h }).appendTo($trHead);
+                    });
+
+                    const $tbody = $('<tbody/>').appendTo($table);
+                    phases[pCode].forEach(ex => {
+                        const $tr = $('<tr/>').appendTo($tbody);
+                        $('<td/>', { class: 'font-weight-bold py-2', text: ex.planExerName }).appendTo($tr);
+                        $('<td/>', { class: 'text-center py-2', text: ex.planSets || '-' }).appendTo($tr);
+                        $('<td/>', { class: 'text-center py-2', text: ex.planReps || '-' }).appendTo($tr);
+                        $('<td/>', { class: 'text-center py-2', text: ex.planTime || '-' }).appendTo($tr);
+                        $('<td/>', { class: 'text-muted small py-2', text: ex.planNote || '' }).appendTo($tr);
+                    });
+                });
+            } else {
+                $view.append($('<div/>', { class: 'text-center py-5 text-muted', text: '등록된 운동 정보가 없습니다.' }));
+            }
+        }
 
         // 계획 작성 폼 열기
         function openPlanForm(data) {
@@ -124,8 +231,30 @@
             }
             
             if (!isUpdate) {
-                $form.find('[name=planDate]').val(new Date().toISOString().split('T')[0]);
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                const localDate = new Date(now.getTime() - offset).toISOString().split('T')[0];
+                $form.find('[name=planDate]').val(localDate);
                 addPhaseBlock($form.find('.phase-list'), '본운동');
+            } else {
+                // 수정 시 데이터 채우기
+                $form.find('[name=planName]').val(data.planName);
+                $form.find('[name=planDate]').val(data.planDate);
+                
+                if (data.details && data.details.length > 0) {
+                    const phases = {};
+                    data.details.forEach(d => {
+                        if (!phases[d.planPhase]) phases[d.planPhase] = [];
+                        phases[d.planPhase].push(d);
+                    });
+
+                    Object.keys(phases).forEach(pCode => {
+                        const $exList = addPhaseBlock($form.find('.phase-list'), pCode);
+                        phases[pCode].forEach(ex => {
+                            addExerciseRow($exList, ex);
+                        });
+                    });
+                }
             }
 
             // 페이즈 추가 버튼 (맨 하단)
@@ -134,9 +263,54 @@
             });
 
             $form.find('.btn-save-plan').on('click', function() { 
-                const phaseCount = $form.find('.phase-item').length;
-                if (phaseCount === 0) { alert('최소 하나 이상의 운동 단계를 추가해주세요.'); return; }
-                alert('저장 API 연동 필요'); 
+                const planName = $form.find('[name=planName]').val().trim();
+                const planDate = $form.find('[name=planDate]').val().trim();
+                
+                if (!planName) { alert('운동 제목을 입력해주세요.'); return; }
+                if (!planDate) { alert('기록 날짜를 선택해주세요.'); return; }
+
+                const phases = [];
+                $form.find('.phase-item').each(function() {
+                    const $phase = $(this);
+                    const phaseCode = $phase.find('[name=phaseName]').val();
+                    
+                    $phase.find('.exercise-item').each(function() {
+                        const $ex = $(this);
+                        phases.push({
+                            planPhase: phaseCode,
+                            planCategoryCode: $ex.find('[name=categoryCode]').val(), // 카테고리 코드 추가
+                            planExerName: $ex.find('[name=exerName]').val(),
+                            planSets: $ex.find('[name=sets]').val(),
+                            planReps: $ex.find('[name=reps]').val(),
+                            planTime: $ex.find('[name=time]').val(),
+                            planNote: $ex.find('[name=memo]').val()
+                        });
+                    });
+                });
+
+                if (phases.length === 0) { alert('최소 하나 이상의 운동을 추가해주세요.'); return; }
+
+                const saveData = {
+                    planSeq: isUpdate ? data.planSeq : null,
+                    planName: planName,
+                    planDate: planDate,
+                    planTypeCode: typeCode,
+                    details: phases
+                };
+
+                $.ajax({
+                    url: '/exercise/plan/save',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(saveData),
+                    success: function(res) {
+                        alert('운동 계획이 저장되었습니다.');
+                        location.reload();
+                    },
+                    error: function(err) {
+                        alert('저장 중 오류가 발생했습니다.');
+                    }
+                });
             });
 
             $form.on('input', 'input[name="time"]', function() {
@@ -301,19 +475,20 @@
             return $exList;
         }
 
-        // 운동 항목 행 추가 (design-expert 제안 + frontend-expert 교정)
+        // 운동 항목 행 추가 (템플릿 관리 패턴 적용)
         function addExerciseRow($container, data) {
             $container.find('.empty-ex-guide').hide();
             
             const $item = $('<div/>', { 
-                class: 'p-2 mb-1 bg-white border rounded shadow-xs position-relative exercise-item pr-5'
+                class: 'p-2 mb-1 bg-white border rounded shadow-xs position-relative exercise-item pr-5',
+                'data-attr-seq': data ? data.planDetailSeq : ''
             });
             
             // 삭제 버튼
             $item.append($('<button/>', {
                 type: 'button',
                 class: 'close position-absolute text-muted',
-                style: 'top: 50%; right: 10px; transform: translateY(-50%); z-index: 10; outline: none; font-size: 1.2rem; line-height: 1;',
+                style: 'top: 15px; right: 10px; z-index: 10; outline: none; font-size: 1.2rem; line-height: 1;',
                 html: '&times;',
                 click: function() { 
                     const $form = $(this).closest('#planForm');
@@ -324,6 +499,38 @@
                     if (typeCode === 'SWIM') updateTotalDistance($form);
                 }
             }));
+
+            // 카테고리(부위) 버튼 그룹 영역
+            const $partWrap = $('<div/>', { class: 'mb-2' });
+            const $partGroup = $('<div/>', { class: 'btn-group btn-group-sm exercise-part-group', role: 'group' });
+            $partWrap.append($partGroup);
+            $item.append($partWrap);
+
+            // 서버에서 코드 데이터 조회 (템플릿 관리와 동일한 API 및 데이터 구조 활용)
+            $.ajax({
+                url: '/api/exercise/templates',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ ref1: typeCode }), // GYM 또는 SWIM 전달
+                success: function(codeData) {
+                    if (codeData && codeData.tplCate) {
+                        codeData.tplCate.forEach(function(item) {
+                            const active = (data && item.typeCode == data.planCategoryCode) ? ' active' : '';
+                            $('<button/>', {
+                                type: 'button',
+                                class: 'btn btn-xs btn-outline-secondary m-1' + active,
+                                text: item.codeDesc,
+                                value: item.typeCode,
+                                style: 'font-size: 0.7rem; padding: 2px 8px;',
+                                click: function() {
+                                    $(this).siblings().removeClass('active');
+                                    $(this).addClass('active');
+                                }
+                            }).appendTo($partGroup);
+                        });
+                    }
+                }
+            });
 
             const $row = $('<div/>', { class: 'form-row no-gutters' }).appendTo($item);
             
@@ -352,7 +559,7 @@
                     }));
                 });
             } else {
-                // 기존 구조 (운동명 col-5, Set col-2, Reps col-2, Distance col-3)
+                // [운동명(col-5), Set(col-2), Reps(col-2), Distance(col-3)]
                 $('<div/>', { class: 'col-5 px-1' }).append($('<input/>', { 
                     type: 'text', name: 'exerName', class: 'form-control form-control-sm border-0 font-weight-bold', 
                     placeholder: '운동 이름', value: data ? data.planExerName : '' 
@@ -378,24 +585,13 @@
                 name: 'memo',
                 class: 'form-control form-control-xs mt-1 border-0 bg-transparent text-muted font-italic',
                 placeholder: '메모 (클릭하여 입력)',
-                value: data ? data.planExercise : '',
+                value: data ? data.planNote : '',
                 style: 'font-size: 0.7rem; height: auto; padding: 0 5px;'
             }));
 
             $container.append($item);
             $item.addClass('new-item-highlight');
             setTimeout(() => $item.removeClass('new-item-highlight'), 2000);
-
-            const $phaseList = $container.closest('.phase-list');
-            if ($phaseList.length > 0) {
-                setTimeout(() => {
-                    const containerOffset = $phaseList.offset().top;
-                    const itemOffset = $item.offset().top;
-                    const currentScroll = $phaseList.scrollTop();
-                    const targetScroll = itemOffset - containerOffset + currentScroll - 50;
-                    $phaseList.stop().animate({ scrollTop: targetScroll }, 200);
-                }, 100);
-            }
         }
 
 
