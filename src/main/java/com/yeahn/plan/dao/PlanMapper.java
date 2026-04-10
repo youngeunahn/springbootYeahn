@@ -28,6 +28,9 @@ public interface PlanMapper {
     // 운동 계획 상세 저장
     int insertPlanDetail(PlanDetailVo detailVo);
 
+    // 운동 계획 상세 수정
+    int updatePlanDetail(PlanDetailVo detailVo);
+
     // 특정 계획의 상세 목록 삭제 (물리 삭제 또는 Soft Delete)
     // 일반적으로 대량 수정 시 상세를 전체 삭제 후 재등록하는 방식이 편리합니다.
     int deletePlanDetailsByPlanSeq(Integer planSeq);

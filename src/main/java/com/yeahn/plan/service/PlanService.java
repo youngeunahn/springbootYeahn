@@ -66,9 +66,18 @@ public class PlanService {
                 PlanDetailVo detail = planVo.getDetails().get(i);
                 detail.setPlanSeq(planVo.getPlanSeq());
                 detail.setPlanSortOrder(i + 1); // 리스트 순서대로 정렬 순서 부여
-                detail.setInsIp(ip);
-                detail.setInsUserId(userId);
-                planMapper.insertPlanDetail(detail);
+                
+                if (detail.getPlanDetailSeq() != null) {
+                    // 기존 기록 수정 (DEL_YN = 'N' 처리는 Mapper에서 수행)
+                    detail.setUpdIp(ip);
+                    detail.setUpdUserId(userId);
+                    planMapper.updatePlanDetail(detail);
+                } else {
+                    // 신규 기록 저장
+                    detail.setInsIp(ip);
+                    detail.setInsUserId(userId);
+                    planMapper.insertPlanDetail(detail);
+                }
             }
         }
 

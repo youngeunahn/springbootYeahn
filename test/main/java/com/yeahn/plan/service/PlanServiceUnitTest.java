@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,6 +45,9 @@ class PlanServiceUnitTest {
     @BeforeEach
     void setUp() {
         SecurityContextHolder.setContext(securityContext);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn("test_user");
+        lenient().when(request.getRemoteAddr()).thenReturn("127.0.0.1");
     }
 
     @Test
@@ -104,24 +108,20 @@ class PlanServiceUnitTest {
     }
 
     @Test
-    @DisplayName("운동 계획 저장 테스트 - 신규 저장")
+    @DisplayName("운동 계획 저장 테스트 - 신규 저장 (상세 항목 포함)")
     void savePlan_Insert_Test() {
         // given
         PlanVo planVo = new PlanVo();
         planVo.setPlanName("신규 계획");
         
-        PlanDetailVo detail = new PlanDetailVo();
-        detail.setPlanExerName("푸쉬업");
-        planVo.setDetails(Arrays.asList(detail));
-
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("testUser");
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+        PlanDetailVo d1 = new PlanDetailVo();
+        d1.setPlanExerName("푸쉬업");
+        planVo.setDetails(Arrays.asList(d1));
 
         doAnswer(invocation -> {
             PlanVo vo = invocation.getArgument(0);
             vo.setPlanSeq(100);
-            return null;
+            return 1;
         }).when(planMapper).insertPlan(any(PlanVo.class));
 
         // when
@@ -129,6 +129,7 @@ class PlanServiceUnitTest {
 
         // then
         assertEquals(100, planSeq);
+        assertEquals(1, d1.getPlanSortOrder());
         verify(planMapper, times(1)).insertPlan(any(PlanVo.class));
         verify(planMapper, times(1)).insertPlanDetail(any(PlanDetailVo.class));
         verify(planMapper, never()).updatePlan(any());
@@ -136,47 +137,92 @@ class PlanServiceUnitTest {
     }
 
     @Test
-    @DisplayName("운동 계획 저장 테스트 - 기존 수정")
-    void savePlan_Update_Test() {
+    @DisplayName("운동 계획 저장 테스트 - 상세 항목 없이 마스터만 신규 저장")
+    void savePlan_Insert_NoDetails_Test() {
+        // given
+        PlanVo planVo = new PlanVo();
+        planVo.setPlanName("상세 없는 계획");
+        planVo.setDetails(null);
+
+        doAnswer(invocation -> {
+            PlanVo vo = invocation.getArgument(0);
+            vo.setPlanSeq(500);
+            return 1;
+        }).when(planMapper).insertPlan(any(PlanVo.class));
+
+        // when
+        Integer planSeq = planService.savePlan(planVo, request);
+
+        // then
+        assertEquals(500, planSeq);
+        verify(planMapper, times(1)).insertPlan(any(PlanVo.class));
+        verify(planMapper, never()).insertPlanDetail(any());
+    }
+
+    @Test
+    @DisplayName("운동 계획 저장 테스트 - 기존 수정 (상세 항목 수정 및 추가 혼합)")
+    void savePlan_Update_MixedDetails_Test() {
         // given
         Integer planSeq = 200;
         PlanVo planVo = new PlanVo();
         planVo.setPlanSeq(planSeq);
         planVo.setPlanName("수정된 계획");
         
-        PlanDetailVo detail = new PlanDetailVo();
-        detail.setPlanExerName("벤치 프레스");
-        planVo.setDetails(Arrays.asList(detail));
+        PlanDetailVo existingDetail = new PlanDetailVo();
+        existingDetail.setPlanDetailSeq(50);
+        existingDetail.setPlanExerName("기존 운동 수정");
 
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("updateUser");
-        when(request.getRemoteAddr()).thenReturn("192.168.0.1");
+        PlanDetailVo newDetail = new PlanDetailVo();
+        newDetail.setPlanExerName("신규 운동 추가");
+
+        planVo.setDetails(Arrays.asList(existingDetail, newDetail));
 
         // when
         Integer resultSeq = planService.savePlan(planVo, request);
 
         // then
         assertEquals(planSeq, resultSeq);
+        assertEquals(1, existingDetail.getPlanSortOrder());
+        assertEquals(2, newDetail.getPlanSortOrder());
+        
         verify(planMapper, times(1)).updatePlan(any(PlanVo.class));
         verify(planMapper, times(1)).deletePlanDetailsByPlanSeq(planSeq);
-        verify(planMapper, times(1)).insertPlanDetail(any(PlanDetailVo.class));
+        verify(planMapper, times(1)).updatePlanDetail(existingDetail);
+        verify(planMapper, times(1)).insertPlanDetail(newDetail);
         verify(planMapper, never()).insertPlan(any());
     }
 
     @Test
-    @DisplayName("운동 계획 삭제 테스트")
+    @DisplayName("운동 계획 저장 테스트 - 기존 수정 시 상세 항목을 모두 제거")
+    void savePlan_Update_ClearDetails_Test() {
+        // given
+        Integer planSeq = 600;
+        PlanVo planVo = new PlanVo();
+        planVo.setPlanSeq(planSeq);
+        planVo.setPlanName("상세 삭제 수정");
+        planVo.setDetails(new ArrayList<>()); // 빈 리스트
+
+        // when
+        planService.savePlan(planVo, request);
+
+        // then
+        verify(planMapper, times(1)).updatePlan(any(PlanVo.class));
+        verify(planMapper, times(1)).deletePlanDetailsByPlanSeq(planSeq);
+        verify(planMapper, never()).insertPlanDetail(any());
+        verify(planMapper, never()).updatePlanDetail(any());
+    }
+
+    @Test
+    @DisplayName("운동 계획 삭제 테스트 (Soft Delete)")
     void deletePlan_Test() {
         // given
         Integer planSeq = 300;
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("deleteUser");
-        when(request.getRemoteAddr()).thenReturn("1.1.1.1");
 
         // when
         planService.deletePlan(planSeq, request);
 
         // then
-        verify(planMapper, times(1)).deletePlan(any(PlanVo.class));
+        verify(planMapper, times(1)).deletePlan(argThat(vo -> planSeq.equals(vo.getPlanSeq())));
         verify(planMapper, times(1)).deletePlanDetailsByPlanSeq(planSeq);
     }
 }

@@ -138,4 +138,26 @@
         WHERE PLAN_SEQ = #{planSeq}
     </update>
 
+    <!-- 운동 계획 상세 수정 -->
+    <update id="updatePlanDetail" parameterType="com.yeahn.plan.dto.PlanDetailVo">
+        UPDATE TB_PLAN_DETAIL
+        SET 
+            PLAN_PHASE = #{planPhase},
+            PLAN_EXER_NAME = #{planExerName},
+            PLAN_CATEGORY_CODE = #{planCategoryCode},
+            PLAN_KIND_CODE = #{planKindCode},
+            PLAN_NOTE = #{planNote},
+            PLAN_REPS = #{planReps},
+            PLAN_SETS = #{planSets},
+            PLAN_TIME = #{planTime},
+            PLAN_TOTAL_DISTANCE = #{planTotalDistance},
+            PLAN_SORT_ORDER = #{planSortOrder},
+            USE_YN = COALESCE(#{useYn}, 'Y'),
+            DEL_YN = 'N',
+            UPD_DT = NOW(),
+            UPD_IP = #{updIp},
+            UPD_USER_ID = #{updUserId}
+        WHERE PLAN_DETAIL_SEQ = #{planDetailSeq}
+    </update>
+
 </mapper>

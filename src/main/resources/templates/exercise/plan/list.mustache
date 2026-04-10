@@ -200,6 +200,8 @@
         // 계획 작성 폼 열기
         function openPlanForm(data) {
             const isUpdate = !!data;
+            const currentPlanSeq = isUpdate ? data.planSeq : null;
+
             $('#emptyPlan').addClass('d-none').removeClass('d-flex');
             $('#planView').addClass('d-none');
             const $formContainer = $('#planForm');
@@ -277,8 +279,9 @@
                     $phase.find('.exercise-item').each(function() {
                         const $ex = $(this);
                         phases.push({
+                            planDetailSeq: $ex.data('attr-seq') || null,
                             planPhase: phaseCode,
-                            planCategoryCode: $ex.find('[name=categoryCode]').val(), // 카테고리 코드 추가
+                            planCategoryCode: $ex.find('.exercise-part-group .btn.active').val(), 
                             planExerName: $ex.find('[name=exerName]').val(),
                             planSets: $ex.find('[name=sets]').val(),
                             planReps: $ex.find('[name=reps]').val(),
@@ -291,7 +294,7 @@
                 if (phases.length === 0) { alert('최소 하나 이상의 운동을 추가해주세요.'); return; }
 
                 const saveData = {
-                    planSeq: isUpdate ? data.planSeq : null,
+                    planSeq: currentPlanSeq,
                     planName: planName,
                     planDate: planDate,
                     planTypeCode: typeCode,
