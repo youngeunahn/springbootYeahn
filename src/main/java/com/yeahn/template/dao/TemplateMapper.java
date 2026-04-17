@@ -2,78 +2,39 @@ package com.yeahn.template.dao;
 
 import com.yeahn.template.dto.TemplateDto;
 import com.yeahn.template.dto.TemplateSearchDto;
-import lombok.RequiredArgsConstructor;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Repository
-@RequiredArgsConstructor
-public class TemplateMapper {
-    @Autowired
-    private SqlSessionTemplate sqlSession;
+@Mapper
+public interface TemplateMapper {
 
-    public List<TemplateDto> getTplList(TemplateDto dto) {
-        return sqlSession.selectList("ExerciseTemplateMapper.getTplList", dto);
-    }
+    List<TemplateDto> getTplList(TemplateDto dto);
 
-    public List<TemplateDto> searchTplList(TemplateSearchDto dto) {
-        return sqlSession.selectList("ExerciseTemplateMapper.searchTplList", dto);
-    }
+    List<TemplateDto> searchTplList(TemplateSearchDto dto);
 
-    public TemplateDto getTplDetail(Long tplSeq) {
-        return sqlSession.selectOne("ExerciseTemplateMapper.getTplDetail", tplSeq);
-    }
+    TemplateDto getTplDetail(Long tplSeq);
 
-    public List<TemplateDto> getExerList(Long tplSeq) {
-        return sqlSession.selectList("ExerciseTemplateMapper.getExerList", tplSeq);
-    }
+    List<TemplateDto> getExerList(Long tplSeq);
 
-    public void insertTemplate(TemplateDto tplDto) {
-        sqlSession.insert("ExerciseTemplateMapper.insertTemplate", tplDto);
-    }
+    int insertTemplate(TemplateDto tplDto);
 
-    public void insertExercise(TemplateDto exerDto) {
-        sqlSession.insert("ExerciseTemplateMapper.insertExercise", exerDto);
-    }
+    int insertExercise(TemplateDto exerDto);
 
-    public void updateExercise(TemplateDto exerDto) {
-        sqlSession.update("ExerciseTemplateMapper.updateExercise", exerDto);
-    }
+    int updateExercise(TemplateDto exerDto);
 
-    public void deleteExerciseBySeq(Long tplAttrSeq) {
-        sqlSession.update("ExerciseTemplateMapper.deleteExerciseBySeq", tplAttrSeq);
-    }
+    int deleteExerciseBySeq(Long tplAttrSeq);
 
-    public void insertRelation(Long tplSeq, Long tplAttrSeq) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("tplSeq", tplSeq);
-        param.put("tplAttrSeq", tplAttrSeq);
+    int insertRelation(@Param("tplSeq") Long tplSeq, @Param("tplAttrSeq") Long tplAttrSeq);
 
-        sqlSession.insert("ExerciseTemplateMapper.insertRelation", param);
-    }
+    int updateExerciseOrders(List<TemplateDto> list);
 
-    public void updateExerciseOrders(List<TemplateDto> list) {
-        sqlSession.update("ExerciseTemplateMapper.updateExerciseOrders", list);
-    }
+    int updateTemplate(TemplateDto tplDto);
 
-    public void updateTemplate(TemplateDto tplDto) {
-        sqlSession.update("ExerciseTemplateMapper.updateTemplate", tplDto);
-    }
+    int deleteTemplate(TemplateDto tplDto);
 
-    public void deleteTemplate(TemplateDto tplDto) {
-        sqlSession.update("ExerciseTemplateMapper.deleteTemplate", tplDto);
-    }
+    int deleteRelationByTplSeq(Long tplSeq);
 
-    public void deleteRelationByTplSeq(Long tplSeq) {
-        sqlSession.delete("ExerciseTemplateMapper.deleteRelationByTplSeq", tplSeq);
-    }
-
-    public void deleteExerciseByTplSeq(TemplateDto tplDto) {
-        sqlSession.update("ExerciseTemplateMapper.deleteExerciseByTplSeq", tplDto);
-    }
+    int deleteExerciseByTplSeq(TemplateDto tplDto);
 }

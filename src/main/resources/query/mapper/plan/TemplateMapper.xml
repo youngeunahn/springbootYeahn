@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="ExerciseTemplateMapper">
+<mapper namespace="com.yeahn.template.dao.TemplateMapper">
 
     <select id="getTplList" resultType="com.yeahn.template.dto.TemplateDto">
         SELECT
@@ -153,7 +153,7 @@
     <update id="deleteExerciseBySeq" parameterType="long">
         UPDATE TB_EXER_ATTR
         SET DEL_YN = 'Y', UPD_DT = NOW()
-        WHERE TPL_ATTR_SEQ = #{_parameter}
+        WHERE TPL_ATTR_SEQ = #{tplAttrSeq}
     </update>
 
     <insert id="insertRelation">
