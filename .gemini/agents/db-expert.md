@@ -19,3 +19,7 @@ tools:
 - **매핑 테이블**: `TB_EXER`와 같은 N:M 관계 해소를 위한 연결 테이블 설계를 검토합니다.
 - **공통 코드**: `FN_GET_COMM_CODE_DESC`와 같은 사용자 정의 함수를 활용한 코드 데이터 치환 구조를 이해하고 활용합니다.
 - **수영 모드 스키마**: 운동 계획 관련 테이블에 `CYCLE` (VARCHAR 또는 TIME) 컬럼 설계를 반영하고, 모드에 따른 필수 여부를 검토합니다.
+
+### 스키마 초기화 가이드 (CI 대응)
+- **테이블 생성 순서**: 외래키(FK) 참조 관계를 고려하여 부모 테이블을 자식 테이블보다 반드시 먼저 생성해야 함 (예: `TB_GRP` -> `TB_USER`, `TB_COMM_CLASS` -> `TB_COMM_CODE`, `TB_PLAN` -> `TB_PLAN_DETAIL`).
+- **사용자 정의 함수(UDF)**: `FN_GET_COMM_CODE_DESC`와 같은 함수는 `DELIMITER` 구문 문제로 Spring의 자동 로더에서 실패할 수 있으므로, CI 환경(`ci.yml`)에서 `mysql` CLI를 통해 직접 주입하는 방식을 권장함.

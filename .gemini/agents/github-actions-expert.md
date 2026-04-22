@@ -31,4 +31,8 @@ tools:
 - **런너:** Ubuntu 기반 GitHub-hosted runner를 기본으로 사용합니다.
 - **프로필 전략:** 테스트 시 `-Dspring.profiles.active=test` 옵션을 필수 적용하며, 테스트 환경용 `application.properties` 설정이 적절히 주입되도록 합니다.
 - **의존성 관리:** `jitpack.io` 등 외부 리포지토리 접근 속도와 인증 문제를 사전에 체크합니다.
-- **Java 버전:** 반드시 JDK 1.8(Java 8) 환경에서 빌드 및 테스트가 수행되도록 `actions/setup-java`의 `java-version`을 고정합니다.
+- **Java 버전**: 반드시 JDK 1.8(Java 8) 환경에서 빌드 및 테스트가 수행되도록 `actions/setup-java`의 `java-version`을 고정합니다.
+
+### 고급 CI 트러블슈팅 및 최적화
+- **복합 SQL 직접 주입**: `DELIMITER`나 `DROP FUNCTION`이 포함된 복잡한 SQL은 Spring Boot의 `schema.sql` 자동 실행 기능에서 오류가 발생하므로, `mysql -h 127.0.0.1 -e "..."` 명령어를 통해 단계별로 직접 주입하는 방식을 사용함.
+- **상세 로그 분석**: `Failed to load ApplicationContext` 발생 시 `mvn test -e -X` 옵션을 사용하여 구체적인 설정값 누락(Placeholder unresolved)이나 빈 생성 오류의 원인을 추적함.

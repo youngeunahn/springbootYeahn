@@ -20,3 +20,9 @@ tools:
 - **S3 연동**: IBM Cloud Object Storage(S3 API) 연동 시 `S3Uploader`와 `S3Config`를 참조하여 일관된 방식으로 처리합니다.
 - **Controller**: JSON 응답(`@ResponseBody`)과 뷰 반환을 프로젝트의 컨벤션에 맞춰 처리합니다.
 - **Security**: `WebSecurityConfigurerAdapter`와 BCrypt를 활용한 보안 설정을 이해하고 로직을 구성합니다.
+
+### 테스트 환경(CI) 설정 가이드
+- **필수 테스트 프로퍼티**: `application-test.properties` 작성 시 다음 항목이 누락되면 `ApplicationContext` 로딩이 실패함:
+    - `spring.environment=local`: `S3Uploader` 등의 `@PostConstruct` 초기화 로직 대응.
+    - `spring.servlet.multipart.location`: `S3Config`의 멀티파트 설정 대응.
+    - `image.upload.path`: 파일 업로드 경로 필수 지정.
