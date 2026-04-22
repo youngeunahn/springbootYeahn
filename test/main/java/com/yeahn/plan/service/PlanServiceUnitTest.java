@@ -1,4 +1,4 @@
-package main.java.com.yeahn.plan.service;
+package com.yeahn.plan.service;
 
 import com.yeahn.plan.dao.PlanMapper;
 import com.yeahn.plan.dto.PlanDetailVo;
