@@ -1,7 +1,7 @@
 # springbootYeahn 기술 명세
 
 이 문서는 프로젝트의 핵심 아키텍처와 기술 스택, 개발 컨벤션을 정의합니다. 
-상세한 구현 로직은 각 전문 서브에이전트(`springboot-expert`, `frontend-expert`, `mybatis-expert`, `test-expert`)의 지침을 따르십시오.
+상세한 구현 로직은 각 전문 서브에이전트(`springboot-expert`, `frontend-expert`, `mybatis-expert`, `test-expert`, `github-actions-expert`)의 지침을 따르십시오.
 
 ## 핵심 기술 스택
 
