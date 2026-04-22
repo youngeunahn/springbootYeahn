@@ -94,16 +94,16 @@ public class PlanServiceIntegrationTest {
         PlanVo initVo = new PlanVo();
         initVo.setPlanName("초기 계획");
         initVo.setPlanDate("2026-04-01");
-        
+        initVo.setDetails(Arrays.asList(new PlanDetailVo()));
         PlanDetailVo detail = new PlanDetailVo();
         detail.setPlanExerName("초기 운동");
-        initVo.setDetails(Arrays.asList(detail));
-        
+        initVo.setDetails(Arrays.asList(detail)); // 상세 항목을 명확히 추가
         Integer planSeq = planService.savePlan(initVo, request);
+        assertNotNull(planSeq, "초기 저장 시 planSeq가 생성되어야 합니다.");
 
         // [When] 데이터 수정 (기존 상세 대체)
         PlanVo updateVo = planService.getPlanDetail(planSeq);
-        assertNotNull(updateVo);
+        assertNotNull(updateVo, "저장된 계획을 불러오지 못했습니다.");
         updateVo.setPlanName("수정된 계획명");
         
         PlanDetailVo newDetail = new PlanDetailVo();
