@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,11 +37,31 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Set up MariaDB Schema and Function
+      run: |
+        mysql -h 127.0.0.1 -P 3306 -u root -proot yeahn_test < src/main/resources/schema.sql
+        mysql -h 127.0.0.1 -P 3306 -u root -proot yeahn_test -e "
+        DROP FUNCTION IF EXISTS FN_GET_COMM_CODE_DESC;
+        DELIMITER //
+        CREATE FUNCTION FN_GET_COMM_CODE_DESC(V_IN_TYPE_CLASS VARCHAR(100), V_IN_TYPE_CODE VARCHAR(100))
+        RETURNS VARCHAR(500) CHARSET utf8mb4 COLLATE utf8mb4_general_ci
+        DETERMINISTIC READS SQL DATA
+        BEGIN
+            DECLARE V_OUT_DESC VARCHAR(500);
+            SELECT CD.CODE_DESC INTO V_OUT_DESC
+            FROM TB_COMM_CLASS CLS
+            JOIN TB_COMM_CODE CD ON CLS.TYPE_CLASS = CD.TYPE_CLASS
+            WHERE CLS.TYPE_CLASS = V_IN_TYPE_CLASS AND CD.TYPE_CODE = V_IN_TYPE_CODE
+            AND CLS.USE_YN = 'Y' AND CD.USE_YN = 'Y' LIMIT 1;
+            RETURN V_OUT_DESC;
+        END //
+        DELIMITER ;"
+
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -Dspring.profiles.active=test
+      run: mvn -B package --file pom.xml -Dspring.profiles.active=test -DskipTests
 
     - name: Run Tests
-      run: mvn test -Dspring.profiles.active=test
+      run: mvn test -Dspring.profiles.active=test -e -X
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
