@@ -1,4 +1,4 @@
-package main.java.com.yeahn.template.service;
+package com.yeahn.template.service;
 
 import com.yeahn.template.dao.TemplateMapper;
 import com.yeahn.template.dto.TemplateDto;
