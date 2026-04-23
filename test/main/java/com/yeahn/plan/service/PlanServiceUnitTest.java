@@ -3,7 +3,6 @@ package com.yeahn.plan.service;
 import com.yeahn.plan.dao.PlanMapper;
 import com.yeahn.plan.dto.PlanDetailVo;
 import com.yeahn.plan.dto.PlanVo;
-import com.yeahn.plan.service.PlanService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
