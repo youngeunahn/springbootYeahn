@@ -3,6 +3,7 @@ package com.yeahn.template.service;
 import com.yeahn.Application;
 import com.yeahn.template.dto.TemplateDto;
 import com.yeahn.template.dto.TemplateSearchDto;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,11 +39,19 @@ public class TemplateServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        // 기존 시큐리티 컨텍스트 초기화
+        SecurityContextHolder.clearContext();
+        
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken("test_admin", "password")
         );
         request = new MockHttpServletRequest();
         request.setRemoteAddr("127.0.0.1");
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
