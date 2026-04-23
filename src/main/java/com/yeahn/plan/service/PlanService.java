@@ -41,7 +41,10 @@ public class PlanService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer savePlan(PlanVo planVo, HttpServletRequest request) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = "system";
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        }
         String ip = CommonUtils.getIP(request);
 
         if (planVo.getPlanSeq() == null) {
@@ -89,7 +92,10 @@ public class PlanService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deletePlan(Integer planSeq, HttpServletRequest request) {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = "system";
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        }
         String ip = CommonUtils.getIP(request);
 
         PlanVo planVo = new PlanVo();
