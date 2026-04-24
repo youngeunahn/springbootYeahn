@@ -40,7 +40,7 @@ public class YeController {
         List<YeahnTable> YeList = yeTableService.getYeahnTableList();
 
         mv.addObject("YeList", YeList);
-        mv.setViewName("/yetable/list");
+        mv.setViewName("yetable/list");
         return mv;
     }
 
@@ -76,7 +76,7 @@ public class YeController {
         YeahnTable data = yeTableService.getYeahnTableData(params);
         mv.addObject("data", data);
 
-        mv.setViewName("/yetable/detail");
+        mv.setViewName("yetable/detail");
         return mv;
     }
 
@@ -84,7 +84,7 @@ public class YeController {
     public ModelAndView index(Model model){
         ModelAndView mv = new ModelAndView();
 
-        mv.setViewName("/yetable/create");
+        mv.setViewName("yetable/create");
         return mv;
     }
 

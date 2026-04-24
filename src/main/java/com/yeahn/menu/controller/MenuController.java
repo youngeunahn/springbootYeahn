@@ -28,7 +28,7 @@ public class MenuController {
         List<MenuConfig> menuList = menuService.getMenuConfigList();
 
         mv.addObject("menuList", menuList);
-        mv.setViewName("/conf/menu");
+        mv.setViewName("conf/menu");
         return mv;
     }
 

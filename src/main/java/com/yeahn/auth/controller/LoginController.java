@@ -24,21 +24,21 @@ public class LoginController {
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView list(){
         ModelAndView mv = new ModelAndView();
-        mv.setViewName("/login/login");
+        mv.setViewName("login/login");
         return mv;
     }
 
     @RequestMapping("/access_denied")
     public ModelAndView accessDenied(){
         ModelAndView mv = new ModelAndView();
-        mv.setViewName("/login/access_denied");
+        mv.setViewName("login/access_denied");
         return mv;
     }
 
     @RequestMapping(value = "/signUp", method = RequestMethod.GET)
     public ModelAndView signUp(){
         ModelAndView mv = new ModelAndView();
-        mv.setViewName("/login/sign_up");
+        mv.setViewName("login/sign_up");
         return mv;
     }
 

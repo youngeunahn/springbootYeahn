@@ -16,7 +16,7 @@ public class PayController {
     public ModelAndView list(Model model){
         ModelAndView mv = new ModelAndView();
 
-        mv.setViewName("/pay/create");
+        mv.setViewName("pay/create");
         return mv;
     }
 }

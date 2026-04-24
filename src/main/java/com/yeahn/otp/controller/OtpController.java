@@ -17,7 +17,7 @@ public class OtpController {
 
         mv.addObject("key", OtpUtil.generateSecretKey());
         mv.addObject("qr", OtpUtil.getQrCodeUrl("test3", secretKey));
-        mv.setViewName("/conf/otp");
+        mv.setViewName("conf/otp");
 
         return mv;
     }
