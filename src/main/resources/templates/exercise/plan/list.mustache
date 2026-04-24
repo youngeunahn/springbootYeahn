@@ -178,7 +178,16 @@
                     const $table = $('<table/>', { class: 'table table-sm table-hover border-bottom' }).appendTo($pArea);
                     const $thead = $('<thead/>', { class: 'thead-light' }).appendTo($table);
                     const $trHead = $('<tr/>').appendTo($thead);
-                    ['운동명', 'Set', 'Reps', (typeCode === 'SWIM' ? 'Distance' : 'Time/Dist'), '메모'].forEach(h => {
+                    
+                    const headers = ['운동명', 'Set', 'Reps'];
+                    if (typeCode === 'SWIM') {
+                        headers.push('Cycle', 'Distance');
+                    } else {
+                        headers.push('Time/Dist');
+                    }
+                    headers.push('메모');
+
+                    headers.forEach(h => {
                         $('<th/>', { class: 'text-center py-2', text: h }).appendTo($trHead);
                     });
 
@@ -188,7 +197,14 @@
                         $('<td/>', { class: 'font-weight-bold py-2', text: ex.planExerName }).appendTo($tr);
                         $('<td/>', { class: 'text-center py-2', text: ex.planSets || '-' }).appendTo($tr);
                         $('<td/>', { class: 'text-center py-2', text: ex.planReps || '-' }).appendTo($tr);
-                        $('<td/>', { class: 'text-center py-2', text: ex.planTime || '-' }).appendTo($tr);
+                        
+                        if (typeCode === 'SWIM') {
+                            $('<td/>', { class: 'text-center py-2', text: ex.planTime || '-' }).appendTo($tr);
+                            $('<td/>', { class: 'text-center py-2', text: ex.planTotalDistance || '-' }).appendTo($tr);
+                        } else {
+                            $('<td/>', { class: 'text-center py-2', text: ex.planTime || '-' }).appendTo($tr);
+                        }
+                        
                         $('<td/>', { class: 'text-muted small py-2', text: ex.planNote || '' }).appendTo($tr);
                     });
                 });
@@ -278,16 +294,26 @@
                     
                     $phase.find('.exercise-item').each(function() {
                         const $ex = $(this);
-                        phases.push({
+                        const rowData = {
                             planDetailSeq: $ex.data('attr-seq') || null,
                             planPhase: phaseCode,
                             planCategoryCode: $ex.find('.exercise-part-group .btn.active').val(), 
+                            planKindCode: typeCode === 'GYM' ? ($ex.find('[name=planKindCode]').val() || 'STRENGTH') : typeCode,
                             planExerName: $ex.find('[name=exerName]').val(),
                             planSets: $ex.find('[name=sets]').val(),
                             planReps: $ex.find('[name=reps]').val(),
-                            planTime: $ex.find('[name=time]').val(),
                             planNote: $ex.find('[name=memo]').val()
-                        });
+                        };
+
+                        if (typeCode === 'SWIM') {
+                            rowData.planTime = $ex.find('[name=cycle]').val(); // 수영에서는 Cycle이 Time 필드
+                            rowData.planTotalDistance = $ex.find('[name=time]').val(); // 수영에서는 Distance가 TotalDistance 필드
+                        } else {
+                            rowData.planTime = $ex.find('[name=time]').val();
+                            rowData.planTotalDistance = null;
+                        }
+
+                        phases.push(rowData);
                     });
                 });
 
@@ -503,34 +529,54 @@
                 }
             }));
 
-            // 카테고리(부위) 버튼 그룹 영역
-            const $partWrap = $('<div/>', { class: 'mb-2' });
-            const $partGroup = $('<div/>', { class: 'btn-group btn-group-sm exercise-part-group', role: 'group' });
-            $partWrap.append($partGroup);
-            $item.append($partWrap);
-
-            // 서버에서 코드 데이터 조회 (템플릿 관리와 동일한 API 및 데이터 구조 활용)
+            // 서버에서 코드 데이터 조회 (GYM 모드일 때만 상단 통합 카테고리 로우 구성)
             $.ajax({
                 url: '/api/exercise/templates',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ ref1: typeCode }), // GYM 또는 SWIM 전달
+                data: JSON.stringify({ ref1: typeCode }),
                 success: function(codeData) {
-                    if (codeData && codeData.tplCate) {
-                        codeData.tplCate.forEach(function(item) {
-                            const active = (data && item.typeCode == data.planCategoryCode) ? ' active' : '';
-                            $('<button/>', {
-                                type: 'button',
-                                class: 'btn btn-xs btn-outline-secondary m-1' + active,
-                                text: item.codeDesc,
-                                value: item.typeCode,
-                                style: 'font-size: 0.7rem; padding: 2px 8px;',
-                                click: function() {
-                                    $(this).siblings().removeClass('active');
-                                    $(this).addClass('active');
-                                }
-                            }).appendTo($partGroup);
-                        });
+                    if (typeCode === 'GYM') {
+                        const $topRow = $('<div/>', { class: 'mb-2 d-flex flex-wrap align-items-center' });
+                        
+                        // 1. 운동 종류 선택 (Kind)
+                        if (codeData.tplKind) {
+                            const $kindSelect = $('<select/>', {
+                                name: 'planKindCode',
+                                class: 'form-control form-control-sm rounded-pill border-primary text-primary font-weight-bold mr-2',
+                                style: 'width: auto; height: 24px; padding: 0 10px; font-size: 0.7rem; cursor: pointer; background-color: #f0f7ff; border-width: 1.5px;'
+                            });
+                            
+                            codeData.tplKind.forEach(k => {
+                                const $opt = $('<option/>', { value: k.typeCode, text: k.codeDesc });
+                                if (data && data.planKindCode === k.typeCode) $opt.attr('selected', 'selected');
+                                $kindSelect.append($opt);
+                            });
+                            $topRow.append($kindSelect);
+                        }
+
+                        // 2. 부위 선택 버튼 그룹 (Category)
+                        const $partGroup = $('<div/>', { class: 'btn-group btn-group-xs exercise-part-group' });
+                        if (codeData.tplCate) {
+                            codeData.tplCate.forEach(function(item) {
+                                const active = (data && item.typeCode == data.planCategoryCode) ? ' active' : '';
+                                $('<button/>', {
+                                    type: 'button',
+                                    class: 'btn btn-xs btn-outline-secondary' + active,
+                                    text: item.codeDesc,
+                                    value: item.typeCode,
+                                    style: 'font-size: 0.7rem; padding: 2px 8px;',
+                                    click: function() {
+                                        $(this).siblings().removeClass('active');
+                                        $(this).addClass('active');
+                                    }
+                                }).appendTo($partGroup);
+                            });
+                        }
+                        $topRow.append($partGroup);
+                        
+                        // 아이템 상단에 추가
+                        $item.prepend($topRow);
                     }
                 }
             });
@@ -539,19 +585,22 @@
             
             // Cycle 모드 확인 (해당 페이즈의 버튼 상태)
             const isCycleMode = $container.closest('.phase-item').find('.btn-info.active').length > 0;
+            const nameClass = typeCode === 'GYM' 
+                ? 'form-control form-control-sm border-0 border-bottom rounded-0 font-weight-bold'
+                : 'form-control form-control-sm border-0 font-weight-bold';
 
             if (isCycleMode) {
                 // [운동명(col-4), Set(col-2), Reps(col-2), Cycle(col-2), Distance(col-2)]
                 $('<div/>', { class: 'col-4 px-1' }).append($('<input/>', { 
-                    type: 'text', name: 'exerName', class: 'form-control form-control-sm border-0 font-weight-bold', 
+                    type: 'text', name: 'exerName', class: nameClass, 
                     placeholder: '운동 이름', value: data ? data.planExerName : '' 
                 })).appendTo($row);
 
                 const metrics = [
                     { cls: 'col-2', name: 'sets', ph: 'Set', val: data ? data.planSets : '' },
                     { cls: 'col-2', name: 'reps', ph: 'Reps', val: data ? data.planReps : '' },
-                    { cls: 'col-2', name: 'cycle', ph: 'Cycle', val: data ? (data.planCycle || '') : '' },
-                    { cls: 'col-2', name: 'time', ph: 'Distance', val: data ? (data.planTime || '') : '' }
+                    { cls: 'col-2', name: 'cycle', ph: 'Cycle', val: data ? (typeCode === 'SWIM' ? data.planTime : (data.planCycle || '')) : '' },
+                    { cls: 'col-2', name: 'time', ph: 'Distance', val: data ? (typeCode === 'SWIM' ? data.planTotalDistance : data.planTime) : '' }
                 ];
 
                 metrics.forEach(m => {
@@ -564,14 +613,14 @@
             } else {
                 // [운동명(col-5), Set(col-2), Reps(col-2), Distance(col-3)]
                 $('<div/>', { class: 'col-5 px-1' }).append($('<input/>', { 
-                    type: 'text', name: 'exerName', class: 'form-control form-control-sm border-0 font-weight-bold', 
+                    type: 'text', name: 'exerName', class: nameClass, 
                     placeholder: '운동 이름', value: data ? data.planExerName : '' 
                 })).appendTo($row);
 
                 const metrics = [
                     { cls: 'col-2', name: 'sets', ph: 'Set', val: data ? data.planSets : '' },
                     { cls: 'col-2', name: 'reps', ph: 'Reps', val: data ? data.planReps : '' },
-                    { cls: 'col-3', name: 'time', ph: typeCode === 'SWIM' ? 'Distance' : 'Time/Dist', val: data ? (data.planTime || '') : '' }
+                    { cls: 'col-3', name: 'time', ph: typeCode === 'SWIM' ? 'Distance' : 'Time/Dist', val: data ? (typeCode === 'SWIM' ? data.planTotalDistance : data.planTime) : '' }
                 ];
 
                 metrics.forEach(m => {
@@ -583,13 +632,20 @@
                 });
             }
 
+            const memoClass = typeCode === 'GYM'
+                ? 'form-control form-control-xs mt-2 border-0 bg-light rounded text-muted font-italic'
+                : 'form-control form-control-xs mt-1 border-0 bg-transparent text-muted font-italic';
+            const memoStyle = typeCode === 'GYM'
+                ? 'font-size: 0.75rem; height: auto; padding: 8px 12px;'
+                : 'font-size: 0.7rem; height: auto; padding: 0 5px;';
+
             $item.append($('<input/>', {
                 type: 'text',
                 name: 'memo',
-                class: 'form-control form-control-xs mt-1 border-0 bg-transparent text-muted font-italic',
+                class: memoClass,
                 placeholder: '메모 (클릭하여 입력)',
                 value: data ? data.planNote : '',
-                style: 'font-size: 0.7rem; height: auto; padding: 0 5px;'
+                style: memoStyle
             }));
 
             $container.append($item);
@@ -632,6 +688,7 @@
                         'data-name': ex.tplExerName,
                         'data-sets': ex.tplMeasure1 || '',
                         'data-reps': ex.tplMeasure2 || '',
+                        'data-dist': ex.tplTotalDistance || '',
                         'data-memo': ex.tplNote || ''
                     });
 
@@ -684,7 +741,8 @@
                     planExerName: $ex.data('name'), 
                     planSets: $ex.data('sets'), 
                     planReps: $ex.data('reps'), 
-                    planExercise: $ex.data('memo') 
+                    planTotalDistance: $ex.data('dist'),
+                    planNote: $ex.data('memo') 
                 });
                 $ex.prop('checked', false);
             });
@@ -726,6 +784,7 @@
                                     'data-name': ex.tplExerName,
                                     'data-sets': ex.tplMeasure1 || '',
                                     'data-reps': ex.tplMeasure2 || '',
+                                    'data-dist': ex.tplTotalDistance || '',
                                     'data-memo': ex.tplNote || ''
                                 });
                                 
