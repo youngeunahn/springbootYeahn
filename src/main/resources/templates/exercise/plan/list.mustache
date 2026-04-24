@@ -536,48 +536,46 @@
                 contentType: 'application/json',
                 data: JSON.stringify({ ref1: typeCode }),
                 success: function(codeData) {
-                    if (typeCode === 'GYM') {
-                        const $topRow = $('<div/>', { class: 'mb-2 d-flex flex-wrap align-items-center' });
+                    const $topRow = $('<div/>', { class: 'mb-2 d-flex flex-wrap align-items-center' });
+                    
+                    // 1. 운동 종류 선택 (Kind) - GYM 모드에서만 표시
+                    if (typeCode === 'GYM' && codeData.tplKind) {
+                        const $kindSelect = $('<select/>', {
+                            name: 'planKindCode',
+                            class: 'form-control form-control-sm rounded-pill border-primary text-primary font-weight-bold mr-2',
+                            style: 'width: auto; height: 24px; padding: 0 10px; font-size: 0.7rem; cursor: pointer; background-color: #f0f7ff; border-width: 1.5px;'
+                        });
                         
-                        // 1. 운동 종류 선택 (Kind)
-                        if (codeData.tplKind) {
-                            const $kindSelect = $('<select/>', {
-                                name: 'planKindCode',
-                                class: 'form-control form-control-sm rounded-pill border-primary text-primary font-weight-bold mr-2',
-                                style: 'width: auto; height: 24px; padding: 0 10px; font-size: 0.7rem; cursor: pointer; background-color: #f0f7ff; border-width: 1.5px;'
-                            });
-                            
-                            codeData.tplKind.forEach(k => {
-                                const $opt = $('<option/>', { value: k.typeCode, text: k.codeDesc });
-                                if (data && data.planKindCode === k.typeCode) $opt.attr('selected', 'selected');
-                                $kindSelect.append($opt);
-                            });
-                            $topRow.append($kindSelect);
-                        }
-
-                        // 2. 부위 선택 버튼 그룹 (Category)
-                        const $partGroup = $('<div/>', { class: 'btn-group btn-group-xs exercise-part-group' });
-                        if (codeData.tplCate) {
-                            codeData.tplCate.forEach(function(item) {
-                                const active = (data && item.typeCode == data.planCategoryCode) ? ' active' : '';
-                                $('<button/>', {
-                                    type: 'button',
-                                    class: 'btn btn-xs btn-outline-secondary' + active,
-                                    text: item.codeDesc,
-                                    value: item.typeCode,
-                                    style: 'font-size: 0.7rem; padding: 2px 8px;',
-                                    click: function() {
-                                        $(this).siblings().removeClass('active');
-                                        $(this).addClass('active');
-                                    }
-                                }).appendTo($partGroup);
-                            });
-                        }
-                        $topRow.append($partGroup);
-                        
-                        // 아이템 상단에 추가
-                        $item.prepend($topRow);
+                        codeData.tplKind.forEach(k => {
+                            const $opt = $('<option/>', { value: k.typeCode, text: k.codeDesc });
+                            if (data && data.planKindCode === k.typeCode) $opt.attr('selected', 'selected');
+                            $kindSelect.append($opt);
+                        });
+                        $topRow.append($kindSelect);
                     }
+
+                    // 2. 부위/영법 선택 버튼 그룹 (Category) - 모든 모드에서 표시
+                    const $partGroup = $('<div/>', { class: 'btn-group btn-group-xs exercise-part-group' });
+                    if (codeData.tplCate) {
+                        codeData.tplCate.forEach(function(item) {
+                            const active = (data && item.typeCode == data.planCategoryCode) ? ' active' : '';
+                            $('<button/>', {
+                                type: 'button',
+                                class: 'btn btn-xs btn-outline-secondary' + active,
+                                text: item.codeDesc,
+                                value: item.typeCode,
+                                style: 'font-size: 0.7rem; padding: 2px 8px;',
+                                click: function() {
+                                    $(this).siblings().removeClass('active');
+                                    $(this).addClass('active');
+                                }
+                            }).appendTo($partGroup);
+                        });
+                    }
+                    $topRow.append($partGroup);
+                    
+                    // 아이템 상단에 추가
+                    $item.prepend($topRow);
                 }
             });
 
