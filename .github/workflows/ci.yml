@@ -84,7 +84,7 @@ jobs:
         uses: cloudtype-github-actions/deploy@v1
         with:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
-          project: "youngeunahn/springbootYeahn"
+          project: "yeahn/springbootyeahn"
           stage: main
           yaml: |
             name: springbootyeahn
