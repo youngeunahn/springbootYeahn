@@ -100,17 +100,17 @@ jobs:
                 value: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
               - name: SPRING_DATASOURCE_PASSWORD
                 value: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-              - name: cos.api-key
+              - name: COS_API_KEY
                 value: ${{ secrets.COS_API_KEY }}
-              - name: cos.location
+              - name: COS_LOCATION
                 value: ${{ secrets.COS_LOCATION }}
-              - name: cos.service-instance-id
+              - name: COS_SERVICE_INSTANCE_ID
                 value: ${{ secrets.COS_SERVICE_INSTANCE_ID }}
-              - name: cos.endpoint
+              - name: COS_ENDPOINT
                 value: ${{ secrets.COS_ENDPOINT }}
-              - name: cos.bucket
+              - name: COS_BUCKET
                 value: ${{ secrets.COS_BUCKET }}
-              - name: cos.iam_serviceid_crn
+              - name: COS_IAM_SERVICEID_CRN
                 value: ${{ secrets.COS_IAM_SERVICEID_CRN }}
               - name: spring.servlet.multipart.max-file-size
                 value: "10MB"
