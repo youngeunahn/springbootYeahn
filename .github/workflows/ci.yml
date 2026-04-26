@@ -72,12 +72,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check Secrets
-        run: |
-          test -n "${{ secrets.CLOUDTYPE_TOKEN }}" && echo "✅ CLOUDTYPE_TOKEN set" || echo "❌ CLOUDTYPE_TOKEN missing"
-          test -n "${{ secrets.GHP_TOKEN }}" && echo "✅ GHP_TOKEN set" || echo "❌ GHP_TOKEN missing"
-          test -n "${{ secrets.COS_LOCATION }}" && echo "✅ COS_LOCATION set" || echo "❌ COS_LOCATION missing"
-
       - name: Connect to Cloudtype
         uses: cloudtype-github-actions/connect@v1
         with:
@@ -93,8 +87,6 @@ jobs:
           yaml: |
             name: springbootyeahn
             app: java@8
-            options:
-              jdk: "8"
             env:
               - name: SPRING_PROFILES_ACTIVE
                 value: prod
@@ -116,12 +108,6 @@ jobs:
                 value: ${{ secrets.COS_BUCKET }}
               - name: COS_IAM_SERVICEID_CRN
                 value: ${{ secrets.COS_IAM_SERVICEID_CRN }}
-              - name: spring.servlet.multipart.max-file-size
-                value: "10MB"
-              - name: spring.servlet.multipart.max-request-size
-                value: "10MB"
-              - name: spring.servlet.multipart.location
-                value: "/tmp"
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
