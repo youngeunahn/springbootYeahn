@@ -87,27 +87,29 @@ jobs:
           yaml: |
             name: springbootyeahn
             app: java@8
+            options:
+              jdk: "8"
             env:
               - name: SPRING_PROFILES_ACTIVE
-                value: prod
+                value: "prod"
               - name: SPRING_DATASOURCE_URL
-                value: ${{ secrets.SPRING_DATASOURCE_URL }}
+                value: "${{ secrets.SPRING_DATASOURCE_URL }}"
               - name: SPRING_DATASOURCE_USERNAME
-                value: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+                value: "${{ secrets.SPRING_DATASOURCE_USERNAME }}"
               - name: SPRING_DATASOURCE_PASSWORD
-                value: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+                value: "${{ secrets.SPRING_DATASOURCE_PASSWORD }}"
               - name: COS_API_KEY
-                value: ${{ secrets.COS_API_KEY }}
+                value: "${{ secrets.COS_API_KEY }}"
               - name: COS_LOCATION
-                value: ${{ secrets.COS_LOCATION }}
+                value: "${{ secrets.COS_LOCATION }}"
               - name: COS_SERVICE_INSTANCE_ID
-                value: ${{ secrets.COS_SERVICE_INSTANCE_ID }}
+                value: "${{ secrets.COS_SERVICE_INSTANCE_ID }}"
               - name: COS_ENDPOINT
-                value: ${{ secrets.COS_ENDPOINT }}
+                value: "${{ secrets.COS_ENDPOINT }}"
               - name: COS_BUCKET
-                value: ${{ secrets.COS_BUCKET }}
+                value: "${{ secrets.COS_BUCKET }}"
               - name: COS_IAM_SERVICEID_CRN
-                value: ${{ secrets.COS_IAM_SERVICEID_CRN }}
+                value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
