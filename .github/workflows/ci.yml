@@ -91,7 +91,7 @@ jobs:
             app: java
             options:
               jdk: "8"
-            env: # 서버 구동 시 주입할 환경 변수
+            env:
               - name: SPRING_PROFILES_ACTIVE
                 value: prod
               - name: SPRING_DATASOURCE_URL
@@ -103,9 +103,7 @@ jobs:
               - name: COS_API_KEY
                 value: ${{ secrets.COS_API_KEY }}
             context:
-              git:
-                url: git@github.com:${{ github.repository }}.git
-                ref: ${{ github.ref }}
+              ref: master
               path: .
             build:
               command: mvn -B package -DskipTests
