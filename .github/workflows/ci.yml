@@ -79,7 +79,7 @@ jobs:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
           ghtoken: ${{ secrets.GHP_TOKEN }}
 
-      # 2. 실제 배포 수행 (정확한 액션 경로 사용)
+      # 2. 실제 배포 수행
       - name: Deploy to Cloudtype
         uses: cloudtype-github-actions/deploy@v1
         with:
@@ -88,8 +88,10 @@ jobs:
           stage: main
           yaml: |
             name: springbootyeahn
-            app: java@8
-            env:
+            app: java
+            options:
+              jdk: "8"
+            env: # 서버 구동 시 주입할 환경 변수
               - name: SPRING_PROFILES_ACTIVE
                 value: prod
               - name: SPRING_DATASOURCE_URL
@@ -101,7 +103,9 @@ jobs:
               - name: COS_API_KEY
                 value: ${{ secrets.COS_API_KEY }}
             context:
-              ref: master
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
               path: .
             build:
               command: mvn -B package -DskipTests
