@@ -1,18 +1,20 @@
-name: Java CI with Maven
+name: Java CI/CD with Maven
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     services:
       mariadb:
-        image: mariadb:10.6
+        image: mariadb:11.2
         ports:
           - 3306:3306
         env:
@@ -60,8 +62,38 @@ jobs:
       - name: Run Tests
         run: mvn test -Dspring.profiles.active=test -e -X
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+  deploy:
+    name: Deploy to Cloudtype
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Cloudtype
+        uses: cloudtype-io/github-action@v1
         with:
-          name: spring-boot-app
-          path: target/*.jar
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          project: "youngeunahn/springbootYeahn"
+          stage: main
+          yaml: |
+            name: springbootyeahn
+            app: java@8
+            env:
+              - name: SPRING_PROFILES_ACTIVE
+                value: prod
+              - name: SPRING_DATASOURCE_URL
+                value: ${{ secrets.SPRING_DATASOURCE_URL }}
+              - name: SPRING_DATASOURCE_USERNAME
+                value: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+              - name: SPRING_DATASOURCE_PASSWORD
+                value: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+              - name: COS_API_KEY
+                value: ${{ secrets.COS_API_KEY }}
+            context:
+              ref: master
+              path: .
+            build:
+              command: mvn -B package -DskipTests
