@@ -100,23 +100,23 @@ jobs:
                 value: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
               - name: SPRING_DATASOURCE_PASSWORD
                 value: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-              - name: COS_API_KEY
+              - name: cos.api-key
                 value: ${{ secrets.COS_API_KEY }}
-              - name: COS_LOCATION
+              - name: cos.location
                 value: ${{ secrets.COS_LOCATION }}
-              - name: COS_SERVICE_INSTANCE_ID
+              - name: cos.service-instance-id
                 value: ${{ secrets.COS_SERVICE_INSTANCE_ID }}
-              - name: COS_ENDPOINT
+              - name: cos.endpoint
                 value: ${{ secrets.COS_ENDPOINT }}
-              - name: COS_BUCKET
+              - name: cos.bucket
                 value: ${{ secrets.COS_BUCKET }}
-              - name: COS_IAM_SERVICEID_CRN
+              - name: cos.iam_serviceid_crn
                 value: ${{ secrets.COS_IAM_SERVICEID_CRN }}
-              - name: SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE
+              - name: spring.servlet.multipart.max-file-size
                 value: "10MB"
-              - name: SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE
+              - name: spring.servlet.multipart.max-request-size
                 value: "10MB"
-              - name: SPRING_SERVLET_MULTIPART_LOCATION
+              - name: spring.servlet.multipart.location
                 value: "/tmp"
             context:
               git:
