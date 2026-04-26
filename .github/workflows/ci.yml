@@ -89,17 +89,27 @@ jobs:
             app: java@8
             options:
               jdk: "8"
-            env:
-              - SPRING_PROFILES_ACTIVE=prod
-              - SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}
-              - SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}
-              - SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-              - COS_API_KEY=${{ secrets.COS_API_KEY }}
-              - COS_LOCATION=${{ secrets.COS_LOCATION }}
-              - COS_SERVICE_INSTANCE_ID=${{ secrets.COS_SERVICE_INSTANCE_ID }}
-              - COS_ENDPOINT=${{ secrets.COS_ENDPOINT }}
-              - COS_BUCKET=${{ secrets.COS_BUCKET }}
-              - COS_IAM_SERVICEID_CRN=${{ secrets.COS_IAM_SERVICEID_CRN }}
+              env:
+                - name: SPRING_PROFILES_ACTIVE
+                  value: prod
+                - name: SPRING_DATASOURCE_URL
+                  value: "${{ secrets.SPRING_DATASOURCE_URL }}"
+                - name: SPRING_DATASOURCE_USERNAME
+                  value: "${{ secrets.SPRING_DATASOURCE_USERNAME }}"
+                - name: SPRING_DATASOURCE_PASSWORD
+                  value: "${{ secrets.SPRING_DATASOURCE_PASSWORD }}"
+                - name: COS_API_KEY
+                  value: "${{ secrets.COS_API_KEY }}"
+                - name: COS_LOCATION
+                  value: "${{ secrets.COS_LOCATION }}"
+                - name: COS_SERVICE_INSTANCE_ID
+                  value: "${{ secrets.COS_SERVICE_INSTANCE_ID }}"
+                - name: COS_ENDPOINT
+                  value: "${{ secrets.COS_ENDPOINT }}"
+                - name: COS_BUCKET
+                  value: "${{ secrets.COS_BUCKET }}"
+                - name: COS_IAM_SERVICEID_CRN
+                  value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
