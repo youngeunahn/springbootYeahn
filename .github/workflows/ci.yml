@@ -72,7 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Cloudtype과 GitHub 저장소 연결 (Deploy Key 자동 등록 및 인증)
+      # 1. Cloudtype과 GitHub 저장소 연결
       - name: Connect to Cloudtype
         uses: cloudtype-github-actions/connect@v1
         with:
@@ -88,7 +88,7 @@ jobs:
           stage: main
           yaml: |
             name: springbootyeahn
-            app: java
+            app: java@8
             options:
               jdk: "8"
             env:
