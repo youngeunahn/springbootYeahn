@@ -102,6 +102,22 @@ jobs:
                 value: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
               - name: COS_API_KEY
                 value: ${{ secrets.COS_API_KEY }}
+              - name: COS_LOCATION
+                value: ${{ secrets.COS_LOCATION }}
+              - name: COS_SERVICE_INSTANCE_ID
+                value: ${{ secrets.COS_SERVICE_INSTANCE_ID }}
+              - name: COS_ENDPOINT
+                value: ${{ secrets.COS_ENDPOINT }}
+              - name: COS_BUCKET
+                value: ${{ secrets.COS_BUCKET }}
+              - name: COS_IAM_SERVICEID_CRN
+                value: ${{ secrets.COS_IAM_SERVICEID_CRN }}
+              - name: SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE
+                value: "10MB"
+              - name: SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE
+                value: "10MB"
+              - name: SPRING_SERVLET_MULTIPART_LOCATION
+                value: "/tmp"
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
