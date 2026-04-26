@@ -85,7 +85,7 @@ jobs:
         with:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
           project: "yeahn1107/yeahn"
-          stage: main
+          stage: master
           yaml: |
             name: springbootyeahn
             app: java
