@@ -5,7 +5,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-  workflow_dispatch: # 수동으로 전체 워크플로우를 실행하고 싶을 때 사용
+  workflow_dispatch:
 
 jobs:
   build:
@@ -64,10 +64,10 @@ jobs:
 
   deploy:
     name: Deploy to Cloudtype
-    needs: build # 빌드가 성공해야만 배포 단계로 넘어감
+    needs: build
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    environment: production # 이 설정이 '수동 승인' 버튼을 활성화함
+    environment: production
 
     steps:
       - uses: actions/checkout@v4
