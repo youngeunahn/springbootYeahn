@@ -103,7 +103,9 @@ jobs:
               - name: COS_API_KEY
                 value: ${{ secrets.COS_API_KEY }}
             context:
-              ref: master
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: master
               path: .
             build:
               command: mvn -B package -DskipTests
