@@ -115,5 +115,6 @@ jobs:
                 url: git@github.com:${{ github.repository }}.git
                 ref: master
               path: .
+              preset: java-springboot
             build:
               command: mvn -B package -DskipTests
