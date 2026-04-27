@@ -89,6 +89,7 @@ jobs:
             app: java@8
             options:
               jdk: "8"
+              ports: 8080
               env:
                 - name: SPRING_PROFILES_ACTIVE
                   value: prod
