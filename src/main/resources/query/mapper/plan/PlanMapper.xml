@@ -66,6 +66,15 @@
         <if test="planTypeCode != null and planTypeCode != ''">
             AND PLAN_TYPE_CODE = #{planTypeCode}
         </if>
+        <if test="planNameSearch != null and planNameSearch != ''">
+            AND PLAN_NAME LIKE CONCAT('%', #{planNameSearch}, '%')
+        </if>
+        <if test="searchStartDate != null and searchStartDate != ''">
+            AND PLAN_DATE &gt;= #{searchStartDate}
+        </if>
+        <if test="searchEndDate != null and searchEndDate != ''">
+            AND PLAN_DATE &lt;= #{searchEndDate}
+        </if>
         ORDER BY PLAN_DATE DESC, PLAN_SEQ DESC
     </select>
 

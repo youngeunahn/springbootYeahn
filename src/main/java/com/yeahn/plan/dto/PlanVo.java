@@ -19,6 +19,11 @@ public class PlanVo {
     private String updIp;
     private String updUserId;
 
+    // 검색 조건
+    private String planNameSearch;
+    private String searchStartDate;
+    private String searchEndDate;
+
     // 상세 리스트 (N:1 관계)
     private List<PlanDetailVo> details;
 }

@@ -75,6 +75,13 @@ public class PlanController {
         return "SUCCESS";
     }
 
+    // 운동 계획 검색 API (기간 + 이름 필터)
+    @GetMapping("/search")
+    @ResponseBody
+    public List<PlanVo> searchPlanList(@ModelAttribute PlanVo planVo) {
+        return planService.getPlanList(planVo);
+    }
+
     // 개별 운동 검색 API (라이브러리용)
     @GetMapping("/search-exercises")
     @ResponseBody
