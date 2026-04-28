@@ -1,5 +1,6 @@
 package com.yeahn.template.service;
 
+import com.ibm.cloud.objectstorage.services.s3.AmazonS3;
 import com.yeahn.Application;
 import com.yeahn.template.dto.TemplateDto;
 import com.yeahn.template.dto.TemplateSearchDto;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,11 +25,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * TemplateService 통합 테스트
- * 실무 수준의 엄격한 데이터 정합성 검증을 수행합니다.
+ *
+ * - @SpringBootTest: 실제 Spring 컨텍스트와 DB를 사용합니다.
+ * - @Transactional: 각 테스트 종료 후 DB를 자동 롤백합니다.
+ * - @MockBean AmazonS3: S3Config가 컨텍스트 로딩 시 실제 COS에 연결을 시도하므로
+ *   Mock으로 교체해 CI 환경에서도 컨텍스트가 정상 기동되게 합니다.
  */
 @SpringBootTest(classes = Application.class)
 @Transactional
 public class TemplateServiceIntegrationTest {
+
+    // @EnableCOS가 "client" 빈을, S3Config가 "amazonS3Client" 빈을 각각 등록합니다.
+    // 타입만으로 @MockBean하면 두 빈 중 어느 것을 대체할지 알 수 없으므로 이름을 명시합니다.
+    @MockBean(name = "amazonS3Client")
+    private AmazonS3 amazonS3ClientMock;
+
+    @MockBean(name = "client")
+    private AmazonS3 cosClientMock;
 
     @Autowired
     private TemplateService templateService;
@@ -235,23 +249,31 @@ public class TemplateServiceIntegrationTest {
 
         templateService.updateTemplate(updateRequest, request);
 
-        // [Then] 3. DB 정합성 검증
-        // 템플릿 마스터 정보 변경 확인
+        // [Then] 3. 서비스 계층: 수정 후 상세 조회로 최종 상태 확인
+        // DB를 직접 보는 것보다 서비스가 반환하는 결과로 검증하면 쿼리 필터까지 함께 검증됩니다.
+        TemplateDto updatedDetail = templateService.getTplDetail(tplSeq);
+        assertNotNull(updatedDetail, "수정 후에도 상세 조회가 가능해야 합니다.");
+        assertEquals("UPDATED_TPL", updatedDetail.getTplName(), "템플릿 이름이 수정되어야 합니다.");
+        // 유지된 운동1 + 신규 운동1 = 2개 (삭제된 운동2는 제외되어야 함)
+        assertNotNull(updatedDetail.getExercises());
+        assertEquals(2, updatedDetail.getExercises().size(), "수정 후 활성 운동은 유지1 + 신규1 = 2개여야 합니다.");
+
+        // [Then] 4. DB 직접: 마스터 이름 변경 확인
         String updatedTplName = jdbcTemplate.queryForObject(
                 "SELECT TPL_NAME FROM TB_EXER_TPL WHERE TPL_SEQ = ?", String.class, tplSeq);
         assertEquals("UPDATED_TPL", updatedTplName);
 
-        // 기존 운동1: 이름 변경 및 유지 확인
+        // [Then] 5. DB 직접: 기존 운동1 이름 변경 확인
         String nameAfterUpdate = jdbcTemplate.queryForObject(
                 "SELECT TPL_EXER_NAME FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?", String.class, idToKeep);
         assertEquals("이름변경운동1", nameAfterUpdate);
 
-        // 기존 운동2: Soft Delete(DEL_YN='Y') 확인
+        // [Then] 6. DB 직접: 기존 운동2 Soft Delete(DEL_YN='Y') 확인
         String delYn = jdbcTemplate.queryForObject(
                 "SELECT DEL_YN FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?", String.class, idToDelete);
         assertEquals("Y", delYn);
 
-        // 신규 운동: 추가 확인
+        // [Then] 7. DB 직접: 신규 운동 추가 확인
         Integer newExCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM TB_EXER_ATTR attr " +
                         "INNER JOIN TB_EXER exer ON attr.TPL_ATTR_SEQ = exer.TPL_ATTR_SEQ " +
@@ -275,17 +297,28 @@ public class TemplateServiceIntegrationTest {
         // [When] 삭제 실행
         templateService.deleteTemplate(tplSeq, request);
 
-        // [Then] 1. 템플릿 마스터 Soft Delete 확인
+        // [Then] 1. 서비스 계층: 삭제 후 상세 조회는 null을 반환해야 합니다.
+        // 쿼리에 DEL_YN = 'N' 필터가 없으면 이 테스트가 실패해 버그를 조기에 감지할 수 있습니다.
+        TemplateDto detailAfterDelete = templateService.getTplDetail(tplSeq);
+        assertNull(detailAfterDelete, "삭제된 템플릿은 상세 조회 시 null이어야 합니다.");
+
+        // [Then] 2. 서비스 계층: 목록 조회에서도 삭제된 템플릿이 제외되어야 합니다.
+        TemplateSearchDto searchDto = new TemplateSearchDto();
+        searchDto.setTplName("DELETE_ME");
+        List<TemplateDto> listAfterDelete = templateService.searchTplList(searchDto);
+        assertTrue(listAfterDelete.isEmpty(), "삭제된 템플릿은 목록 검색에서 제외되어야 합니다.");
+
+        // [Then] 3. DB 직접: 템플릿 마스터 Soft Delete 확인
         String tplDelYn = jdbcTemplate.queryForObject(
                 "SELECT DEL_YN FROM TB_EXER_TPL WHERE TPL_SEQ = ?", String.class, tplSeq);
         assertEquals("Y", tplDelYn);
 
-        // [Then] 2. 운동 속성 Soft Delete 확인
+        // [Then] 4. DB 직접: 운동 속성 Soft Delete 확인
         String attrDelYn = jdbcTemplate.queryForObject(
                 "SELECT DEL_YN FROM TB_EXER_ATTR WHERE TPL_ATTR_SEQ = ?", String.class, attrSeq);
         assertEquals("Y", attrDelYn);
 
-        // [Then] 3. 관계 데이터 삭제 확인
+        // [Then] 5. DB 직접: 관계 데이터 물리 삭제 확인
         Integer relCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM TB_EXER WHERE TPL_SEQ = ?", Integer.class, tplSeq);
         assertEquals(0, relCount, "관계 정보는 물리 삭제되어야 합니다.");
