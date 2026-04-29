@@ -1,60 +1,48 @@
 {{> layout/header }}
 <script type="text/javascript">
-    $(document).ready(function () {
+    $(document).ready(function() {
 
-    })
+    });
 
-    function fn_signUp(){
-        let userId = $('input[name="userId"]').val().trim();
-        let password = $('input[name="password"]').val().trim();
+    function fn_signUp() {
+        let userId        = $('input[name="userId"]').val().trim();
+        let password      = $('input[name="password"]').val().trim();
         let passwordCheck = $('input[name="password_check"]').val().trim();
-        let userName = $('input[name="userName"]').val().trim();
-        let email1 = $('input[name="email1"]').val().trim();
-        let email2 = $('select[name="email2"]').val();
+        let userName      = $('input[name="userName"]').val().trim();
+        let email1        = $('input[name="email1"]').val().trim();
+        let email2        = $('select[name="email2"]').val();
 
-        // 아이디
-        if(userId == ''){
+        if (userId === '') {
             alert('아이디를 입력해주세요.');
             $('input[name="userId"]').focus();
             return false;
         }
-
-        // 비밀번호
-        if(password == ''){
+        if (password === '') {
             alert('비밀번호를 입력해주세요.');
             $('input[name="password"]').focus();
             return false;
         }
-
-        // 비밀번호 확인
-        if(passwordCheck == ''){
+        if (passwordCheck === '') {
             alert('비밀번호 확인을 입력해주세요.');
             $('input[name="password_check"]').focus();
             return false;
         }
-
-        // 비밀번호 일치
-        if(password != passwordCheck){
+        if (password !== passwordCheck) {
             alert('비밀번호가 일치하지 않습니다.');
             $('input[name="password_check"]').focus();
             return false;
         }
-
-        // 닉네임
-        if(userName == ''){
+        if (userName === '') {
             alert('닉네임을 입력해주세요.');
             $('input[name="userName"]').focus();
             return false;
         }
-
-        // 이메일
-        if(email1 == ''){
+        if (email1 === '') {
             alert('이메일을 입력해주세요.');
             $('input[name="email1"]').focus();
             return false;
         }
-
-        if(email2 == '선택'){
+        if (email2 === '선택') {
             alert('이메일 도메인을 선택해주세요.');
             $('select[name="email2"]').focus();
             return false;
@@ -63,31 +51,59 @@
         $("#sendForm").submit();
     }
 </script>
-<div class="dashboard-ecommerce">
-    <div class="container-fluid dashboard-content ">
-        <div class="col-4">
-            <div class="card">
-                <div class="card-body p-4">
-                    <form id="sendForm" method="post" action="/signUp">
-                        아이디<br><input type="text" name="userId" style="height: 50px; width: 80%" placeholder="아이디 입력">
-                        <button type="button" class="btn btn-primary text-white" style="width: 18%">중복체크</button><br>
-                        비밀번호<input type="password" name="password" class="form-control" style="height: 50px; width: 100%" placeholder="비밀번호 입력">
-                        비밀번호 확인<input type="password" name="password_check" class="form-control" style="height: 50px; width: 100%" placeholder="비밀번호 확인 입력">
-                        닉네임<input type="text" name="userName" class="form-control" style="height: 50px; width: 100%" placeholder="닉네임 입력">
-                        이메일<br><input type="text" name="email1" style="height: 50px; width: 35%" placeholder="이메일 입력"> @
-                        <select name="email2" style="height: 50px; width: 40%">
-                            <option>선택</option>
-                            <option>gmail.com</option>
-                            <option>naver.com</option>
-                            <option>직접입력</option>
-                        </select>
-                        <button type="button" class="btn btn-primary text-white" >이메일 인증</button>
-                        <br>
-                        <br>
-                        <a href="#" class="btn btn-primary border-1 float-left text-white" onclick="fn_signUp();">회원등록</a>
-                        <a href="/login" class="btn btn-outline-secondary ms-2 border-1 float-left">로그인 화면으로</a>
-                    </form>
+
+<div class="d-flex justify-content-center align-items-center"
+     style="min-height: calc(100vh - 56px); background-color: #f4f6f9;">
+    <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4 my-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h5 class="font-weight-bold mb-1">회원가입</h5>
+                    <small class="text-muted">심심할때 쓰는 개발일기</small>
                 </div>
+                <form id="sendForm" method="post" action="/signUp">
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-muted mb-1">아이디</label>
+                        <div class="input-group">
+                            <input type="text" name="userId" class="form-control" placeholder="아이디 입력">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary">중복체크</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-muted mb-1">비밀번호</label>
+                        <input type="password" name="password" class="form-control" placeholder="비밀번호 입력">
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-muted mb-1">비밀번호 확인</label>
+                        <input type="password" name="password_check" class="form-control" placeholder="비밀번호 확인 입력">
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-muted mb-1">닉네임</label>
+                        <input type="text" name="userName" class="form-control" placeholder="닉네임 입력">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="small font-weight-bold text-muted mb-1">이메일</label>
+                        <div class="input-group">
+                            <input type="text" name="email1" class="form-control" placeholder="이메일">
+                            <div class="input-group-append">
+                                <span class="input-group-text">@</span>
+                            </div>
+                            <select name="email2" class="form-control" style="height: calc(1.5em + .75rem + 10px);">
+                                <option>선택</option>
+                                <option>gmail.com</option>
+                                <option>naver.com</option>
+                                <option>직접입력</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary">이메일 인증</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" onclick="fn_signUp();">회원등록</button>
+                    <a href="/login" class="btn btn-outline-secondary btn-block mt-2">로그인 화면으로</a>
+                </form>
             </div>
         </div>
     </div>
