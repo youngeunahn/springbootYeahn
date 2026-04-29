@@ -47,7 +47,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //https://velog.io/@limsubin/Spring-Boot-spring-security-%EB%A1%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%9D%84-%EA%B5%AC%ED%98%84%ED%95%98%EC%9E%90
         auth.userDetailsService(userService).passwordEncoder(new BCryptPasswordEncoder());
 //        auth.userDetailsService(userService).passwordEncoder(NoOpPasswordEncoder.getInstance());
     }

@@ -50,6 +50,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         logService.saveLoginLog(vo);
 
-        response.sendRedirect("/yetable/list");
+        response.sendRedirect("/exercise/plan?menuCode=EXERCISE_0002");
     }
 }
