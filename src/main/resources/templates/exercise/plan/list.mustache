@@ -261,6 +261,7 @@
                                 const $exList = addPhaseBlock($form.find('.phase-list'), pCode, codeData);
                                 phases[pCode].forEach(ex => addExerciseRow($exList, ex, codeData));
                             });
+                            if (typeCode === 'SWIM') updateTotalDistance($form);
                         }
                     }
                 },
@@ -669,7 +670,9 @@
                             'data-sets': ex.tplMeasure1 || '',
                             'data-reps': ex.tplMeasure2 || '',
                             'data-dist': ex.tplTotalDistance || '',
-                            'data-memo': ex.tplNote || ''
+                            'data-memo': ex.tplNote || '',
+                            'data-cate': ex.tplCategoryCode || '',
+                            'data-kind': ex.tplKindCode || ''
                         });
 
                         let info = '<strong>' + ex.tplExerName + '</strong>';
@@ -760,7 +763,9 @@
                     planSets: $ex.data('sets'),
                     planReps: $ex.data('reps'),
                     planTotalDistance: $ex.data('dist'),
-                    planNote: $ex.data('memo')
+                    planNote: $ex.data('memo'),
+                    planCategoryCode: $ex.data('cate') || null,
+                    planKindCode: $ex.data('kind') || null
                 }, currentCodeData);
                 $ex.prop('checked', false);
             });
@@ -800,7 +805,9 @@
                                     'data-sets': ex.tplMeasure1 || '',
                                     'data-reps': ex.tplMeasure2 || '',
                                     'data-dist': ex.tplTotalDistance || '',
-                                    'data-memo': ex.tplNote || ''
+                                    'data-memo': ex.tplNote || '',
+                                    'data-cate': ex.tplCategoryCode || '',
+                                    'data-kind': ex.tplKindCode || ''
                                 });
                                 let info = '<strong>' + ex.tplExerName + '</strong>';
                                 if (ex.tplMeasure1 || ex.tplMeasure2) {
@@ -853,7 +860,9 @@
                                     'data-sets': ex.planSets || '',
                                     'data-reps': ex.planReps || '',
                                     'data-dist': ex.planTotalDistance || '',
-                                    'data-memo': ex.planNote || ''
+                                    'data-memo': ex.planNote || '',
+                                    'data-cate': ex.planCategoryCode || '',
+                                    'data-kind': ex.planKindCode || ''
                                 });
                                 let info = '<strong>' + ex.planExerName + '</strong>';
                                 if (ex.planSets || ex.planReps) {
