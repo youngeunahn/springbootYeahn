@@ -16,11 +16,16 @@ public class UserService implements UserDetailsService {
 
     private final UserMapper userMapper;
 
+    public boolean isDuplicateId(String userId) {
+        return userMapper.checkUserId(userId) > 0;
+    }
+
     @Transactional
     public void joinUser(UserVo uservo){
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         uservo.setUserPwd(passwordEncoder.encode(uservo.getPassword()));
-        uservo.setUserAuth("ADMIN");
+        uservo.setUserAuth("ROLE_ADMIN");
+        uservo.setGrpAuth("ROLE_ADMIN");
         userMapper.saveUser(uservo);
     }
 

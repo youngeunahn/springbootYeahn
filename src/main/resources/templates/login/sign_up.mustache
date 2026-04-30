@@ -1,7 +1,32 @@
 {{> layout/header }}
 <script type="text/javascript">
-    $(document).ready(function() {
+    let idChecked = false;
 
+    $(document).ready(function() {
+        $('#btnCheckId').on('click', function() {
+            const userId = $('input[name="userId"]').val().trim();
+            if (userId === '') {
+                alert('아이디를 입력해주세요.');
+                return;
+            }
+            $.get('/signUp/checkId', { userId: userId }, function(isDuplicate) {
+                if (isDuplicate) {
+                    idChecked = false;
+                    $('input[name="userId"]').addClass('is-invalid').removeClass('is-valid');
+                    $('#userIdFeedback').text('이미 사용 중인 아이디입니다.').removeClass('valid-feedback').addClass('invalid-feedback').show();
+                } else {
+                    idChecked = true;
+                    $('input[name="userId"]').addClass('is-valid').removeClass('is-invalid');
+                    $('#userIdFeedback').text('사용 가능한 아이디입니다.').removeClass('invalid-feedback').addClass('valid-feedback').show();
+                }
+            });
+        });
+
+        $('input[name="userId"]').on('input', function() {
+            idChecked = false;
+            $(this).removeClass('is-valid is-invalid');
+            $('#userIdFeedback').hide();
+        });
     });
 
     function fn_signUp() {
@@ -14,6 +39,11 @@
 
         if (userId === '') {
             alert('아이디를 입력해주세요.');
+            $('input[name="userId"]').focus();
+            return false;
+        }
+        if (!idChecked) {
+            alert('아이디 중복체크를 해주세요.');
             $('input[name="userId"]').focus();
             return false;
         }
@@ -67,9 +97,10 @@
                         <div class="input-group">
                             <input type="text" name="userId" class="form-control" placeholder="아이디 입력">
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-secondary">중복체크</button>
+                                <button type="button" id="btnCheckId" class="btn btn-outline-secondary">중복체크</button>
                             </div>
                         </div>
+                        <small id="userIdFeedback" style="display:none;"></small>
                     </div>
                     <div class="form-group">
                         <label class="small font-weight-bold text-muted mb-1">비밀번호</label>

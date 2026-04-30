@@ -9,6 +9,9 @@ public interface UserMapper {
     // 로그인
     UserVo getUserAccount(@Param("userId") String userId);
 
+    // 아이디 중복체크
+    int checkUserId(@Param("userId") String userId);
+
     // 회원가입
     void saveUser(UserVo userVo);
 }

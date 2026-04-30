@@ -13,6 +13,11 @@
         WHERE USER_ID = #{userId}
     </select>
 
+    <!-- 아이디 중복체크 -->
+    <select id="checkUserId" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM TB_USER WHERE USER_ID = #{userId} AND DEL_YN = 'N'
+    </select>
+
     <!-- 회원가입 -->
     <insert id="saveUser" parameterType="com.yeahn.auth.dto.UserVo">
         INSERT INTO TB_USER(

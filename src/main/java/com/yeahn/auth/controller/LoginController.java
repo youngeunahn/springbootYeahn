@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
@@ -40,6 +41,12 @@ public class LoginController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("login/sign_up");
         return mv;
+    }
+
+    @RequestMapping(value = "/signUp/checkId", method = RequestMethod.GET)
+    @ResponseBody
+    public boolean checkId(@RequestParam String userId) {
+        return userService.isDuplicateId(userId);
     }
 
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
