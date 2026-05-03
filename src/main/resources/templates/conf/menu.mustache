@@ -165,20 +165,7 @@
         });
     }
 
-    let data =
-    [
-        {"name": "심심할때 쓰는 개발일기",
-        "id": "ROOT",
-        "children": [
-        {{#menuList}}
-            {{#MENU_LEVEL_VIEW}}
-                {"name": "{{MENU_TITLE}}",
-                    "id": "{{MENU_CODE}}"
-                },
-            {{/MENU_LEVEL_VIEW}}
-        {{/menuList}}
-        ]}
-    ];
+    let data = {{{menuDataJson}}};
 
     $(function() {
         $tree.tree({
@@ -191,8 +178,6 @@
         $tree.on(
             'tree.click',
             function(event) {
-                // event.node is the clicked node
-                // console.log(event.node);
                 $("#menuDetailBody").show();
                 $.ajax({
                     url :"/ajax/conf/menuDetail",
@@ -219,30 +204,6 @@
                 });
             }
         );
-
-        {{#menuList}}
-            {{#MENU_CHILD_YN}}
-
-            $("#menuCode").val("{{MENU_CODE}}");
-            $.ajax({
-                url :"/ajax/conf/menuChildList",
-                data : $("#sendForm").serialize(),
-                dataType: "json",
-                success : function(data) {
-                    $.each(data, function (k, v) {
-                        $tree.tree(
-                            'appendNode',
-                            {
-                                name: v.menu_TITLE,
-                                id: v.menu_CODE
-                            },
-                            $tree.tree('getNodeById', v.menu_PARENT)
-                        );
-                    });
-                }
-            });
-            {{/MENU_CHILD_YN}}
-        {{/menuList}}
 
         $('#insertMenuCodeModal').on('show.bs.modal', function (event) {
             let dMenuCode = $("#dMenuCode").val();

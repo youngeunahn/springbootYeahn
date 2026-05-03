@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,36 @@ public class MenuService {
         }
 
         return MenuList;
+    }
+
+    public List<Map<String, Object>> getMenuConfigTree() {
+        List<MenuConfig> flatList = MenuMapper.getMenuConfigList();
+
+        Map<String, Map<String, Object>> nodeMap = new LinkedHashMap<>();
+        for (MenuConfig menu : flatList) {
+            Map<String, Object> node = new LinkedHashMap<>();
+            node.put("id", menu.getMENU_CODE());
+            node.put("name", menu.getMENU_TITLE() != null ? menu.getMENU_TITLE() : "");
+            node.put("children", new ArrayList<>());
+            nodeMap.put(menu.getMENU_CODE(), node);
+        }
+
+        for (MenuConfig menu : flatList) {
+            String parent = menu.getMENU_PARENT();
+            if (parent != null && !parent.isEmpty() && nodeMap.containsKey(parent)) {
+                ((List<Object>) nodeMap.get(parent).get("children")).add(nodeMap.get(menu.getMENU_CODE()));
+            }
+        }
+
+        Map<String, Object> rootNode = nodeMap.get("ROOT");
+        Map<String, Object> root = new LinkedHashMap<>();
+        root.put("id", "ROOT");
+        root.put("name", "심심할때 쓰는 개발일기");
+        root.put("children", rootNode != null ? rootNode.get("children") : new ArrayList<>());
+
+        List<Map<String, Object>> tree = new ArrayList<>();
+        tree.add(root);
+        return tree;
     }
 
     public List<MenuConfig> getMenuChildList(Map<String, Object> params){

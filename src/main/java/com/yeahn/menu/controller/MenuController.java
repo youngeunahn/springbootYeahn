@@ -1,5 +1,6 @@
 package com.yeahn.menu.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yeahn.menu.service.MenuService;
 import com.yeahn.menu.dto.MenuConfig;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +22,15 @@ public class MenuController {
     @Autowired
     private MenuService menuService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @RequestMapping("/conf/menu")
-    public ModelAndView list(Model model) {
+    public ModelAndView list(Model model) throws Exception {
         ModelAndView mv = new ModelAndView();
 
-        List<MenuConfig> menuList = menuService.getMenuConfigList();
-
-        mv.addObject("menuList", menuList);
+        mv.addObject("menuList", menuService.getMenuConfigList());
+        mv.addObject("menuDataJson", objectMapper.writeValueAsString(menuService.getMenuConfigTree()));
         mv.setViewName("conf/menu");
         return mv;
     }
