@@ -73,13 +73,7 @@ public class MenuService {
         return tree;
     }
 
-    public List<MenuConfig> getMenuChildList(Map<String, Object> params){
-        List<MenuConfig> MenuChildList = MenuMapper.getMenuChildList((String) params.get("MENU_PARENT"));
-
-        return MenuChildList;
-    }
-
-    public Map<String, Object> getMenuDetail(Map<String, Object> params){
+public Map<String, Object> getMenuDetail(Map<String, Object> params){
         Map<String, Object> MenuDetail = MenuMapper.getMenuDetail(params.get("menuCode").toString());
 
         return MenuDetail;

@@ -34,11 +34,7 @@ public class MenuMapper {
         return sqlSession.selectList("ConfigMapper.getMenuConfigList");
     }
     
-    public List<MenuConfig> getMenuChildList(String menuCode) {
-        return sqlSession.selectList("ConfigMapper.getMenuChildList", menuCode);
-    }
-    
-    public Map<String, Object> getMenuDetail(String menuCode) {
+public Map<String, Object> getMenuDetail(String menuCode) {
         return sqlSession.selectOne("ConfigMapper.getMenuDetail", menuCode);
     }
     

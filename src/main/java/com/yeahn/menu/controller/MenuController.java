@@ -2,7 +2,6 @@ package com.yeahn.menu.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yeahn.menu.service.MenuService;
-import com.yeahn.menu.dto.MenuConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,20 +34,12 @@ public class MenuController {
         return mv;
     }
 
-    @RequestMapping("/ajax/conf/menuChildList")
-    @ResponseBody
-    public List<MenuConfig> getMenuChildList(@RequestParam Map<String, Object> params){
-        List<MenuConfig> menuChildList = menuService.getMenuChildList(params);
-
-        return menuChildList;
-    }
-
     @RequestMapping("/ajax/conf/menuDetail")
     @ResponseBody
     public Map<String, Object> getMenuDetail(@RequestParam Map<String, Object> params){
-        Map<String, Object> MenuDetail = menuService.getMenuDetail(params);
+        Map<String, Object> menuDetail = menuService.getMenuDetail(params);
 
-        return MenuDetail;
+        return menuDetail;
     }
 
     @RequestMapping("/ajax/conf/menuUpdate")
