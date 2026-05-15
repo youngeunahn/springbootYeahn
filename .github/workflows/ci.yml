@@ -119,13 +119,12 @@ jobs:
                 - name: SCOUTER_COLLECTOR_IP
                   value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
             run:
-              command: java -javaagent:./agent/scouter/scouter.agent.jar -Dscouter.config=./agent/scouter/conf/scouter.conf -jar target/yeahn-0.0.1-SNAPSHOT.jar
+              command: sh start.sh
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
                 ref: master
               path: .
-              preset: java-springboot
             build:
               command: |
                 mkdir -p agent/scouter && \
