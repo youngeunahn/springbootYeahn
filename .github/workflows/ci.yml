@@ -78,10 +78,8 @@ jobs:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
           ghtoken: ${{ secrets.GHP_TOKEN }}
 
-      - name: Pre-download Scouter Agent
+      - name: Verify Scouter Agent
         run: |
-          mkdir -p agent/scouter
-          curl -fsSL https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=2 scouter/agent.java
           test -f agent/scouter/scouter.agent.jar
 
       - name: Deploy to Cloudtype
@@ -120,8 +118,6 @@ jobs:
                 - name: SCOUTER_COLLECTOR_IP
                   value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
               build: |
-                mkdir -p agent/scouter && \
-                curl -fsSL https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=2 scouter/agent.java && \
                 test -f agent/scouter/scouter.agent.jar && \
                 mvn -B package -DskipTests
               start: sh start.sh
