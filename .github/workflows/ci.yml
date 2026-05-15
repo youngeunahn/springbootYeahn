@@ -78,6 +78,11 @@ jobs:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
           ghtoken: ${{ secrets.GHP_TOKEN }}
 
+      - name: Pre-download Scouter Agent
+        run: |
+          mkdir -p agent/scouter
+          curl -L https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=3 scouter/agent.java
+
       - name: Deploy to Cloudtype
         uses: cloudtype-github-actions/deploy@v1
         with:
@@ -123,6 +128,4 @@ jobs:
               preset: java-springboot
             build:
               command: |
-                mkdir -p agent/scouter && \
-                curl -L https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=3 scouter/agent.java && \
-                mvn -B package -DskipTests
+                JAVA_TOOL_OPTIONS="" mvn -B package -DskipTests
