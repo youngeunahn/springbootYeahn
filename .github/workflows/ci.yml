@@ -117,7 +117,13 @@ jobs:
                   value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
                 - name: SCOUTER_COLLECTOR_IP
                   value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
-              start: sh start.sh
+              start: >
+                sh -c 'if [ -f ./target/scouter/scouter.agent.jar ] && [ -n "$SCOUTER_COLLECTOR_IP" ]; then
+                printf "%s\n" "obj_name=springbootYeahn-prod" "net_collector_ip=$SCOUTER_COLLECTOR_IP" "net_collector_udp_port=${SCOUTER_COLLECTOR_UDP_PORT:-6100}" "net_collector_tcp_port=${SCOUTER_COLLECTOR_TCP_PORT:-6100}" "profile_sql_escape_enabled=false" "profile_connection_open_enabled=true" "trace_db_jdbc_allow_full_stacktrace=true" > /tmp/scouter.conf;
+                export JAVA_TOOL_OPTIONS="-javaagent:./target/scouter/scouter.agent.jar -Dscouter.config=/tmp/scouter.conf";
+                echo "Starting Application with Scouter Agent...";
+                else echo "Starting Application without Scouter Agent. Check SCOUTER_COLLECTOR_IP and ./target/scouter/scouter.agent.jar."; fi;
+                java -jar ./target/yeahn-0.0.1-SNAPSHOT.jar'
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
