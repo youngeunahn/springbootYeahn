@@ -117,9 +117,6 @@ jobs:
                   value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
                 - name: SCOUTER_COLLECTOR_IP
                   value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
-              build: |
-                test -f agent/scouter/scouter.agent.jar && \
-                mvn -B package -DskipTests
               start: sh start.sh
             context:
               git:
