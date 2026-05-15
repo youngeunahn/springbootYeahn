@@ -119,16 +119,14 @@ jobs:
                   value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
                 - name: SCOUTER_COLLECTOR_IP
                   value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
-            run:
-              command: sh start.sh
+              build: |
+                mkdir -p agent/scouter && \
+                curl -fsSL https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=2 scouter/agent.java && \
+                test -f agent/scouter/scouter.agent.jar && \
+                mvn -B package -DskipTests
+              start: sh start.sh
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
                 ref: master
               path: .
-            build:
-              command: |
-                mkdir -p agent/scouter && \
-                curl -fsSL https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=2 scouter/agent.java && \
-                test -f agent/scouter/scouter.agent.jar && \
-                mvn -B package -DskipTests
