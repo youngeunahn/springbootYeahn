@@ -93,7 +93,7 @@ jobs:
               env:
                 - name: SPRING_PROFILES_ACTIVE
                   value: prod
-                - name: JAVA_OPTS
+                - name: JAVA_TOOL_OPTIONS
                   value: "-javaagent:./agent/scouter/scouter.agent.jar -Dscouter.config=./agent/scouter/conf/scouter.conf"
                 - name: SPRING_DATASOURCE_URL
                   value: "${{ secrets.SPRING_DATASOURCE_URL }}"
@@ -115,8 +115,6 @@ jobs:
                   value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
                 - name: SCOUTER_COLLECTOR_IP
                   value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
-            run:
-              command: java $JAVA_OPTS -jar target/yeahn-0.0.1-SNAPSHOT.jar
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
