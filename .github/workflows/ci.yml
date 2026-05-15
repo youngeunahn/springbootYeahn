@@ -93,6 +93,8 @@ jobs:
               env:
                 - name: SPRING_PROFILES_ACTIVE
                   value: prod
+                - name: JAVA_OPTS
+                  value: "-javaagent:./agent/scouter/scouter.agent.jar -Dscouter.config=./agent/scouter/conf/scouter.conf"
                 - name: SPRING_DATASOURCE_URL
                   value: "${{ secrets.SPRING_DATASOURCE_URL }}"
                 - name: SPRING_DATASOURCE_USERNAME
@@ -111,6 +113,8 @@ jobs:
                   value: "${{ secrets.COS_BUCKET }}"
                 - name: COS_IAM_SERVICEID_CRN
                   value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
+                - name: SCOUTER_COLLECTOR_IP
+                  value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
@@ -118,4 +122,7 @@ jobs:
               path: .
               preset: java-springboot
             build:
-              command: mvn -B package -DskipTests
+              command: |
+                mkdir -p agent/scouter && \
+                curl -L https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=3 scouter/agent.java && \
+                mvn -B package -DskipTests
