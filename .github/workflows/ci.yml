@@ -81,7 +81,8 @@ jobs:
       - name: Pre-download Scouter Agent
         run: |
           mkdir -p agent/scouter
-          curl -L https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=3 scouter/agent.java
+          curl -fsSL https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=2 scouter/agent.java
+          test -f agent/scouter/scouter.agent.jar
 
       - name: Deploy to Cloudtype
         uses: cloudtype-github-actions/deploy@v1
@@ -128,5 +129,6 @@ jobs:
             build:
               command: |
                 mkdir -p agent/scouter && \
-                curl -L https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=3 scouter/agent.java && \
+                curl -fsSL https://github.com/scouter-project/scouter/releases/download/v2.20.0/scouter-all-2.20.0.tar.gz | tar -xz -C agent/scouter --strip-components=2 scouter/agent.java && \
+                test -f agent/scouter/scouter.agent.jar && \
                 mvn -B package -DskipTests
