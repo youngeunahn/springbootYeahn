@@ -49,7 +49,7 @@ public class LoginController {
         return userService.isDuplicateId(userId);
     }
 
-    @RequestMapping(value = "/signUp", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/user/signUp", method = RequestMethod.POST)
     public String signUpProcess(@RequestParam HashMap<String, Object> param, UserVo uservo){
         uservo.setUserPwd(param.get("password").toString());
         userService.joinUser(uservo, "ROLE_USER");
