@@ -11,13 +11,16 @@
 - **UI/UX:** Mustache, Bootstrap 4, jQuery, jQuery UI, jqGrid, C3.js
 - **Storage:** IBM Cloud Object Storage (S3 API 호환)
 - **Logging:** Logback + Log4jdbc
+- **Monitoring:** Scouter APM (Agent-Collector architecture)
 
 ## 개발 컨벤션 및 가이드라인
 
 ### 1. 프로젝트 구조
 - **Controller Layer:** 일반 뷰(@Controller)와 JSON API(@ResponseBody)를 목적에 맞게 병행 사용.
 - **Testing:** **중요!** `test/main/java` 소스 루트를 사용하여 테스트 코드를 관리함 (표준 Maven 경로와 다름).
-- **Security:** `/login`, `/signUp`을 제외한 모든 경로는 `ADMIN` 권한을 강제하며, Naver Lucy XSS Filter를 적용.
+- **Security:** 
+    - `/login`, `/signUp`, `/api/user/**`를 제외한 모든 경로는 `ADMIN` 권한을 강제하며, Naver Lucy XSS Filter를 적용.
+    - `/api/user/**` 경로는 비로그인 상태에서도 접근 가능하도록 익명 사용자(Anonymous Authentication) 설정을 적용함.
 
 ### 2. 데이터 처리 및 UI 원칙
 - **Soft Delete:** 물리적 삭제 대신 `DEL_YN = 'Y'` 처리를 기본으로 함.

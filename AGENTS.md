@@ -1,0 +1,43 @@
+# Repository Guidelines
+
+## 프로젝트 구조와 모듈 구성
+
+이 저장소는 Java 8 기반의 Maven Spring Boot 2.6.11 애플리케이션입니다. 주요 Java 코드는 `src/main/java/com/yeahn` 아래에 있으며 `auth`, `security`, `plan`, `template`, `menu`, `yetable`, `log`, `config`, `common` 패키지로 나뉩니다. Mustache 화면은 `src/main/resources/templates`, 정적 CSS/JS/이미지는 `src/main/resources/static`, MyBatis XML 매퍼는 `src/main/resources/query/mapper`에 있습니다. DB 초기 스키마는 `src/main/resources/schema.sql`을 사용합니다. 테스트 코드는 표준 경로가 아닌 `test/main/java`에 있으며 Maven 설정으로 포함됩니다.
+
+## 빌드, 테스트, 개발 명령
+
+- `mvn -B package -DskipTests`: 테스트 없이 애플리케이션 jar를 빌드합니다.
+- `mvn spring-boot:run`: 기본 설정으로 로컬 서버를 실행합니다.
+- `mvn spring-boot:run -Dspring.profiles.active=test`: `test` 프로파일로 실행합니다.
+- `mvn test -Dspring.profiles.active=test`: 전체 테스트를 실행합니다.
+- `mvn test -Dspring.profiles.active=test -Dtest=PlanServiceIntegrationTest`: 특정 테스트 클래스만 실행합니다.
+
+통합 테스트는 MariaDB와 `schema.sql`의 스키마 객체가 필요할 수 있습니다.
+
+## 코딩 스타일과 명명 규칙
+
+Java 8 문법만 사용합니다. 기존 패키지 구조를 따르고 Controller, Service, DTO, Mapper 인터페이스/XML의 책임을 분리합니다. 클래스명은 `PascalCase`, 메서드와 필드는 `camelCase`를 사용합니다. DTO는 주변 코드의 `Dto`, `Vo` 접미사 관례를 따릅니다. Lombok은 기존 사용 방식과 일관되게 적용합니다. UI 변경은 Mustache 템플릿을 단순하게 유지하고 `static`에 있는 Bootstrap 4, jQuery 관례를 따릅니다.
+
+## 테스트 가이드라인
+
+테스트는 `spring-boot-starter-test`와 Spring Security 테스트 지원을 사용합니다. 신규 단위/통합 테스트는 `test/main/java/com/yeahn/...` 아래에 추가하고 `PlanServiceUnitTest`, `TemplateServiceIntegrationTest`처럼 대상과 범위를 드러내는 이름을 사용합니다. 테스트 메서드는 검증하려는 동작이 드러나게 작성하고, 프로파일이 필요한 경우 `-Dspring.profiles.active=test`를 함께 실행합니다.
+
+**IP stub 주의:** 단위 테스트에서 `when(request.getRemoteAddr()).thenReturn(...)` 사용 시 반드시 비-루프백 IP(예: `"10.10.10.10"`)를 사용합니다. `CommonUtils.getIP()`가 `127.0.0.1`과 `0:0:0:0:0:0:0:1`을 `InetAddress.getLocalHost().getHostAddress()`로 자동 교체하므로 루프백 IP를 stub하면 실제 호스트 IP(예: VirtualBox 어댑터 IP)가 감사 필드에 기록되어 단언이 실패합니다.
+
+**AmazonS3 MockBean:** `@SpringBootTest` 통합 테스트에서 AmazonS3 관련 빈이 두 개(`amazonS3Client`, `client`) 등록되므로 타입만으로 `@MockBean`하면 모호합니다. 빈 이름을 명시해야 합니다.
+```java
+@MockBean(name = "amazonS3Client") private AmazonS3 amazonS3ClientMock;
+@MockBean(name = "client")         private AmazonS3 cosClientMock;
+```
+
+## 커밋과 Pull Request 가이드라인
+
+최근 커밋은 `포트추가`, `서버 프리셋 변경`처럼 짧은 한국어 요약을 사용합니다. 커밋 메시지는 간결하고 변경 동작이 드러나게 작성합니다. PR에는 변경 설명, 영향을 받는 기능이나 경로, 실행한 테스트 명령, Mustache/UI 변경 시 스크린샷을 포함합니다. 관련 이슈가 있으면 연결하고 설정, DB, 배포 영향은 별도로 명시합니다.
+
+## 보안과 설정 팁
+
+DB 비밀번호, Cloudtype 토큰, COS/S3 키, 로컬 IDE 비밀값은 커밋하지 않습니다. 환경별 설정은 Spring profile 또는 환경 변수로 분리합니다. SQL이나 매퍼를 수정할 때는 기존 쿼리가 의존하는 `DEL_YN` 기반 soft delete 조건을 유지합니다.
+
+**Cloudtype Scouter 설정:** Cloudtype `java@8` 배포 시 `options.start` 필드를 사용하여 런타임에 Scouter 설정을 동적으로 주입합니다. 배포 전 GitHub Actions 단계에서 Scouter Agent JAR를 준비(`agent/scouter/scouter.agent.jar`)해야 하며, 실행 시점에 `printf`를 통해 `/tmp/scouter.conf`를 생성하고 `JAVA_TOOL_OPTIONS`를 설정하여 에이전트를 로드합니다. 수집 서버 IP는 GitHub Secrets의 `SCOUTER_COLLECTOR_IP`를 사용하며, 정상 작동 시 로그에 `Starting Application with Scouter Agent...` 문구가 나타납니다.
+
+**application-test.properties 환경 변수 fallback 패턴:** CI는 환경 변수로 실제 값을 주입하고, 로컬 실행 시에는 fallback 값이 사용됩니다. `${VAR_NAME:default_value}` 형식으로 작성합니다. COS 속성(`cos.endpoint`, `cos.location`, `cos.api-key`, `cos.service-instance-id`, `cos.iam_serviceid_crn`, `cos.bucket`)과 DB 연결 정보 모두 fallback이 없으면 `@Value` 주입 실패로 `ApplicationContext` 로딩이 실패합니다. `@MockBean`으로 AmazonS3 빈을 대체하더라도 `S3Config` 클래스 자체의 `@Value` 필드 주입은 일어나므로 fallback 기본값이 반드시 있어야 합니다.

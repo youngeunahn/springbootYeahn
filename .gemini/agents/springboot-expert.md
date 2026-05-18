@@ -19,7 +19,8 @@ tools:
 - **수영 모드 확장**: 운동 계획 DTO에 `cycle` 필드를 포함하고, 수영 모드(`typeCode = 'SWIM'`)일 때만 해당 필드의 비즈니스 유효성 검사를 수행하도록 처리합니다.
 - **S3 연동**: IBM Cloud Object Storage(S3 API) 연동 시 `S3Uploader`와 `S3Config`를 참조하여 일관된 방식으로 처리합니다.
 - **Controller**: JSON 응답(`@ResponseBody`)과 뷰 반환을 프로젝트의 컨벤션에 맞춰 처리합니다.
-- **Security**: `WebSecurityConfigurerAdapter`와 BCrypt를 활용한 보안 설정을 이해하고 로직을 구성합니다.
+- **Security**: `WebSecurityConfigurerAdapter` 기반 보안 설정을 이해하며, 공개 API(`/api/user/**`)에 대한 익명 사용자(Anonymous Authentication) 허용 정책을 준수합니다.
+- **로깅 및 세션**: `AccessLogFilter` 등 필터 계층에서 세션 접근 시 응답 커밋 여부(`response.isCommitted()`)를 확인하고 세션 존재 여부에 따라 안전하게 ID를 획득하는 패턴을 사용합니다.
 
 ### 테스트 환경(CI) 설정 가이드
 - **필수 테스트 프로퍼티**: `application-test.properties` 작성 시 다음 항목이 누락되면 `ApplicationContext` 로딩이 실패함:

@@ -33,6 +33,11 @@ tools:
 - **의존성 관리:** `jitpack.io` 등 외부 리포지토리 접근 속도와 인증 문제를 사전에 체크합니다.
 - **Java 버전**: 반드시 JDK 1.8(Java 8) 환경에서 빌드 및 테스트가 수행되도록 `actions/setup-java`의 `java-version`을 고정합니다.
 
+### Scouter APM & Cloudtype 통합 가이드
+- **인라인 실행 스크립트**: Cloudtype 배포 시 별도의 `start.sh` 대신 `yaml.options.start` 필드에 인라인 쉘 스크립트를 작성하여 에이전트를 로드함. 이 스크립트는 `printf`를 이용해 `/tmp/scouter.conf`를 동적으로 생성하고 `JAVA_TOOL_OPTIONS`를 설정함.
+- **에이전트 경로 일관성**: 배포 단계에서 준비된 에이전트 경로(예: `agent/scouter/scouter.agent.jar`)와 `start` 명령어 내의 경로가 일치하는지 반드시 확인하며, `test -f`를 통해 파일 존재 여부를 검증한 뒤 실행함.
+- **Secrets 연동**: 수집 서버 IP는 `SCOUTER_COLLECTOR_IP` secret을 통해 관리하며, 인라인 스크립트 내에서 환경 변수 형태로 참조하여 보안을 유지함.
+
 ### 고급 CI 트러블슈팅 및 최적화
 - **복합 SQL 직접 주입**: `DELIMITER`나 `DROP FUNCTION`이 포함된 복잡한 SQL은 Spring Boot의 `schema.sql` 자동 실행 기능에서 오류가 발생하므로, `mysql -h 127.0.0.1 -e "..."` 명령어를 통해 단계별로 직접 주입하는 방식을 사용함.
 - **상세 로그 분석**: `Failed to load ApplicationContext` 발생 시 `mvn test -e -X` 옵션을 사용하여 구체적인 설정값 누락(Placeholder unresolved)이나 빈 생성 오류의 원인을 추적함.
