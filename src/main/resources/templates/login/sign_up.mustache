@@ -9,7 +9,7 @@
                 alert('아이디를 입력해주세요.');
                 return;
             }
-            $.get('/signUp/checkId', { userId: userId }, function(isDuplicate) {
+            $.get('/admin/signUp/checkId', { userId: userId }, function(isDuplicate) {
                 if (isDuplicate) {
                     idChecked = false;
                     $('input[name="userId"]').addClass('is-invalid').removeClass('is-valid');
@@ -91,7 +91,7 @@
                     <h5 class="font-weight-bold mb-1">회원가입</h5>
                     <small class="text-muted">심심할때 쓰는 개발일기</small>
                 </div>
-                <form id="sendForm" method="post" action="/signUp">
+                <form id="sendForm" method="post" action="/admin/signUp">
                     <div class="form-group">
                         <label class="small font-weight-bold text-muted mb-1">아이디</label>
                         <div class="input-group">
