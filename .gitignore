@@ -4,6 +4,7 @@
 
 # 인텔리제이 설정 파일 제외
 .idea
+.vscode
 *.iml
 out
 gen
