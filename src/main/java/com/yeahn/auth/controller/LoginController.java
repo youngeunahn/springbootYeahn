@@ -36,23 +36,30 @@ public class LoginController {
         return mv;
     }
 
-    @RequestMapping(value = "/signUp", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/signUp", method = RequestMethod.GET)
     public ModelAndView signUp(){
         ModelAndView mv = new ModelAndView();
         mv.setViewName("login/sign_up");
         return mv;
     }
 
-    @RequestMapping(value = "/signUp/checkId", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/signUp/checkId", method = RequestMethod.GET)
     @ResponseBody
     public boolean checkId(@RequestParam String userId) {
         return userService.isDuplicateId(userId);
     }
 
-    @RequestMapping(value = "/signUp", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/user/signUp", method = RequestMethod.POST)
     public String signUpProcess(@RequestParam HashMap<String, Object> param, UserVo uservo){
         uservo.setUserPwd(param.get("password").toString());
-        userService.joinUser(uservo);
+        userService.joinUser(uservo, "ROLE_USER");
+        return "redirect:/login";
+    }
+
+    @RequestMapping(value = "/admin/signUp", method = RequestMethod.POST)
+    public String adminSignUpProcess(@RequestParam HashMap<String, Object> param, UserVo uservo){
+        uservo.setUserPwd(param.get("password").toString());
+        userService.joinUser(uservo, "ROLE_ADMIN");
         return "redirect:/login";
     }
 }

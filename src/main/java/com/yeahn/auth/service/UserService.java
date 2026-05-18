@@ -21,11 +21,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void joinUser(UserVo uservo){
+    public void joinUser(UserVo uservo, String role){
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         uservo.setUserPwd(passwordEncoder.encode(uservo.getPassword()));
-        uservo.setUserAuth("ROLE_ADMIN");
-        uservo.setGrpAuth("ROLE_ADMIN");
+        uservo.setUserAuth(role);
+        uservo.setGrpAuth(role);
         userMapper.saveUser(uservo);
     }
 
