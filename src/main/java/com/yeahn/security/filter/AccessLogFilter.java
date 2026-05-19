@@ -54,7 +54,14 @@ public class AccessLogFilter extends OncePerRequestFilter {
             log.setAccessDevice(uaInfo.getDevice());
             log.setAccessBrowser(uaInfo.getBrowser());
             log.setAccessOs(uaInfo.getOs());
-            log.setAccessSessionId(request.getSession().getId());
+
+            // 불필요한 세션 생성을 방지하고 안전하게 세션 ID 획득
+            String sessionId = request.getRequestedSessionId();
+            if (sessionId == null) {
+                sessionId = "NO_SESSION";
+            }
+            log.setAccessSessionId(sessionId);
+
             log.setAccessReferrer(request.getHeader("Referer"));
             log.setAccessLanguage(request.getHeader("Accept-Language"));
             log.setUaOrigin(userAgent);
