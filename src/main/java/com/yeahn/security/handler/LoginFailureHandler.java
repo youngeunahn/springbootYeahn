@@ -1,10 +1,13 @@
 package com.yeahn.security.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yeahn.common.dto.ResponseDto;
 import com.yeahn.log.dto.LoginLogVo;
 import com.yeahn.common.UserAgentInfo;
 import com.yeahn.log.service.LogService;
 import com.yeahn.common.UserAgentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -25,6 +28,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     private final LogService logService;
     private final UserAgentService userAgentService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationFailure(
@@ -69,6 +73,13 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
         logService.saveLoginLog(vo);
 
-        response.sendRedirect("/login?error");
+        // API 요청인 경우 JSON 응답
+        if (request.getHeader("Accept").contains(MediaType.APPLICATION_JSON_VALUE)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+            objectMapper.writeValue(response.getWriter(), ResponseDto.fail("Login failed: " + failReason));
+        } else {
+            response.sendRedirect("/login?error");
+        }
     }
 }

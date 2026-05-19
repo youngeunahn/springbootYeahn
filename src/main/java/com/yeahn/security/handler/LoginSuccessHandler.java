@@ -1,10 +1,13 @@
 package com.yeahn.security.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yeahn.common.dto.ResponseDto;
 import com.yeahn.log.dto.LoginLogVo;
 import com.yeahn.common.UserAgentInfo;
 import com.yeahn.log.service.LogService;
 import com.yeahn.common.UserAgentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final LogService logService;
     private final UserAgentService userAgentService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(
@@ -50,6 +54,13 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         logService.saveLoginLog(vo);
 
-        response.sendRedirect("/exercise/plan?menuCode=EXERCISE_0002");
+        // API 요청인 경우 JSON 응답
+        if (request.getHeader("Accept").contains(MediaType.APPLICATION_JSON_VALUE)) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+            objectMapper.writeValue(response.getWriter(), ResponseDto.success("Login successful", authentication.getName()));
+        } else {
+            response.sendRedirect("/exercise/plan?menuCode=EXERCISE_0002");
+        }
     }
 }

@@ -49,13 +49,6 @@ public class LoginController {
         return userService.isDuplicateId(userId);
     }
 
-    @RequestMapping(value = "/api/user/signUp", method = RequestMethod.POST)
-    public String signUpProcess(@RequestParam HashMap<String, Object> param, UserVo uservo){
-        uservo.setUserPwd(param.get("password").toString());
-        userService.joinUser(uservo, "ROLE_USER");
-        return "redirect:/login";
-    }
-
     @RequestMapping(value = "/admin/signUp", method = RequestMethod.POST)
     public String adminSignUpProcess(@RequestParam HashMap<String, Object> param, UserVo uservo){
         uservo.setUserPwd(param.get("password").toString());
