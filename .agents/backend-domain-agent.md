@@ -26,6 +26,10 @@
 - 삭제는 대부분 `DEL_YN = 'Y'` soft delete를 유지한다.
 - 화면 컨트롤러는 Mustache view name을 반환하고, AJAX/API는 `@ResponseBody` 또는 `@RestController`를 사용한다.
 - 코드 목록은 `CodeService.getCodeList(new CodeDto(...), selected)` 패턴을 따른다.
+- `TemplateService`처럼 master/detail/relation을 함께 저장하는 서비스는 한 트랜잭션에서 마스터 저장, 상세 저장, 관계 매핑을 처리하는 흐름을 유지한다.
+- 수정 API는 ID 존재 여부에 따라 insert/update가 갈리는 구간이 있으므로 신규/기존 상세 항목을 분리해 검증한다.
+- 수영 모드(`typeCode = 'SWIM'`)의 `cycle` 필드는 해당 모드에서만 저장/검증되는지 확인한다.
+- S3/COS 연동은 `S3Uploader`, `S3Config`의 기존 설정 방식과 테스트 대체 방식을 먼저 확인한다.
 
 ## Risks
 

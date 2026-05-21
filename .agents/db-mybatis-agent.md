@@ -28,6 +28,10 @@
 
 ## SQL Notes
 
+- MyBatis 동적 SQL은 `<where>`, `<set>`, `<if>`, `<choose>`, `<foreach>`를 우선 활용하고, 조건 조합을 문자열로 직접 만들지 않는다.
+- 정렬 순서 변경이나 다중 row 수정은 `<foreach>`와 SQL `CASE WHEN` 조합으로 단일 업데이트 처리하는 기존 패턴을 먼저 검토한다.
+- 복잡한 join 결과나 컬럼명/DTO 필드명이 다른 경우 `resultMap` 또는 SQL alias로 매핑을 명확히 한다.
+- insert 후 key가 필요한 mapper는 `useGeneratedKeys`, `keyProperty`, `keyColumn` 설정과 DB auto increment 여부를 함께 확인한다.
 - `TemplateMapper`는 `FN_GET_COMM_CODE_DESC(...)`, `MATCH ... AGAINST`, `GROUP BY`, `foreach IN`, `CASE WHEN` 일괄 정렬 업데이트를 사용한다.
 - `ConfigMapper`는 MariaDB/MySQL `WITH RECURSIVE` 메뉴 트리 쿼리를 사용한다.
 - `PlanMapper`는 명시적 `resultMap`을 사용하며 날짜를 `DATE_FORMAT(..., '%Y-%m-%d')`로 반환하는 구간이 있다.
