@@ -1,5 +1,6 @@
 package com.yeahn.template.controller;
 
+import com.yeahn.common.dto.ResponseDto;
 import com.yeahn.template.dto.TemplateDto;
 import com.yeahn.template.dto.TemplateSearchDto;
 import com.yeahn.template.service.TemplateService;
@@ -20,18 +21,22 @@ public class UserTemplateApiController {
     private final TemplateService templateService;
 
     @GetMapping
-    public List<TemplateDto> list(
+    public ResponseDto<List<TemplateDto>> list(
             @RequestParam(required = false, defaultValue = "SWIM") String typeCode,
             @RequestParam(required = false) String keyword) {
 
         TemplateSearchDto searchDto = new TemplateSearchDto();
         searchDto.setTplType(typeCode);
         searchDto.setTplName(keyword);
-        return templateService.searchTplList(searchDto);
+        return ResponseDto.success(templateService.searchTplList(searchDto));
     }
 
     @GetMapping("/{tplSeq}")
-    public TemplateDto detail(@PathVariable Long tplSeq) {
-        return templateService.getTplDetail(tplSeq);
+    public ResponseDto<TemplateDto> detail(@PathVariable Long tplSeq) {
+        TemplateDto template = templateService.getTplDetail(tplSeq);
+        if (template == null) {
+            return ResponseDto.fail("Template not found");
+        }
+        return ResponseDto.success(template);
     }
 }
