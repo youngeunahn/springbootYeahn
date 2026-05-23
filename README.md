@@ -76,7 +76,9 @@ src/main/java/com/yeahn/
 ## 테스트
 
 통합 테스트는 실제 MariaDB에 연결합니다.                                                                                                                                          
-로컬 실행 시 `application-test.properties`의 DB, CI에서는 Docker로 띄운 MariaDB를 사용합니다.
+로컬 실행 시 `local` 프로파일의 `application-local.properties` DB/COS 설정을 사용합니다. CI에서는 `test` 프로파일의 `application-test.properties`와 GitHub Actions에서 띄운 MariaDB를 사용합니다.
+
+`application-local.properties`는 로컬 DB 계정, COS/S3 키 등 중요정보를 포함하므로 GitHub에 업로드하지 않습니다. 로컬 개발 또는 로컬 통합 테스트를 실행하려면 `src/main/resources/application-local.properties` 파일을 직접 생성하고 본인 환경에 맞는 값을 입력해야 합니다.
 
 ## CI/CD
 
@@ -84,20 +86,28 @@ src/main/java/com/yeahn/
 
 1. MariaDB 서비스 시작 및 스키마 적용
 2. `mvn package -DskipTests` 빌드
-3. `mvn test` 통합 테스트
+3. `mvn test -Dspring.profiles.active=test` 통합 테스트
 4. `master` 머지 시 Cloudtype에 자동 배포
 
 ## 환경 설정
 
 | 프로파일 | 용도 |
 |---|---|
-| (기본) | 로컬 개발 (`application.properties`) |
-| `test` | CI 및 통합 테스트 (`application-test.properties`, 환경변수로 민감정보 주입) |
+| (기본) | 운영/환경변수 기반 실행 (`application.properties`) |
+| `local` | 로컬 개발/로컬 통합 테스트 (`application-local.properties`) |
+| `test` | CI 통합 테스트 (`application-test.properties`, GitHub Actions MariaDB 사용) |
 | `prod` | 운영 배포 (Cloudtype 환경변수) |
+
+`application-local.properties`는 저장소에 포함되지 않는 개인 로컬 설정 파일입니다. 새 개발 환경에서는 기존 개발자에게 예시 파일 또는 필요한 설정 키 목록을 전달받아 `src/main/resources/application-local.properties`로 생성한 뒤 아래처럼 `local` 프로파일을 명시해 실행합니다.
+
+```bash
+mvn spring-boot:run -Dspring.profiles.active=local
+mvn test -Dspring.profiles.active=local
+```
 
 ## 개발 도구
 
-개발 생산성 향상을 위해 Claude Code(AI 코딩 어시스턴트)를 활용했습니다.
+개발 생산성 향상을 위해 CODEX, GEMINI CLI를 활용했습니다.
 
 - CI/CD 워크플로우 설계 및 GitHub Actions 작성
 - 통합 테스트 코드 작성
