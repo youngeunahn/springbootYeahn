@@ -9,7 +9,7 @@
 ## Good Tasks
 
 - 단위/통합 테스트 추가 및 수정
-- `application-test.properties` fallback 값 점검
+- 로컬 local 프로파일과 CI test 프로파일 실행 조건 점검
 - Maven test source 경로와 플러그인 설정 점검
 - GitHub Actions CI 실패 원인 분석
 - S3/COS 관련 테스트 컨텍스트 로딩 문제 해결
@@ -19,18 +19,19 @@
 
 ```bash
 mvn -B package -DskipTests
+mvn test -Dspring.profiles.active=local
+mvn test -Dspring.profiles.active=local -Dtest=PlanServiceUnitTest
+mvn test -Dspring.profiles.active=local -Dtest=TemplateServiceIntegrationTest
+mvn spring-boot:run -Dspring.profiles.active=local
 mvn test -Dspring.profiles.active=test
-mvn test -Dspring.profiles.active=test -Dtest=PlanServiceUnitTest
-mvn test -Dspring.profiles.active=test -Dtest=TemplateServiceIntegrationTest
-mvn spring-boot:run -Dspring.profiles.active=test
 ```
 
 ## Project Patterns
 
 - Java 8, Spring Boot 2.6.11 기준을 유지한다.
 - 테스트 소스는 표준 `src/test/java`가 아니라 `test/main/java`이며, `build-helper-maven-plugin`이 Maven test source로 추가한다.
-- 테스트 실행은 기본적으로 `-Dspring.profiles.active=test`를 붙인다.
-- `application-test.properties`는 `localhost:3306/yeahn_test`, `root/root` MariaDB를 전제로 한다.
+- 로컬 테스트 실행은 `local` 프로파일을 사용하며 `application-local.properties`의 DB/COS 설정을 로드한다.
+- `application-test.properties`는 CI/GitHub Actions 전용이며 `localhost:3306/yeahn_test`, `root/root` MariaDB를 전제로 한다.
 - CI에서는 MariaDB 10.6 서비스로 `yeahn_test` DB를 띄우고 `src/main/resources/schema.sql`을 먼저 적용한다.
 - CI에서는 `schema.sql` 외에 `FN_GET_COMM_CODE_DESC` 함수를 별도로 생성할 수 있다.
 
@@ -48,7 +49,7 @@ private AmazonS3 amazonS3ClientMock;
 private AmazonS3 cosClientMock;
 ```
 
-- `@MockBean`으로 S3 빈을 대체해도 `S3Config`의 `@Value` 주입은 먼저 일어날 수 있으므로 `application-test.properties`에는 COS dummy fallback 값이 필요하다.
+- `@MockBean`으로 S3 빈을 대체해도 `S3Config`의 `@Value` 주입은 먼저 일어날 수 있으므로, 로컬은 `application-local.properties`의 COS 값이 필요하고 CI test 프로파일에는 COS dummy 값이 필요하다.
 
 ## Test Notes
 
