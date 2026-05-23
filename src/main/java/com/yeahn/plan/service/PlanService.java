@@ -28,7 +28,7 @@ public class PlanService {
     /**
      * 운동 계획 상세 조회 (마스터 + 상세 목록)
      */
-    public PlanVo getPlanDetail(Integer planSeq) {
+    public PlanVo getPlanDetail(Long planSeq) {
         PlanVo plan = planMapper.getPlan(planSeq);
         if (plan != null) {
             plan.setDetails(planMapper.getPlanDetails(planSeq));
@@ -40,7 +40,7 @@ public class PlanService {
      * 운동 계획 저장 (신규/수정 통합 처리)
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer savePlan(PlanVo planVo, HttpServletRequest request) {
+    public Long savePlan(PlanVo planVo, HttpServletRequest request) {
         String userId = "system";
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -91,7 +91,7 @@ public class PlanService {
      * 운동 계획 삭제 (Soft Delete)
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deletePlan(Integer planSeq, HttpServletRequest request) {
+    public void deletePlan(Long planSeq, HttpServletRequest request) {
         String userId = "system";
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             userId = SecurityContextHolder.getContext().getAuthentication().getName();

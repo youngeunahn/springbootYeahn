@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class PlanDetailVo {
-    private Integer planDetailSeq;
-    private Integer planSeq;
+    private Long planDetailSeq;
+    private Long planSeq;
     private String planPhase;
     private String planExerName;
     private String planCategoryCode;

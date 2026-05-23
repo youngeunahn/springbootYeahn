@@ -5,7 +5,7 @@ import java.util.List;
 
 @Data
 public class PlanVo {
-    private Integer planSeq;
+    private Long planSeq;
     private String userId;
     private String planTypeCode;
     private String planName;

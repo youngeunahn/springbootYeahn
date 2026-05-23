@@ -59,21 +59,21 @@ public class PlanController {
     // 운동 계획 상세 조회 (JSON)
     @GetMapping("/{planSeq}")
     @ResponseBody
-    public PlanVo getPlanDetail(@PathVariable Integer planSeq) {
+    public PlanVo getPlanDetail(@PathVariable Long planSeq) {
         return planService.getPlanDetail(planSeq);
     }
 
     // 운동 계획 저장 (신규/수정)
     @PostMapping("/save")
     @ResponseBody
-    public Integer savePlan(@RequestBody PlanVo planVo, HttpServletRequest request) {
+    public Long savePlan(@RequestBody PlanVo planVo, HttpServletRequest request) {
         return planService.savePlan(planVo, request);
     }
 
     // 운동 계획 삭제
     @PostMapping("/delete/{planSeq}")
     @ResponseBody
-    public String deletePlan(@PathVariable Integer planSeq, HttpServletRequest request) {
+    public String deletePlan(@PathVariable Long planSeq, HttpServletRequest request) {
         planService.deletePlan(planSeq, request);
         return "SUCCESS";
     }
