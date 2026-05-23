@@ -24,7 +24,7 @@
 - 테스트 소스 루트는 `test/main/java`이고, Maven 설정에서 별도로 포함된다.
 - 통합 테스트는 MariaDB 10.6 계열 서비스와 `src/main/resources/schema.sql`이 필요할 수 있다.
 - Spring Boot의 `schema.sql` 자동 실행만으로 처리하기 어려운 UDF나 `DELIMITER` 포함 SQL은 `mysql` CLI 단계에서 별도로 주입하는 방식을 사용한다.
-- `application-test.properties`는 CI 환경 변수와 로컬 fallback 값을 모두 고려한다.
+- `application-test.properties`는 CI/GitHub Actions 전용으로 관리한다. 로컬 통합 테스트는 `local` 프로파일의 `application-local.properties` DB/COS 설정을 사용한다.
 - S3/COS 값은 실제 secret 또는 dummy fallback이 없으면 `@Value` 주입 단계에서 ApplicationContext 로딩이 실패할 수 있다.
 
 ## Cloudtype And Scouter Notes

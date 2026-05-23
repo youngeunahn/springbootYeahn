@@ -37,7 +37,7 @@
 - `template`은 `TB_EXER_TPL`, `TB_EXER_ATTR`, `TB_EXER` 관계를 함께 다룬다. 상세 삭제와 관계 삭제 순서, soft delete와 physical delete 차이를 유지해야 한다.
 - `template` 검색은 MariaDB full-text `MATCH ... AGAINST`를 사용하므로 DB 호환성과 인덱스에 민감하다.
 - `menu`는 캐시(`getMenuList`)가 있고 update에는 `@CacheEvict`가 있으나 insert에는 캐시 무효화가 없을 수 있다.
-- `SecurityConfig`는 CSRF가 꺼져 있고 `/api/user/**` GET/OPTIONS가 공개다. 공개 API 확장 시 개인정보와 쓰기 API 노출을 확인한다.
+- `SecurityConfig`는 CSRF가 꺼져 있고 `/api/user/**` 전체가 공개다. 공개 API 확장 시 개인정보와 쓰기 API 노출을 확인한다.
 - 회원가입 기본 권한이 `ROLE_ADMIN`으로 들어가는 흐름이 있으므로 권한 정책 변경은 영향이 크다.
 - `yetable`은 JPA Repository 기반이고 핵심 도메인은 MyBatis 기반이다. 구조를 혼동하지 않는다.
 - 일부 소스 주석/문자열은 인코딩이 깨져 보일 수 있다. 불필요한 인코딩 변경 diff를 만들지 않는다.

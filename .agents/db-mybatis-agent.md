@@ -50,5 +50,6 @@
 ## Test Notes
 
 - 통합 테스트는 MariaDB와 `schema.sql` 스키마 객체가 필요할 수 있다.
-- 쿼리 변경 후 `mvn test -Dspring.profiles.active=test` 또는 관련 통합 테스트를 우선 고려한다.
+- 로컬 쿼리 변경 검증은 `local` 프로파일의 `application-local.properties` DB로 `mvn test -Dspring.profiles.active=local -Dtest=...`를 우선 사용한다.
+- CI/GitHub Actions 검증은 `mvn test -Dspring.profiles.active=test`와 `application-test.properties`를 사용한다.
 
