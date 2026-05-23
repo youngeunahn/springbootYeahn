@@ -61,7 +61,7 @@ public class PlanServiceIntegrationTest {
                 new UsernamePasswordAuthenticationToken(TEST_USER, "password")
         );
         request = new MockHttpServletRequest();
-        request.setRemoteAddr("127.0.0.1");
+        request.setRemoteAddr("10.10.10.10");
     }
 
     @AfterEach
@@ -72,7 +72,7 @@ public class PlanServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("운동 계획 생성 및 상세 조회 통합 테스트 (정렬 순서 포함)")
+    @DisplayName("운동 계획 생성 후 정렬 순서를 포함해 상세 조회한다")
     void createAndGetPlan_Integration_Test() {
         // [Given] 테스트 데이터 준비
         String planName = "통합 테스트 계획_" + UUID.randomUUID().toString().substring(0, 5);
@@ -92,7 +92,7 @@ public class PlanServiceIntegrationTest {
         createVo.setDetails(Arrays.asList(d1, d2));
 
         // [When] 저장 실행
-        Integer generatedSeq = planService.savePlan(createVo, request);
+        Long generatedSeq = planService.savePlan(createVo, request);
 
         // [Then] PK 생성 확인
         assertNotNull(generatedSeq, "저장 후 생성된 PLAN_SEQ가 null입니다.");
@@ -112,7 +112,7 @@ public class PlanServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("운동 계획 수정 통합 테스트 (상세 항목 교체)")
+    @DisplayName("운동 계획 수정 시 상세 항목을 교체한다")
     void updatePlan_Integration_Test() {
         // [Given] 초기 데이터 저장
         PlanVo initVo = new PlanVo();
@@ -121,7 +121,7 @@ public class PlanServiceIntegrationTest {
         PlanDetailVo detail = new PlanDetailVo();
         detail.setPlanExerName("초기 운동");
         initVo.setDetails(Arrays.asList(detail));
-        Integer planSeq = planService.savePlan(initVo, request);
+        Long planSeq = planService.savePlan(initVo, request);
         assertNotNull(planSeq, "초기 저장 시 planSeq가 생성되어야 합니다.");
 
         // [When] 데이터 수정 (기존 상세 대체)
@@ -144,7 +144,7 @@ public class PlanServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("운동 계획 수정 시 일부 상세 항목 삭제 검증")
+    @DisplayName("운동 계획 수정 시 제외된 상세 항목을 소프트 삭제한다")
     void updatePlan_PartialDetailDelete_Integration_Test() {
         // [Given] 상세 항목 2개인 계획 생성
         PlanVo vo = new PlanVo();
@@ -153,7 +153,7 @@ public class PlanServiceIntegrationTest {
         PlanDetailVo d1 = new PlanDetailVo(); d1.setPlanExerName("운동1");
         PlanDetailVo d2 = new PlanDetailVo(); d2.setPlanExerName("운동2");
         vo.setDetails(Arrays.asList(d1, d2));
-        Integer planSeq = planService.savePlan(vo, request);
+        Long planSeq = planService.savePlan(vo, request);
 
         // [When] 상세 항목을 1개만 남기고 수정
         PlanVo savedVo = planService.getPlanDetail(planSeq);
@@ -176,13 +176,13 @@ public class PlanServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("운동 계획 삭제 통합 테스트 (Soft Delete)")
+    @DisplayName("운동 계획 삭제 시 마스터와 상세 항목을 소프트 삭제한다")
     void deletePlan_Integration_Test() {
         // [Given] 삭제용 계획 생성
         PlanVo vo = new PlanVo();
         vo.setPlanName("삭제 대기");
         vo.setDetails(Arrays.asList(new PlanDetailVo()));
-        Integer planSeq = planService.savePlan(vo, request);
+        Long planSeq = planService.savePlan(vo, request);
 
         // [When] 삭제 실행
         planService.deletePlan(planSeq, request);
@@ -199,13 +199,13 @@ public class PlanServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("삭제된 계획은 상세 조회 시 null 반환 검증")
+    @DisplayName("삭제된 운동 계획은 상세 조회에서 null을 반환한다")
     void deletePlan_GetDetailReturnsNull_Test() {
         // [Given] 계획 생성
         PlanVo vo = new PlanVo();
         vo.setPlanName("삭제 후 조회 테스트");
         vo.setDetails(Arrays.asList(new PlanDetailVo()));
-        Integer planSeq = planService.savePlan(vo, request);
+        Long planSeq = planService.savePlan(vo, request);
 
         // [When] 삭제 실행
         planService.deletePlan(planSeq, request);
@@ -217,13 +217,13 @@ public class PlanServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("운동 계획 삭제 후 목록 조회 필터링 검증")
+    @DisplayName("삭제된 운동 계획은 목록 조회에서 제외한다")
     void deletePlan_ListFiltering_Integration_Test() {
         // [Given] 계획 생성
         PlanVo vo = new PlanVo();
         vo.setPlanName("필터링 테스트");
         vo.setPlanDate("2026-04-10");
-        Integer planSeq = planService.savePlan(vo, request);
+        Long planSeq = planService.savePlan(vo, request);
 
         // 삭제 전: 목록에 존재해야 합니다.
         List<PlanVo> listBefore = planService.getPlanList(new PlanVo());

@@ -23,26 +23,29 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    @DisplayName("아이디 중복 체크 테스트")
+    @DisplayName("가입 전후 아이디 중복 여부를 판별한다")
     void checkDuplicateId_Test() {
         // [Given] 테스트용 아이디 생성
         String userId = "test_" + UUID.randomUUID().toString().substring(0, 8);
         
-        // [When & Then] 가입 전에는 중복 아님
-        assertFalse(userService.isDuplicateId(userId));
+        // [When] 가입 전 아이디 중복 여부 확인
+        boolean duplicateBeforeJoin = userService.isDuplicateId(userId);
 
-        // [Given] 가입 처리
+        // [Then] 가입 전에는 중복이 아님
+        assertFalse(duplicateBeforeJoin);
+
+        // [When] 가입 처리
         UserVo vo = new UserVo();
         vo.setUserId(userId);
         vo.setUserPwd("password123");
         userService.joinUser(vo, "ROLE_USER");
 
-        // [When & Then] 가입 후에는 중복됨
+        // [Then] 가입 후에는 중복으로 판별됨
         assertTrue(userService.isDuplicateId(userId));
     }
 
     @Test
-    @DisplayName("회원가입 시 비밀번호 암호화 테스트")
+    @DisplayName("회원가입 시 비밀번호를 BCrypt로 암호화한다")
     void joinUser_Encryption_Test() {
         // [Given]
         String userId = "user_" + UUID.randomUUID().toString().substring(0, 8);

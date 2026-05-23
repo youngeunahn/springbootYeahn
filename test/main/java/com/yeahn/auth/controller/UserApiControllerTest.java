@@ -46,10 +46,13 @@ public class UserApiControllerTest {
     }
 
     @Test
-    @DisplayName("아이디 중복 체크 API 테스트")
+    @DisplayName("아이디 중복 여부를 ResponseDto로 반환한다")
     void checkIdApi_Test() throws Exception {
+        // [Given] 가입되지 않은 신규 아이디
         String userId = "api_test_" + UUID.randomUUID().toString().substring(0, 5);
 
+        // [When] 아이디 중복 체크 API 호출
+        // [Then] SUCCESS와 false를 반환
         mockMvc.perform(get("/api/user/check-id")
                 .param("userId", userId))
                 .andExpect(status().isOk())
@@ -58,14 +61,17 @@ public class UserApiControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입 API 테스트 - 성공 케이스")
+    @DisplayName("회원가입 요청이 성공하면 SUCCESS를 반환한다")
     void signUpApi_Success_Test() throws Exception {
+        // [Given] 신규 회원가입 요청 데이터
         String userId = "new_user_" + UUID.randomUUID().toString().substring(0, 5);
         UserVo signUpVo = new UserVo();
         signUpVo.setUserId(userId);
         signUpVo.setUserPwd("password123!");
         signUpVo.setUserName("테스터");
 
+        // [When] 회원가입 API 호출
+        // [Then] SUCCESS를 반환
         mockMvc.perform(post("/api/user/signUp")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(signUpVo)))
@@ -75,7 +81,7 @@ public class UserApiControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입 API 테스트 - 중복 아이디 실패 케이스")
+    @DisplayName("중복 아이디로 회원가입하면 FAIL을 반환한다")
     void signUpApi_Duplicate_Fail_Test() throws Exception {
         // [Given] 미리 가입된 사용자
         String userId = "duplicate_user";

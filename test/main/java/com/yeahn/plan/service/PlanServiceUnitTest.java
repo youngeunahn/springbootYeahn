@@ -12,8 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,20 +42,15 @@ class PlanServiceUnitTest {
     private PlanService planService;
 
     @Mock
-    private SecurityContext securityContext;
-
-    @Mock
-    private Authentication authentication;
-
-    @Mock
     private HttpServletRequest request;
 
     @BeforeEach
     void setUp() {
-        // SecurityContextHolder에 Mock SecurityContext를 등록합니다.
-        // stub(when)은 각 테스트에서 필요한 경우에만 선언합니다.
-        // → 사용되지 않는 stub이 있으면 MockitoExtension이 에러를 발생시켜 불필요한 설정을 방지합니다.
-        SecurityContextHolder.setContext(securityContext);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("test_user", "password")
+        );
+        // CommonUtils.getIP()가 루프백 IP를 실제 호스트 IP로 치환하므로 비-루프백 IP를 기본값으로 둡니다.
+        lenient().when(request.getRemoteAddr()).thenReturn("10.10.10.10");
     }
 
     @AfterEach
@@ -66,30 +60,30 @@ class PlanServiceUnitTest {
     }
 
     // ────────────────────────────────────────────────────────────────
-    // 조회 테스트 (SecurityContext stub 불필요)
+    // 조회 테스트
     // ────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("운동 계획 목록 조회 테스트")
+    @DisplayName("운동 계획 목록을 조회한다")
     void getPlanList_Test() {
-        // given
+        // [Given]
         PlanVo planVo = new PlanVo();
         List<PlanVo> expectedList = Arrays.asList(new PlanVo(), new PlanVo());
         when(planMapper.getPlanList(planVo)).thenReturn(expectedList);
 
-        // when
+        // [When]
         List<PlanVo> result = planService.getPlanList(planVo);
 
-        // then
+        // [Then]
         assertEquals(expectedList.size(), result.size());
         verify(planMapper, times(1)).getPlanList(planVo);
     }
 
     @Test
-    @DisplayName("운동 계획 상세 조회 테스트 - 성공")
+    @DisplayName("운동 계획 상세와 상세 항목을 조회한다")
     void getPlanDetail_Success_Test() {
-        // given
-        Integer planSeq = 1;
+        // [Given]
+        Long planSeq = 1L;
         PlanVo mockPlan = new PlanVo();
         mockPlan.setPlanSeq(planSeq);
         mockPlan.setPlanName("상세 테스트");
@@ -99,10 +93,10 @@ class PlanServiceUnitTest {
         when(planMapper.getPlan(planSeq)).thenReturn(mockPlan);
         when(planMapper.getPlanDetails(planSeq)).thenReturn(mockDetails);
 
-        // when
+        // [When]
         PlanVo result = planService.getPlanDetail(planSeq);
 
-        // then
+        // [Then]
         assertNotNull(result);
         assertEquals(planSeq, result.getPlanSeq());
         assertEquals(2, result.getDetails().size());
@@ -111,37 +105,30 @@ class PlanServiceUnitTest {
     }
 
     @Test
-    @DisplayName("운동 계획 상세 조회 테스트 - 데이터 없음")
+    @DisplayName("운동 계획이 없으면 상세 조회에서 null을 반환한다")
     void getPlanDetail_NotFound_Test() {
-        // given
-        Integer planSeq = 999;
+        // [Given]
+        Long planSeq = 999L;
         when(planMapper.getPlan(planSeq)).thenReturn(null);
 
-        // when
+        // [When]
         PlanVo result = planService.getPlanDetail(planSeq);
 
-        // then
+        // [Then]
         assertNull(result);
         verify(planMapper, times(1)).getPlan(planSeq);
         // getPlan이 null을 반환하면 getPlanDetails는 호출되지 않아야 합니다.
-        verify(planMapper, never()).getPlanDetails(anyInt());
+        verify(planMapper, never()).getPlanDetails(anyLong());
     }
 
     // ────────────────────────────────────────────────────────────────
-    // 저장/삭제 테스트 (SecurityContext stub 필요)
+    // 저장/삭제 테스트
     // ────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("운동 계획 저장 테스트 - 신규 저장 (상세 항목 포함)")
+    @DisplayName("상세 항목이 있는 운동 계획을 신규 저장한다")
     void savePlan_Insert_Test() {
-        // given
-        // savePlan 내부에서 로그인 사용자 ID와 IP를 감사 필드에 기록하므로 stub이 필요합니다.
-        // 127.0.0.1(루프백)을 반환하면 CommonUtils.getIP()가 InetAddress.getLocalHost()로
-        // 교체하므로 비-루프백 IP를 사용해야 stub 값 그대로 감사 필드에 기록됩니다.
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("test_user");
-        when(request.getRemoteAddr()).thenReturn("10.10.10.10");
-
+        // [Given]
         PlanVo planVo = new PlanVo();
         planVo.setPlanName("신규 계획");
 
@@ -152,16 +139,16 @@ class PlanServiceUnitTest {
         // insertPlan이 호출되면 planSeq를 100으로 세팅 (DB의 AUTO_INCREMENT 동작을 시뮬레이션)
         doAnswer(invocation -> {
             PlanVo vo = invocation.getArgument(0);
-            vo.setPlanSeq(100);
+            vo.setPlanSeq(100L);
             return 1;
         }).when(planMapper).insertPlan(any(PlanVo.class));
 
-        // when
-        Integer planSeq = planService.savePlan(planVo, request);
+        // [When]
+        Long planSeq = planService.savePlan(planVo, request);
 
-        // then: 반환 PK 확인
-        assertEquals(100, planSeq);
-        // then: 정렬 순서가 1부터 자동 계산되었는지 확인
+        // [Then] 반환 PK 확인
+        assertEquals(100L, planSeq);
+        // [Then] 정렬 순서가 1부터 자동 계산되었는지 확인
         assertEquals(1, d1.getPlanSortOrder());
 
         // ArgumentCaptor로 insertPlan에 실제 전달된 PlanVo 객체를 캡처합니다.
@@ -176,53 +163,45 @@ class PlanServiceUnitTest {
 
         verify(planMapper, times(1)).insertPlanDetail(any(PlanDetailVo.class));
         verify(planMapper, never()).updatePlan(any());
-        verify(planMapper, never()).deletePlanDetailsByPlanSeq(anyInt());
+        verify(planMapper, never()).deletePlanDetailsByPlanSeq(anyLong());
     }
 
     @Test
-    @DisplayName("운동 계획 저장 테스트 - 상세 항목 없이 마스터만 신규 저장")
+    @DisplayName("상세 항목 없이 운동 계획 마스터만 신규 저장한다")
     void savePlan_Insert_NoDetails_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("test_user");
-        when(request.getRemoteAddr()).thenReturn("10.10.10.10");
-
+        // [Given]
         PlanVo planVo = new PlanVo();
         planVo.setPlanName("상세 없는 계획");
         planVo.setDetails(null);
 
         doAnswer(invocation -> {
             PlanVo vo = invocation.getArgument(0);
-            vo.setPlanSeq(500);
+            vo.setPlanSeq(500L);
             return 1;
         }).when(planMapper).insertPlan(any(PlanVo.class));
 
-        // when
-        Integer planSeq = planService.savePlan(planVo, request);
+        // [When]
+        Long planSeq = planService.savePlan(planVo, request);
 
-        // then
-        assertEquals(500, planSeq);
+        // [Then]
+        assertEquals(500L, planSeq);
         verify(planMapper, times(1)).insertPlan(any(PlanVo.class));
         // 상세 항목이 null이면 insertPlanDetail은 절대 호출되면 안 됩니다.
         verify(planMapper, never()).insertPlanDetail(any());
     }
 
     @Test
-    @DisplayName("운동 계획 저장 테스트 - 기존 수정 (상세 항목 수정 및 추가 혼합)")
+    @DisplayName("기존 운동 계획 수정 시 상세 항목을 수정하고 추가한다")
     void savePlan_Update_MixedDetails_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("test_user");
-        when(request.getRemoteAddr()).thenReturn("10.10.10.10");
-
-        Integer planSeq = 200;
+        // [Given]
+        Long planSeq = 200L;
         PlanVo planVo = new PlanVo();
         planVo.setPlanSeq(planSeq);
         planVo.setPlanName("수정된 계획");
 
         // planDetailSeq가 있으면 기존 항목(update 대상), 없으면 신규 항목(insert 대상)
         PlanDetailVo existingDetail = new PlanDetailVo();
-        existingDetail.setPlanDetailSeq(50);
+        existingDetail.setPlanDetailSeq(50L);
         existingDetail.setPlanExerName("기존 운동 수정");
 
         PlanDetailVo newDetail = new PlanDetailVo();
@@ -230,10 +209,10 @@ class PlanServiceUnitTest {
 
         planVo.setDetails(Arrays.asList(existingDetail, newDetail));
 
-        // when
-        Integer resultSeq = planService.savePlan(planVo, request);
+        // [When]
+        Long resultSeq = planService.savePlan(planVo, request);
 
-        // then
+        // [Then]
         assertEquals(planSeq, resultSeq);
         // 정렬 순서는 리스트 인덱스 순으로 1부터 재계산됩니다.
         assertEquals(1, existingDetail.getPlanSortOrder());
@@ -248,23 +227,19 @@ class PlanServiceUnitTest {
     }
 
     @Test
-    @DisplayName("운동 계획 저장 테스트 - 기존 수정 시 상세 항목을 모두 제거")
+    @DisplayName("기존 운동 계획 수정 시 상세 항목을 모두 제거한다")
     void savePlan_Update_ClearDetails_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("test_user");
-        when(request.getRemoteAddr()).thenReturn("10.10.10.10");
-
-        Integer planSeq = 600;
+        // [Given]
+        Long planSeq = 600L;
         PlanVo planVo = new PlanVo();
         planVo.setPlanSeq(planSeq);
         planVo.setPlanName("상세 삭제 수정");
         planVo.setDetails(new ArrayList<>()); // 빈 리스트 = 모든 상세 삭제
 
-        // when
+        // [When]
         planService.savePlan(planVo, request);
 
-        // then
+        // [Then]
         verify(planMapper, times(1)).updatePlan(any(PlanVo.class));
         verify(planMapper, times(1)).deletePlanDetailsByPlanSeq(planSeq);
         // 상세가 없으므로 insert/update는 호출되면 안 됩니다.
@@ -273,19 +248,15 @@ class PlanServiceUnitTest {
     }
 
     @Test
-    @DisplayName("운동 계획 삭제 테스트 (Soft Delete)")
+    @DisplayName("운동 계획을 소프트 삭제한다")
     void deletePlan_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("test_user");
-        when(request.getRemoteAddr()).thenReturn("10.10.10.10");
+        // [Given]
+        Long planSeq = 300L;
 
-        Integer planSeq = 300;
-
-        // when
+        // [When]
         planService.deletePlan(planSeq, request);
 
-        // then: ArgumentCaptor로 deletePlan에 실제 전달된 PlanVo 캡처
+        // [Then] ArgumentCaptor로 deletePlan에 실제 전달된 PlanVo 캡처
         ArgumentCaptor<PlanVo> deleteCaptor = ArgumentCaptor.forClass(PlanVo.class);
         verify(planMapper).deletePlan(deleteCaptor.capture());
         PlanVo capturedDelete = deleteCaptor.getValue();

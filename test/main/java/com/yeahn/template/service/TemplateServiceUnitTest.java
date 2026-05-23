@@ -12,8 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,8 +27,7 @@ import static org.mockito.Mockito.*;
  * TemplateService 단위 테스트
  *
  * - DB 없이 Mockito로 TemplateMapper를 대체하여 서비스 로직만 검증합니다.
- * - 인증 관련 stub(securityContext, authentication)은 서비스가 SecurityContext에서
- *   로그인 사용자 ID를 읽을 때 필요하므로 각 테스트에서 명시적으로 선언합니다.
+ * - SecurityContextHolder에 테스트 인증 정보를 넣어 로그인 사용자 ID를 검증합니다.
  */
 @ExtendWith(MockitoExtension.class)
 class TemplateServiceUnitTest {
@@ -41,19 +39,12 @@ class TemplateServiceUnitTest {
     private TemplateService templateService;
 
     @Mock
-    private SecurityContext securityContext;
-
-    @Mock
-    private Authentication authentication;
-
-    @Mock
     private HttpServletRequest request;
 
     @BeforeEach
     void setUp() {
-        // Mock SecurityContext를 전역 홀더에 등록합니다.
-        // stub은 각 테스트에서 필요할 때만 선언해 불필요한 설정을 방지합니다.
-        SecurityContextHolder.setContext(securityContext);
+        setAuthenticatedUser("testUser");
+        lenient().when(request.getRemoteAddr()).thenReturn("10.10.10.10");
     }
 
     @AfterEach
@@ -62,46 +53,57 @@ class TemplateServiceUnitTest {
         SecurityContextHolder.clearContext();
     }
 
+    private void setAuthenticatedUser(String userId) {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(userId, "password")
+        );
+    }
+
+    private void setRequestContext(String userId, String ip) {
+        setAuthenticatedUser(userId);
+        when(request.getRemoteAddr()).thenReturn(ip);
+    }
+
     // ────────────────────────────────────────────────────────────────
     // 조회 테스트
     // ────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("템플릿 목록 조회 테스트")
+    @DisplayName("템플릿 목록을 조회한다")
     void getTplList_Test() {
-        // given
+        // [Given]
         TemplateDto dto = new TemplateDto();
         List<TemplateDto> expectedList = Arrays.asList(new TemplateDto(), new TemplateDto());
         when(templateMapper.getTplList(dto)).thenReturn(expectedList);
 
-        // when
+        // [When]
         List<TemplateDto> result = templateService.getTplList(dto);
 
-        // then
+        // [Then]
         assertEquals(expectedList.size(), result.size());
         verify(templateMapper, times(1)).getTplList(dto);
     }
 
     @Test
-    @DisplayName("템플릿 검색 테스트")
+    @DisplayName("템플릿을 검색한다")
     void searchTplList_Test() {
-        // given
+        // [Given]
         TemplateSearchDto dto = new TemplateSearchDto();
         List<TemplateDto> expectedList = Arrays.asList(new TemplateDto());
         when(templateMapper.searchTplList(dto)).thenReturn(expectedList);
 
-        // when
+        // [When]
         List<TemplateDto> result = templateService.searchTplList(dto);
 
-        // then
+        // [Then]
         assertEquals(expectedList.size(), result.size());
         verify(templateMapper, times(1)).searchTplList(dto);
     }
 
     @Test
-    @DisplayName("템플릿 상세 조회 테스트 - 성공")
+    @DisplayName("템플릿 상세와 운동 목록을 조회한다")
     void getTplDetail_Success_Test() {
-        // given
+        // [Given]
         Long tplSeq = 1L;
         TemplateDto mockTpl = new TemplateDto();
         mockTpl.setTplSeq(tplSeq);
@@ -112,10 +114,10 @@ class TemplateServiceUnitTest {
         when(templateMapper.getTplDetail(tplSeq)).thenReturn(mockTpl);
         when(templateMapper.getExerList(tplSeq)).thenReturn(mockExerList);
 
-        // when
+        // [When]
         TemplateDto result = templateService.getTplDetail(tplSeq);
 
-        // then
+        // [Then]
         assertNotNull(result);
         assertEquals(tplSeq, result.getTplSeq());
         assertEquals(2, result.getExercises().size());
@@ -124,16 +126,16 @@ class TemplateServiceUnitTest {
     }
 
     @Test
-    @DisplayName("템플릿 상세 조회 테스트 - 데이터 없음")
+    @DisplayName("템플릿이 없으면 상세 조회에서 null을 반환한다")
     void getTplDetail_NotFound_Test() {
-        // given
+        // [Given]
         Long tplSeq = 999L;
         when(templateMapper.getTplDetail(tplSeq)).thenReturn(null);
 
-        // when
+        // [When]
         TemplateDto result = templateService.getTplDetail(tplSeq);
 
-        // then
+        // [Then]
         assertNull(result);
         verify(templateMapper, times(1)).getTplDetail(tplSeq);
         // getTplDetail이 null이면 getExerList는 호출되면 안 됩니다.
@@ -141,18 +143,13 @@ class TemplateServiceUnitTest {
     }
 
     // ────────────────────────────────────────────────────────────────
-    // 생성/수정/삭제 테스트 (SecurityContext stub 필요)
+    // 생성/수정/삭제 테스트
     // ────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("템플릿 생성 테스트 - 운동 포함")
+    @DisplayName("운동이 포함된 템플릿을 생성한다")
     void createTemplate_WithExercises_Test() {
-        // given
-        // createTemplate 내부에서 SecurityContext로 로그인 사용자 ID를 읽습니다.
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("testUser");
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-
+        // [Given]
         TemplateDto requestDto = new TemplateDto();
         requestDto.setTplName("테스트 템플릿");
         requestDto.setTplPhase("1단계");
@@ -169,10 +166,10 @@ class TemplateServiceUnitTest {
             return null;
         }).when(templateMapper).insertTemplate(any(TemplateDto.class));
 
-        // when
+        // [When]
         Long tplSeq = templateService.createTemplate(requestDto, request);
 
-        // then: 반환 PK 확인
+        // [Then] 반환 PK 확인
         assertEquals(10L, tplSeq);
 
         // ArgumentCaptor로 insertTemplate에 실제 전달된 TemplateDto 캡처
@@ -190,13 +187,9 @@ class TemplateServiceUnitTest {
     }
 
     @Test
-    @DisplayName("템플릿 생성 테스트 - 운동 미포함")
+    @DisplayName("운동 없이 템플릿만 생성한다")
     void createTemplate_NoExercises_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("testUser");
-        when(request.getRemoteAddr()).thenReturn("192.168.0.1");
-
+        // [Given]
         TemplateDto requestDto = new TemplateDto();
         requestDto.setTplName("테스트 템플릿");
         requestDto.setExercises(null);
@@ -207,10 +200,10 @@ class TemplateServiceUnitTest {
             return null;
         }).when(templateMapper).insertTemplate(any(TemplateDto.class));
 
-        // when
+        // [When]
         Long tplSeq = templateService.createTemplate(requestDto, request);
 
-        // then
+        // [Then]
         assertEquals(20L, tplSeq);
         verify(templateMapper, times(1)).insertTemplate(any(TemplateDto.class));
         // 운동이 없으면 insertExercise와 insertRelation은 호출되면 안 됩니다.
@@ -219,12 +212,10 @@ class TemplateServiceUnitTest {
     }
 
     @Test
-    @DisplayName("운동 순서 변경 테스트")
+    @DisplayName("운동 순서를 변경한다")
     void reorderExercises_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("adminUser");
-        when(request.getRemoteAddr()).thenReturn("10.0.0.1");
+        // [Given]
+        setRequestContext("adminUser", "10.0.0.1");
 
         TemplateDto requestDto = new TemplateDto();
         requestDto.setTplSeq(123L);
@@ -239,10 +230,10 @@ class TemplateServiceUnitTest {
 
         requestDto.setExercises(Arrays.asList(ex1, ex2));
 
-        // when
+        // [When]
         templateService.reorderExercises(requestDto, request);
 
-        // then
+        // [Then]
         verify(templateMapper, times(1)).updateExerciseOrders(anyList());
         // 순서 변경 시에도 수정자 감사 필드가 채워져야 합니다.
         assertEquals("adminUser", ex1.getUpdUserId());
@@ -252,13 +243,9 @@ class TemplateServiceUnitTest {
     }
 
     @Test
-    @DisplayName("템플릿 수정 테스트 - 업데이트/추가/삭제 복합 시나리오")
+    @DisplayName("템플릿 수정 시 운동을 수정하고 추가하고 삭제한다")
     void updateTemplate_Complex_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("updateUser");
-        when(request.getRemoteAddr()).thenReturn("1.1.1.1");
-
+        // [Given]
         Long tplSeq = 100L;
         TemplateDto requestDto = new TemplateDto();
         requestDto.setTplSeq(tplSeq);
@@ -279,10 +266,10 @@ class TemplateServiceUnitTest {
         TemplateDto currentEx2 = new TemplateDto(); currentEx2.setTplAttrSeq(502L);
         when(templateMapper.getExerList(tplSeq)).thenReturn(Arrays.asList(currentEx1, currentEx2));
 
-        // when
+        // [When]
         templateService.updateTemplate(requestDto, request);
 
-        // then
+        // [Then]
         // 1. 마스터 업데이트 호출 확인
         verify(templateMapper, times(1)).updateTemplate(requestDto);
 
@@ -298,19 +285,17 @@ class TemplateServiceUnitTest {
     }
 
     @Test
-    @DisplayName("템플릿 삭제 테스트")
+    @DisplayName("템플릿과 연결된 운동 정보를 삭제한다")
     void deleteTemplate_Test() {
-        // given
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("deleteUser");
-        when(request.getRemoteAddr()).thenReturn("2.2.2.2");
+        // [Given]
+        setRequestContext("deleteUser", "2.2.2.2");
 
         Long tplSeq = 200L;
 
-        // when
+        // [When]
         templateService.deleteTemplate(tplSeq, request);
 
-        // then: ArgumentCaptor로 deleteTemplate에 전달된 TemplateDto 캡처
+        // [Then] ArgumentCaptor로 deleteTemplate에 전달된 TemplateDto 캡처
         ArgumentCaptor<TemplateDto> deleteCaptor = ArgumentCaptor.forClass(TemplateDto.class);
         verify(templateMapper).deleteTemplate(deleteCaptor.capture());
         TemplateDto capturedDelete = deleteCaptor.getValue();

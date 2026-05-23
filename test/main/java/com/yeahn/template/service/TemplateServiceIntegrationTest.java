@@ -60,7 +60,7 @@ public class TemplateServiceIntegrationTest {
                 new UsernamePasswordAuthenticationToken("test_admin", "password")
         );
         request = new MockHttpServletRequest();
-        request.setRemoteAddr("127.0.0.1");
+        request.setRemoteAddr("10.10.10.10");
     }
 
     @AfterEach
@@ -69,7 +69,7 @@ public class TemplateServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("템플릿 및 연동된 운동 정보의 생성/조회 전체 흐름 검증")
+    @DisplayName("템플릿 생성 후 연동된 운동 정보를 조회한다")
     void templateAndExerciseFullLifecycle_Test() {
         // [Given] 고유한 테스트 데이터 준비
         String uniqueTplName = "TPL_" + UUID.randomUUID().toString().substring(0, 8);
@@ -119,7 +119,7 @@ public class TemplateServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("복합 운동 정보 포함 시 저장된 개수 및 DB 정합성 검증")
+    @DisplayName("여러 운동이 포함된 템플릿을 저장한다")
     void multipleExercises_CountAndIntegrity_Test() {
         // [Given] 3개의 운동을 포함한 템플릿 생성 요청
         String complexTplName = "COMPLEX_" + UUID.randomUUID().toString().substring(0, 8);
@@ -148,7 +148,7 @@ public class TemplateServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("운동 순서 변경 통합 테스트 - DB 반영 여부 확인")
+    @DisplayName("운동 순서 변경을 DB에 반영한다")
     void reorderExercises_Integration_Test() {
         // [Given] 3개의 운동이 포함된 템플릿 생성
         TemplateDto createRequest = new TemplateDto();
@@ -210,7 +210,7 @@ public class TemplateServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("템플릿 수정 통합 테스트 - 업데이트/추가/삭제 복합 검증")
+    @DisplayName("템플릿 수정 시 운동을 수정하고 추가하고 소프트 삭제한다")
     void templateUpdate_Integration_Test() {
         // [Given] 1. 초기 데이터 생성 (운동 2개 포함)
         TemplateDto createRequest = new TemplateDto();
@@ -282,7 +282,7 @@ public class TemplateServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("템플릿 삭제 통합 테스트 - Soft Delete 검증")
+    @DisplayName("템플릿 삭제 시 마스터와 운동 정보를 삭제 처리한다")
     void templateDelete_Integration_Test() {
         // [Given] 삭제할 템플릿 생성
         TemplateDto createRequest = new TemplateDto();
