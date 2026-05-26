@@ -3,8 +3,8 @@ package com.yeahn.config;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.yeahn.menu.service.MenuService;
 import com.yeahn.menu.dto.MenuConfig;
@@ -17,10 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 @RequiredArgsConstructor
-public class WebInterceptor extends HandlerInterceptorAdapter {
+public class WebInterceptor implements HandlerInterceptor {
 
 	@Autowired
 	private MenuService menuService;

@@ -3,7 +3,7 @@ package com.yeahn.common;
 import com.navercorp.lucy.security.xss.servletfilter.defender.XssPreventerDefender;
 import com.nhncorp.lucy.security.xss.XssFilter;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;

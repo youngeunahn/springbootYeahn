@@ -29,10 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 8
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
+          java-version: '21'
           distribution: 'temurin'
           cache: maven
 
@@ -90,9 +90,9 @@ jobs:
           stage: main
           yaml: |
             name: springbootyeahn
-            app: java@8
+            app: java@21
             options:
-              jdk: "8"
+              jdk: "21"
               ports: 8080
               env:
                 - name: SPRING_PROFILES_ACTIVE

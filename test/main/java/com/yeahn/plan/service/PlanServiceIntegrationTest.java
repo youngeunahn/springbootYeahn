@@ -10,11 +10,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -28,20 +28,15 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * - @SpringBootTest: 실제 Spring 컨텍스트를 전부 올려서 DB까지 연결합니다.
  * - @Transactional: 각 테스트 메서드 종료 후 DB를 자동 롤백해 테스트 간 데이터 오염을 방지합니다.
- * - @MockBean AmazonS3: S3Config가 컨텍스트 로딩 시 실제 COS 서버에 연결을 시도하므로
- *   Mock으로 교체해 CI 환경에서도 컨텍스트가 정상 기동되게 합니다.
+ * - @MockitoBean AmazonS3: S3Config의 AmazonS3 빈을 Mock으로 교체해
+ *   CI 환경에서도 컨텍스트가 정상 기동되게 합니다.
  */
 @SpringBootTest(classes = Application.class)
 @Transactional
 public class PlanServiceIntegrationTest {
 
-    // @EnableCOS가 "client" 빈을, S3Config가 "amazonS3Client" 빈을 각각 등록합니다.
-    // 타입만으로 @MockBean하면 두 빈 중 어느 것을 대체할지 알 수 없으므로 이름을 명시합니다.
-    @MockBean(name = "amazonS3Client")
+    @MockitoBean(name = "amazonS3Client")
     private AmazonS3 amazonS3ClientMock;
-
-    @MockBean(name = "client")
-    private AmazonS3 cosClientMock;
 
     @Autowired
     private PlanService planService;

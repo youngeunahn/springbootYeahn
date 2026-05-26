@@ -7,14 +7,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 @Configuration
@@ -28,23 +30,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and()
-            .csrf().disable()
-            .authorizeRequests()
-                .antMatchers("/login", "/api/user/**", "/admin/signUp*", "/admin/signUp/checkId", "/css/**", "/js/**").permitAll()
-                .antMatchers("/*").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            .and()
-            .formLogin()
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/login", "/api/user/**", "/admin/signUp*", "/admin/signUp/checkId", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/*").hasRole("ADMIN")
+                .anyRequest().authenticated())
+            .formLogin(formLogin -> formLogin
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .usernameParameter("userId")
                 .passwordParameter("password")
                 .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler)
-                .permitAll()
-            .and()
-            .logout()
+                .permitAll())
+            .logout(logout -> logout
                 .logoutUrl("/logout")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
@@ -57,7 +57,7 @@ public class SecurityConfig {
                     }
                     response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 })
-                .permitAll();
+                .permitAll());
 
         http.userDetailsService(userService);
 

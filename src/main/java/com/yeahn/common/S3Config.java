@@ -8,20 +8,11 @@ import com.ibm.cloud.objectstorage.client.builder.AwsClientBuilder;
 import com.ibm.cloud.objectstorage.oauth.BasicIBMOAuthCredentials;
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3;
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3ClientBuilder;
-import com.ibm.cos.spring.framework.EnableCOS;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileUrlResource;
-import org.springframework.util.unit.DataSize;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-
-import java.io.IOException;
 
 @Configuration
-@EnableCOS
-@ComponentScan
 public class S3Config {
 
     @Value("${cos.location}")
@@ -36,7 +27,7 @@ public class S3Config {
     @Value("${cos.endpoint}")
     private String endpoint;
 
-    @Bean
+    @Bean(name = "amazonS3Client")
     public AmazonS3 amazonS3Client() {
         try {
             AWSCredentials credentials = new BasicIBMOAuthCredentials(apiKey, serviceId);
@@ -59,18 +50,5 @@ public class S3Config {
         }
 
         return null;
-    }
-
-    @Bean(name = "multipartResolver")
-    public CommonsMultipartResolver multipartResolver(
-            @Value("${spring.servlet.multipart.location}") String tmpFolder,
-            @Value("${spring.servlet.multipart.max-file-size}") DataSize maxFileSize,
-            @Value("${spring.servlet.multipart.max-request-size}") DataSize maxRequestSize) throws IOException {
-        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
-        commonsMultipartResolver.setDefaultEncoding("UTF-8");
-        commonsMultipartResolver.setMaxUploadSizePerFile(maxRequestSize.toBytes());
-        commonsMultipartResolver.setMaxUploadSize(maxFileSize.toBytes());
-        commonsMultipartResolver.setUploadTempDir(new FileUrlResource(tmpFolder));
-        return commonsMultipartResolver;
     }
 }
