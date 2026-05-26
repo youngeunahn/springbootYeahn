@@ -1,71 +1,76 @@
 package com.yeahn.security.config;
 
+import com.yeahn.auth.service.UserService;
 import com.yeahn.security.handler.LoginFailureHandler;
 import com.yeahn.security.handler.LoginSuccessHandler;
-import com.yeahn.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
     private final UserService userService;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        .cors().and()
-        .csrf().disable()
-        .authorizeRequests()
+            .cors().and()
+            .csrf().disable()
+            .authorizeRequests()
                 .antMatchers("/login", "/api/user/**", "/admin/signUp*", "/admin/signUp/checkId", "/css/**", "/js/**").permitAll()
-            .antMatchers("/*").hasRole("ADMIN")   // ADMIN만 접근 가능
-            .anyRequest().authenticated()
+                .antMatchers("/*").hasRole("ADMIN")
+                .anyRequest().authenticated()
             .and()
-        .formLogin()
-            .loginPage("/login")              // 로그인 페이지 GET
-            .loginProcessingUrl("/login")    // 로그인 처리 POST
-            .usernameParameter("userId")     // 파라미터명 변경
-            .passwordParameter("password")
-            .successHandler(loginSuccessHandler)
-            .failureHandler(loginFailureHandler)
-            .permitAll()
+            .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("userId")
+                .passwordParameter("password")
+                .successHandler(loginSuccessHandler)
+                .failureHandler(loginFailureHandler)
+                .permitAll()
             .and()
-        .logout()
-            .logoutUrl("/logout")
-            .invalidateHttpSession(true)
-            .clearAuthentication(true)
-            .deleteCookies("JSESSIONID")
-            .logoutSuccessHandler((request, response, authentication) -> {
-                String accept = request.getHeader("Accept");
-                if (accept != null && accept.contains("text/html")) {
-                    response.sendRedirect("/login?logout");
-                    return;
-                }
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            })
-            .permitAll();
+            .logout()
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    String accept = request.getHeader("Accept");
+                    if (accept != null && accept.contains("text/html")) {
+                        response.sendRedirect("/login?logout");
+                        return;
+                    }
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                })
+                .permitAll();
+
+        http.userDetailsService(userService);
+
+        return http.build();
     }
 
-    /**
-     * 로그인 인증 처리 메소드
-     * @param auth
-     * @throws Exception
-     */
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService).passwordEncoder(new BCryptPasswordEncoder());
-//        auth.userDetailsService(userService).passwordEncoder(NoOpPasswordEncoder.getInstance());
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }
