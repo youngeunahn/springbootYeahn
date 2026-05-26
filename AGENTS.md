@@ -1,5 +1,17 @@
 # Repository Guidelines
 
+## 서브에이전트 운용
+
+매 채팅에서 코드 조사, 수정, 리뷰처럼 단순 질의보다 큰 작업을 시작하기 전에 요청 성격과 관련된 `.agents/` 문서를 먼저 확인합니다. 실제 서브에이전트 인스턴스는 런타임에 호출되지만, 역할과 검토 기준은 이 저장소의 문서를 기준으로 삼습니다.
+
+- `.agents/backend-domain-agent.md`: Java/Spring Boot 도메인, Controller, Service, auth/security 변경
+- `.agents/db-mybatis-agent.md`: MyBatis XML, Mapper, MariaDB SQL, `schema.sql` 변경
+- `.agents/ui-mustache-agent.md`: Mustache, Bootstrap 4, jQuery 기반 관리자 UI 변경
+- `.agents/test-config-agent.md`: Maven 테스트, Spring profile, CI test profile, S3/COS MockBean, 설정 파일
+- `.agents/frontend-integration-agent.md`: `D:\Projects\yeahn-fitbase` Next.js 프론트와 `/api/user/**` API 연동
+- `.agents/ci-deploy-agent.md`: GitHub Actions, Cloudtype 배포, Scouter Agent, 운영 설정
+- 한 파일 확인, 단순 명령 실행, 작은 문서 수정처럼 서브에이전트 사용이 명백히 낭비인 경우에는 직접 처리하고 그 이유를 짧게 알립니다.
+
 ## 프로젝트 구조와 모듈 구성
 
 이 저장소는 Java 8 기반의 Maven Spring Boot 2.6.11 애플리케이션입니다. 주요 Java 코드는 `src/main/java/com/yeahn` 아래에 있으며 `auth`, `security`, `plan`, `template`, `menu`, `yetable`, `log`, `config`, `common` 패키지로 나뉩니다. Mustache 화면은 `src/main/resources/templates`, 정적 CSS/JS/이미지는 `src/main/resources/static`, MyBatis XML 매퍼는 `src/main/resources/query/mapper`에 있습니다. DB 초기 스키마는 `src/main/resources/schema.sql`을 사용합니다. 테스트 코드는 표준 경로가 아닌 `test/main/java`에 있으며 Maven 설정으로 포함됩니다. DB 접근은 MariaDB, MyBatis 3.4.6, log4jdbc 기반 SQL 로깅을 전제로 합니다.
