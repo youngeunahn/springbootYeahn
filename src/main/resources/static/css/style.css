@@ -1687,6 +1687,23 @@ Left Navigation Sidebar
     padding: 14px;
 }
 
+.sidebar-user {
+    padding: 4px 12px 18px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #242849;
+}
+
+.sidebar-user-name {
+    max-width: 100%;
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
 .nav-left-sidebar .navbar-nav .nav-item {}
 
 .nav-left-sidebar .navbar-nav .nav-link {
@@ -6877,6 +6894,10 @@ Media Query
     .dashboard-content {
     padding: 20px 20px 60px 20px;
 }
+    .navbar-brand {
+        font-size: 18px;
+        padding: 14px 12px;
+    }
     .nav-left-sidebar .navbar a {
         color: #fff;
     }

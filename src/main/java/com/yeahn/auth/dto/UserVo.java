@@ -40,6 +40,10 @@ public class UserVo implements UserDetails {
         return this.userId;
     }
 
+    public String getDisplayName() {
+        return this.userName;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

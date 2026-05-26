@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.servlet.http.HttpServletResponse;
+
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
@@ -38,6 +40,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .passwordParameter("password")
             .successHandler(loginSuccessHandler)
             .failureHandler(loginFailureHandler)
+            .permitAll()
+            .and()
+        .logout()
+            .logoutUrl("/logout")
+            .invalidateHttpSession(true)
+            .clearAuthentication(true)
+            .deleteCookies("JSESSIONID")
+            .logoutSuccessHandler((request, response, authentication) -> {
+                String accept = request.getHeader("Accept");
+                if (accept != null && accept.contains("text/html")) {
+                    response.sendRedirect("/login?logout");
+                    return;
+                }
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            })
             .permitAll();
     }
 

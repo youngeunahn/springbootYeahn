@@ -8,10 +8,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.yeahn.menu.service.MenuService;
 import com.yeahn.menu.dto.MenuConfig;
+import com.yeahn.auth.dto.UserVo;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -69,6 +72,7 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 					menulist.setMENU_GROUP(menulist.getMENU_CODE().split("_")[0]);
 				}
 				modelAndView.addObject("MenuList", MenuList);
+				addLoginUser(modelAndView);
 
 				MenuConfig MenuPage = new MenuConfig();
 				if(request.getParameter("menuCode") == null){
@@ -84,6 +88,23 @@ public class WebInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
 
+	}
+
+	private void addLoginUser(ModelAndView modelAndView) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return;
+		}
+
+		Object principal = authentication.getPrincipal();
+		if (principal instanceof UserVo) {
+			UserVo userVo = (UserVo) principal;
+			String userName = userVo.getDisplayName();
+			if (userName == null || userName.trim().isEmpty()) {
+				userName = userVo.getUserId();
+			}
+			modelAndView.addObject("LoginUserName", userName);
+		}
 	}
 	
 }
