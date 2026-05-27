@@ -23,6 +23,22 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String[] SWAGGER_PATHS = {
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/v3/api-docs.yaml"
+    };
+
+    private static final String[] PUBLIC_PATHS = {
+        "/login",
+        "/api/user/**",
+        "/admin/signUp*",
+        "/admin/signUp/checkId",
+        "/css/**",
+        "/js/**"
+    };
+
     private final UserService userService;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
@@ -33,7 +49,8 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/login", "/api/user/**", "/admin/signUp*", "/admin/signUp/checkId", "/css/**", "/js/**").permitAll()
+                .requestMatchers(SWAGGER_PATHS).hasRole("ADMIN")
+                .requestMatchers(PUBLIC_PATHS).permitAll()
                 .requestMatchers("/*").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .formLogin(formLogin -> formLogin
