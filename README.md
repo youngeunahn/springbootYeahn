@@ -16,11 +16,12 @@ Spring Boot 기반의 개인 운동 계획 및 기록 관리 웹 애플리케이
 
 | 분류 | 기술 |
 |---|---|
-| Backend | Java 8, Spring Boot 2.6.11, Spring Security, MyBatis |
+| Backend | Java 21, Spring Boot 3.5.14, Spring Security 6, MyBatis |
 | Database | MariaDB, Caffeine Cache |
 | Frontend | Mustache, jQuery, Bootstrap 4 |
 | Infra | GitHub Actions CI/CD, Cloudtype (PaaS) |
 | Storage | IBM Cloud Object Storage (S3 호환) |
+| API Docs | springdoc-openapi Swagger UI |
 
 ## 주요 기능
 
@@ -37,6 +38,7 @@ Spring Boot 기반의 개인 운동 계획 및 기록 관리 웹 애플리케이
 
 ### 보안 / 인증
 - Spring Security 폼 로그인, BCrypt 비밀번호 암호화
+- `SecurityFilterChain` 기반 URL 권한 설정
 - 커스텀 로그인 성공/실패 핸들러
 
 ### 운영 기능
@@ -85,9 +87,9 @@ src/main/java/com/yeahn/
 `master` 브랜치 push / PR 시 GitHub Actions가 자동 실행됩니다.
 
 1. MariaDB 서비스 시작 및 스키마 적용
-2. `mvn package -DskipTests` 빌드
+2. JDK 21 환경에서 `mvn package -DskipTests` 빌드
 3. `mvn test -Dspring.profiles.active=test` 통합 테스트
-4. `master` 머지 시 Cloudtype에 자동 배포
+4. `master` 머지 시 Cloudtype `java@21` 런타임에 자동 배포
 
 ## 환경 설정
 
@@ -112,4 +114,4 @@ mvn test -Dspring.profiles.active=local
 - CI/CD 워크플로우 설계 및 GitHub Actions 작성
 - 통합 테스트 코드 작성
 - 코드 리뷰 및 리팩토링 보조
-- springboot-expert, mybatis-expert 등 전문 서브에이전트를 도메인별로 분리하여 활용
+- 저장소의 `.agents/` 문서를 기준으로 도메인별 검토 기준을 분리하여 활용
