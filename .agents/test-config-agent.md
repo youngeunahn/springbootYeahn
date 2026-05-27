@@ -60,6 +60,7 @@ private AmazonS3 cosClientMock;
 - 단위 테스트는 `@ExtendWith(MockitoExtension.class)`로 Mapper를 mock 처리하고 Spring 컨텍스트/DB 없이 Service 로직을 검증한다.
 - `SecurityContextHolder`를 직접 세팅하면 `@AfterEach`에서 `SecurityContextHolder.clearContext()`를 유지한다.
 - `HttpServletRequest.getRemoteAddr()` stub 시 `127.0.0.1`은 피한다. `CommonUtils.getIP()`가 루프백 IP를 실제 호스트 IP로 바꿀 수 있다.
+- `@DisplayName`은 기존 테스트와 동일하게 한국어 설명형 문장으로 작성한다. 예: `"비로그인 사용자는 Swagger UI 접근 시 로그인으로 이동한다"`, `"템플릿 삭제 시 마스터와 운동 정보를 삭제 처리한다"`.
 
 ## Config Notes
 
