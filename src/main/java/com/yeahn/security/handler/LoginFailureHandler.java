@@ -74,7 +74,8 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         logService.saveLoginLog(vo);
 
         // API 요청인 경우 JSON 응답
-        if (request.getHeader("Accept").contains(MediaType.APPLICATION_JSON_VALUE)) {
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
             objectMapper.writeValue(response.getWriter(), ResponseDto.fail("Login failed: " + failReason));
