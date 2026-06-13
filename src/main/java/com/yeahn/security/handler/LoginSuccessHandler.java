@@ -59,7 +59,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE)) {
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-            objectMapper.writeValue(response.getWriter(), ResponseDto.success("Login successful", authentication.getName()));
+            objectMapper.writeValue(response.getWriter(), ResponseDto.success("로그인이 완료되었습니다.", authentication.getName()));
         } else {
             response.sendRedirect("/exercise/plan?menuCode=EXERCISE_0002");
         }

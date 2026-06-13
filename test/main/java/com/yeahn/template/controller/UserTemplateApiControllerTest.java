@@ -61,7 +61,7 @@ public class UserTemplateApiControllerTest {
                         .param("keyword", "수영"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
-                .andExpect(jsonPath("$.message").value("Request processed successfully."))
+                .andExpect(jsonPath("$.message").value("요청이 성공적으로 처리되었습니다."))
                 .andExpect(jsonPath("$.data[0].tplSeq").value(1))
                 .andExpect(jsonPath("$.data[0].tplName").value("수영 템플릿"));
 
@@ -102,7 +102,7 @@ public class UserTemplateApiControllerTest {
         mockMvc.perform(get("/api/user/templates/999"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("FAIL"))
-                .andExpect(jsonPath("$.message").value("Template not found"));
+                .andExpect(jsonPath("$.message").value("템플릿을 찾을 수 없습니다."));
     }
 
     @Test

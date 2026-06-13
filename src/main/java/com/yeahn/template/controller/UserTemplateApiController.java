@@ -35,7 +35,7 @@ public class UserTemplateApiController {
     public ResponseDto<TemplateDto> detail(@PathVariable Long tplSeq) {
         TemplateDto template = templateService.getTplDetail(tplSeq);
         if (template == null) {
-            return ResponseDto.fail("Template not found");
+            return ResponseDto.fail("템플릿을 찾을 수 없습니다.");
         }
         return ResponseDto.success(template);
     }

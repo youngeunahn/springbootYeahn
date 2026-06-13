@@ -78,7 +78,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         if (accept != null && accept.contains(MediaType.APPLICATION_JSON_VALUE)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-            objectMapper.writeValue(response.getWriter(), ResponseDto.fail("Login failed: " + failReason));
+            objectMapper.writeValue(response.getWriter(), ResponseDto.fail("로그인에 실패했습니다."));
         } else {
             response.sendRedirect("/login?error");
         }

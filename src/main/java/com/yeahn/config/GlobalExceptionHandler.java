@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseDto<String>> handleException(Exception e) {
         log.error("Unhandled exception: ", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseDto.fail("Internal Server Error: " + e.getMessage()));
+                .body(ResponseDto.fail("서버 오류가 발생했습니다: " + e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -17,7 +17,7 @@ public class ResponseDto<T> {
     public static <T> ResponseDto<T> success(T data) {
         return ResponseDto.<T>builder()
                 .status("SUCCESS")
-                .message("Request processed successfully.")
+                .message("요청이 성공적으로 처리되었습니다.")
                 .data(data)
                 .build();
     }

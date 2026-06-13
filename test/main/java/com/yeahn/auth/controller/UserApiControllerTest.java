@@ -77,7 +77,7 @@ public class UserApiControllerTest {
                 .content(objectMapper.writeValueAsString(signUpVo)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
-                .andExpect(jsonPath("$.message").value("Sign up successful"));
+                .andExpect(jsonPath("$.message").value("회원가입이 완료되었습니다."));
     }
 
     @Test
@@ -101,6 +101,6 @@ public class UserApiControllerTest {
                 .content(objectMapper.writeValueAsString(signUpVo)))
                 .andExpect(status().isOk()) // 응답 규격은 200이지만 내부는 FAIL
                 .andExpect(jsonPath("$.status").value("FAIL"))
-                .andExpect(jsonPath("$.message").value("Duplicate User ID"));
+                .andExpect(jsonPath("$.message").value("이미 사용 중인 아이디입니다."));
     }
 }
