@@ -8,7 +8,20 @@ public final class PublicUserApiPaths {
     }
 
     public static boolean matches(HttpServletRequest request) {
-        return matches(request.getMethod(), request.getServletPath());
+        return matches(request.getMethod(), path(request));
+    }
+
+    public static boolean isUserApi(HttpServletRequest request) {
+        return path(request).startsWith("/api/user/");
+    }
+
+    public static String path(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (contextPath != null && !contextPath.isEmpty() && path.startsWith(contextPath)) {
+            return path.substring(contextPath.length());
+        }
+        return path;
     }
 
     static boolean matches(String method, String path) {

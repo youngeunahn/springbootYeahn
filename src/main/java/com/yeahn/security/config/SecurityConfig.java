@@ -19,7 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -27,6 +27,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private static final LoginUrlAuthenticationEntryPoint LOGIN_ENTRY_POINT =
+        new LoginUrlAuthenticationEntryPoint("/login");
 
     private static final String[] SWAGGER_PATHS = {
         "/swagger-ui/**",
@@ -66,8 +69,13 @@ public class SecurityConfig {
                 .requestMatchers("/*").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(exceptionHandling -> exceptionHandling
-                .defaultAuthenticationEntryPointFor(jwtAuthenticationEntryPoint,
-                    PathPatternRequestMatcher.withDefaults().matcher("/api/user/**")))
+                .authenticationEntryPoint((request, response, authException) -> {
+                    if (PublicUserApiPaths.isUserApi(request)) {
+                        jwtAuthenticationEntryPoint.commence(request, response, authException);
+                        return;
+                    }
+                    LOGIN_ENTRY_POINT.commence(request, response, authException);
+                }))
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
                 .loginProcessingUrl("/login")

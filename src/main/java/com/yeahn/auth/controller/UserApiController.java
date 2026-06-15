@@ -66,7 +66,7 @@ public class UserApiController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto<UserTokenResponse>> login(@RequestBody UserLoginRequest loginRequest) {
+    public ResponseEntity<ResponseDto<UserTokenResponse>> login(@RequestBody(required = false) UserLoginRequest loginRequest) {
         if (loginRequest == null || loginRequest.getUserId() == null || loginRequest.getPassword() == null) {
             return ResponseEntity.badRequest()
                     .body(ResponseDto.fail("아이디와 비밀번호를 입력해 주세요."));
