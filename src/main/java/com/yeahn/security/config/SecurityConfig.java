@@ -1,6 +1,9 @@
 package com.yeahn.security.config;
 
 import com.yeahn.auth.service.UserService;
+import com.yeahn.security.jwt.JwtAuthenticationEntryPoint;
+import com.yeahn.security.jwt.JwtAuthenticationFilter;
+import com.yeahn.security.jwt.PublicUserApiPaths;
 import com.yeahn.security.handler.LoginFailureHandler;
 import com.yeahn.security.handler.LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -32,16 +37,21 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_PATHS = {
         "/login",
-        "/api/user/**",
         "/admin/signUp*",
         "/admin/signUp/checkId",
         "/css/**",
         "/js/**"
     };
 
+    private static final String[] USER_API_PATHS = {
+        "/api/user/**"
+    };
+
     private final UserService userService;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -50,9 +60,14 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(SWAGGER_PATHS).hasRole("ADMIN")
+                .requestMatchers(PublicUserApiPaths::matches).permitAll()
                 .requestMatchers(PUBLIC_PATHS).permitAll()
+                .requestMatchers(USER_API_PATHS).authenticated()
                 .requestMatchers("/*").hasRole("ADMIN")
                 .anyRequest().authenticated())
+            .exceptionHandling(exceptionHandling -> exceptionHandling
+                .defaultAuthenticationEntryPointFor(jwtAuthenticationEntryPoint,
+                    PathPatternRequestMatcher.withDefaults().matcher("/api/user/**")))
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -77,6 +92,7 @@ public class SecurityConfig {
                 .permitAll());
 
         http.userDetailsService(userService);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
