@@ -36,7 +36,7 @@ public class JwtService {
             ObjectMapper objectMapper,
             @Value("${app.jwt.secret:${JWT_SECRET:change-this-development-jwt-secret-at-least-32-bytes}}") String secret,
             @Value("${app.jwt.expiration-seconds:3600}") long expirationSeconds,
-            @Value("${spring.environment:local}") String springEnvironment) {
+            @Value("${spring.profiles.active:local}") String springEnvironment) {
         this(objectMapper, Clock.systemUTC(), secret, expirationSeconds, springEnvironment);
     }
 

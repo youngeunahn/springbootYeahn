@@ -26,7 +26,7 @@ public class S3Uploader {
 
     // local, development 등 현재 프로파일
 
-    @Value("${spring.environment}")
+    @Value("${spring.profiles.active:local}")
     private String environment;
 
 
@@ -50,7 +50,7 @@ public class S3Uploader {
         if(environment.equals("local")){
             this.fileDir = System.getProperty("user.dir");
         }
-        else if(environment.equals("development")){
+        else if(environment.equals("development") || environment.equals("prod")){
             this.fileDir = this.rootDir;
         }
 
