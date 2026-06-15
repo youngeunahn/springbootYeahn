@@ -58,9 +58,13 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml -Dspring.profiles.active=test -DskipTests
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-jwt-secret-at-least-32-bytes-long' }}
 
       - name: Run Tests
         run: mvn test -Dspring.profiles.active=test -e -X
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-jwt-secret-at-least-32-bytes-long' }}
 
   deploy:
     name: Deploy to Cloudtype
@@ -117,6 +121,8 @@ jobs:
                   value: "${{ secrets.COS_IAM_SERVICEID_CRN }}"
                 - name: SCOUTER_COLLECTOR_IP
                   value: "${{ secrets.SCOUTER_COLLECTOR_IP }}"
+                - name: JWT_SECRET
+                  value: "${{ secrets.JWT_SECRET }}"
               start: >
                 sh -c 'if [ -f ./target/scouter/scouter.agent.jar ] && [ -n "$SCOUTER_COLLECTOR_IP" ]; then
                 printf "%s\n" "obj_name=springbootYeahn-prod" "net_collector_ip=$SCOUTER_COLLECTOR_IP" "net_collector_udp_port=${SCOUTER_COLLECTOR_UDP_PORT:-6100}" "net_collector_tcp_port=${SCOUTER_COLLECTOR_TCP_PORT:-6100}" "profile_sql_escape_enabled=false" "profile_connection_open_enabled=true" "trace_db_jdbc_allow_full_stacktrace=true" > /tmp/scouter.conf;
