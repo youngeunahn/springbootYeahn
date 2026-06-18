@@ -9,17 +9,17 @@
 ## Good Tasks
 
 - GitHub Actions CI 실패 원인 분석
-- Java 8 Maven 빌드/테스트 워크플로 수정
+- Java 21 Maven 빌드/테스트 워크플로 수정
 - MariaDB 서비스 컨테이너와 `yeahn_test` DB 초기화 조정
 - `schema.sql` 적용 순서와 UDF 생성 방식 점검
 - Maven dependency/cache 설정 개선
-- Cloudtype `java@8` 배포 설정 수정
+- Cloudtype `java@21` 배포 설정 수정
 - Scouter Agent JAR 준비, `/tmp/scouter.conf` 생성, `JAVA_TOOL_OPTIONS` 주입 확인
 - CI 로그에서 secret 노출 가능성 점검
 
 ## Project Patterns
 
-- CI는 Java 8 기준으로 실행한다.
+- CI는 Java 21 기준으로 실행한다.
 - 테스트 실행에는 기본적으로 `-Dspring.profiles.active=test`를 붙인다.
 - 테스트 소스 루트는 `test/main/java`이고, Maven 설정에서 별도로 포함된다.
 - 통합 테스트는 MariaDB 10.6 계열 서비스와 `src/main/resources/schema.sql`이 필요할 수 있다.
@@ -29,7 +29,7 @@
 
 ## Cloudtype And Scouter Notes
 
-- Cloudtype `java@8` 배포는 `options.start`에서 런타임 start command를 구성한다.
+- Cloudtype `java@21` 배포는 `options.start`에서 런타임 start command를 구성한다.
 - 배포 전 GitHub Actions 단계에서 `agent/scouter/scouter.agent.jar`가 준비되어 있어야 한다.
 - start command는 `printf`로 `/tmp/scouter.conf`를 만들고 `JAVA_TOOL_OPTIONS`에 `-javaagent` 옵션을 넣는 패턴을 따른다.
 - 수집 서버 IP는 GitHub Secrets의 `SCOUTER_COLLECTOR_IP`를 사용한다.

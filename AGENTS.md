@@ -16,7 +16,7 @@
 
 이 저장소는 Java 21 기반의 Maven Spring Boot 3.5.14 애플리케이션입니다. 주요 Java 코드는 `src/main/java/com/yeahn` 아래에 있으며 `auth`, `security`, `plan`, `template`, `menu`, `yetable`, `log`, `config`, `common` 패키지로 나뉩니다. Mustache 화면은 `src/main/resources/templates`, 정적 CSS/JS/이미지는 `src/main/resources/static`, MyBatis XML 매퍼는 `src/main/resources/query/mapper`에 있습니다. DB 초기 스키마는 `src/main/resources/schema.sql`을 사용합니다. 테스트 코드는 표준 경로가 아닌 `test/main/java`에 있으며 Maven 설정으로 포함됩니다. DB 접근은 MariaDB, `mybatis-spring-boot-starter` 3.0.3, log4jdbc 기반 SQL 로깅을 전제로 합니다.
 
-별도 프론트엔드 프로젝트는 `D:\Projects\yeahn-fitbase`에 있습니다. 이 프론트엔드는 Next.js 기반이며 이 백엔드의 `/api/user/**` 공개 API를 사용합니다. 백엔드 공개 API 응답은 기존 `ResponseDto<T>` 규격(`status`, `message`, `data`, `SUCCESS`/`FAIL`)을 유지하고, 프론트 호출부는 `response.data`를 실제 payload로 사용하도록 맞춥니다.
+별도 프론트엔드 프로젝트는 `D:\Projects\yeahn-fitbase`에 있습니다. 이 프론트엔드는 Next.js 기반이며 이 백엔드의 `/api/user/**` 사용자 API를 사용합니다. `/api/user/**`는 기본적으로 JWT 인증 대상이고, 로그인/회원가입/아이디 중복 확인/템플릿 조회처럼 명시한 공개 API만 비로그인 접근을 허용합니다. 백엔드 API 응답은 기존 `ResponseDto<T>` 규격(`status`, `message`, `data`, `SUCCESS`/`FAIL`)을 유지하고, 프론트 호출부는 `response.data`를 실제 payload로 사용하도록 맞춥니다.
 
 ## 빌드, 테스트, 개발 명령
 
@@ -24,6 +24,7 @@
 - `mvn spring-boot:run`: 기본 설정으로 로컬 서버를 실행합니다.
 - `mvn spring-boot:run -Dspring.profiles.active=local`: 로컬 `application-local.properties` DB/COS 설정으로 실행합니다.
 - `mvn test -Dspring.profiles.active=local`: 로컬 `application-local.properties` DB/COS 설정으로 전체 테스트를 실행합니다.
+- `mvn test -Psecurity-tests`: 로컬 프로파일로 JWT/API와 Swagger/OpenAPI 보안 회귀 테스트만 실행합니다.
 - `mvn test -Dspring.profiles.active=local -Dtest=PlanServiceIntegrationTest`: 로컬 `application-local.properties`로 특정 테스트 클래스만 실행합니다.
 - `mvn test -Dspring.profiles.active=test`: CI/GitHub Actions 전용 test profile로 전체 테스트를 실행합니다.
 
@@ -57,9 +58,9 @@ MyBatis 변경은 신규 `@Mapper` 인터페이스 방식과 XML namespace를 �
 
 DB 비밀번호, Cloudtype 토큰, COS/S3 키, 로컬 IDE 비밀값은 커밋하지 않습니다. 환경별 설정은 Spring profile 또는 환경 변수로 분리합니다. SQL이나 매퍼를 수정할 때는 기존 쿼리가 의존하는 `DEL_YN` 기반 soft delete 조건을 유지합니다.
 
-Spring Security는 `SecurityFilterChain` Bean 기반이며 BCrypt를 사용합니다. `/login`, `/api/user/**`, 정적 리소스 등 `PUBLIC_PATHS`는 비로그인 접근을 허용하고, Swagger/OpenAPI 경로는 `ADMIN` 권한을 요구합니다. 그 외 경로는 기본적으로 인증 또는 `ADMIN` 권한 정책을 따릅니다. `/api/user/**`는 비로그인 접근을 허용하는 공개 API 영역이므로 새 엔드포인트 추가 시 개인정보 노출과 쓰기 API 노출을 별도로 점검합니다. XSS 대응은 Naver Lucy XSS Filter 설정 영향을 확인합니다.
+Spring Security는 `SecurityFilterChain` Bean 기반이며 BCrypt를 사용합니다. `/login`, 정적 리소스, `/api/user/login`, `/api/user/check-id`, `/api/user/signUp`, `GET /api/user/templates`, `GET /api/user/templates/**` 등 명시한 공개 API는 비로그인 접근을 허용하고, Swagger/OpenAPI 경로는 `ADMIN` 권한을 요구합니다. 그 외 `/api/user/**` 경로는 기본적으로 JWT 인증을 요구하며, 새 사용자 API를 추가하면 보호 API로 시작하는 것을 원칙으로 합니다. 공개 API를 새로 추가해야 할 때는 개인정보 노출과 쓰기 API 노출을 별도로 점검하고 `PublicUserApiPaths`에 method와 path를 명시합니다. XSS 대응은 Naver Lucy XSS Filter 설정 영향을 확인합니다.
 
-**프론트엔드 연동 주의:** `D:\Projects\yeahn-fitbase`의 `src/api/auth.ts`는 `ResponseDto<T>` 타입과 `/api/user/check-id`, `/api/user/signUp` 처리를 갖고 있습니다. `src/api/templates.ts`도 `/api/user/templates` 응답을 `ResponseDto<Template[]>`로 받은 뒤 `status === "SUCCESS"`를 확인하고 `data`만 반환합니다. 신규/변경 호출부는 raw 배열이나 raw 객체에 의존하지 말고 같은 패턴을 우선 사용합니다.
+**프론트엔드 연동 주의:** `D:\Projects\yeahn-fitbase`의 `src/api/auth.ts`는 `ResponseDto<T>` 타입과 `/api/user/login`, `/api/user/me`, `/api/user/check-id`, `/api/user/signUp` 처리를 갖고 있습니다. 사용자 로그인은 JWT 기반이며, 보호 API 호출 시 `Authorization: Bearer ...` 헤더를 사용합니다. `src/api/templates.ts`는 `/api/user/templates`, `src/api/plans.ts`는 `POST /api/user/plans` 응답을 `ResponseDto<T>`로 받습니다. 신규/변경 호출부는 raw 배열이나 raw 객체에 의존하지 말고 같은 패턴을 우선 사용합니다.
 
 **Cloudtype Scouter 설정:** Cloudtype `java@21` 배포 시 `options.start` 필드를 사용하여 런타임에 Scouter 설정을 동적으로 주입합니다. 배포 전 GitHub Actions 단계에서 Scouter Agent JAR를 준비(`agent/scouter/scouter.agent.jar`)해야 하며, 실행 시점에 `printf`를 통해 `/tmp/scouter.conf`를 생성하고 `JAVA_TOOL_OPTIONS`를 설정하여 에이전트를 로드합니다. 수집 서버 IP는 GitHub Secrets의 `SCOUTER_COLLECTOR_IP`를 사용하며, 정상 작동 시 로그에 `Starting Application with Scouter Agent...` 문구가 나타납니다.
 

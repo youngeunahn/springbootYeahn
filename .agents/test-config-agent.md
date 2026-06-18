@@ -28,7 +28,7 @@ mvn test -Dspring.profiles.active=test
 
 ## Project Patterns
 
-- Java 8, Spring Boot 2.6.11 기준을 유지한다.
+- Java 21, Spring Boot 3.5.14 기준을 유지한다.
 - 테스트 소스는 표준 `src/test/java`가 아니라 `test/main/java`이며, `build-helper-maven-plugin`이 Maven test source로 추가한다.
 - 로컬 테스트 실행은 `local` 프로파일을 사용하며 `application-local.properties`의 DB/COS 설정을 로드한다.
 - `application-test.properties`는 CI/GitHub Actions 전용이며 `localhost:3306/yeahn_test`, `root/root` MariaDB를 전제로 한다.
