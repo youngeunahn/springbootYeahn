@@ -150,6 +150,16 @@ class JwtApiSecurityTest {
     }
 
     @Test
+    @DisplayName("사용자 코드 API는 JWT 인증이 필요하다")
+    void userCodeApiRequiresJwt() throws Exception {
+        mockMvc.perform(get("/api/user/codes")
+                        .param("groupCode", "PLAN_PHASE")
+                        .header("User-Agent", "Mozilla/5.0"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value("FAIL"));
+    }
+
+    @Test
     @DisplayName("공개 API는 JWT 검증 없이 처리된다")
     void publicApiIgnoresInvalidJwt() throws Exception {
         // [Given] 아이디 중복 체크 결과 mock 설정

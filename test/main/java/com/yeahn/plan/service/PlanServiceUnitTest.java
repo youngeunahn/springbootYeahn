@@ -80,6 +80,31 @@ class PlanServiceUnitTest {
     }
 
     @Test
+    @DisplayName("운동 계획 목록에 상세 항목을 포함해 조회한다")
+    void getPlanListWithDetails_Test() {
+        // [Given]
+        PlanVo search = new PlanVo();
+        PlanVo plan = new PlanVo();
+        plan.setPlanSeq(1L);
+
+        PlanDetailVo detail = new PlanDetailVo();
+        detail.setPlanDetailSeq(10L);
+
+        when(planMapper.getPlanList(search)).thenReturn(List.of(plan));
+        when(planMapper.getPlanDetails(1L)).thenReturn(List.of(detail));
+
+        // [When]
+        List<PlanVo> result = planService.getPlanListWithDetails(search);
+
+        // [Then]
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).getDetails().size());
+        assertEquals(10L, result.get(0).getDetails().get(0).getPlanDetailSeq());
+        verify(planMapper, times(1)).getPlanList(search);
+        verify(planMapper, times(1)).getPlanDetails(1L);
+    }
+
+    @Test
     @DisplayName("운동 계획 상세와 상세 항목을 조회한다")
     void getPlanDetail_Success_Test() {
         // [Given]

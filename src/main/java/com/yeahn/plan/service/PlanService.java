@@ -25,6 +25,14 @@ public class PlanService {
         return planMapper.getPlanList(planVo);
     }
 
+    public List<PlanVo> getPlanListWithDetails(PlanVo planVo) {
+        List<PlanVo> plans = planMapper.getPlanList(planVo);
+        for (PlanVo plan : plans) {
+            plan.setDetails(planMapper.getPlanDetails(plan.getPlanSeq()));
+        }
+        return plans;
+    }
+
     /**
      * 운동 계획 상세 조회 (마스터 + 상세 목록)
      */

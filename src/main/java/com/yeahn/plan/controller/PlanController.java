@@ -39,7 +39,7 @@ public class PlanController {
         model.addAttribute("phaseCodes", codeService.getCodeList(new CodeDto("TPL_PHASE"), null));
 
         // 운동 카테고리 코드 리스트 (Chest, Back, Legs 등)
-        model.addAttribute("categoryCodes", codeService.getCodeList(new CodeDto("TPL_CATEGORY_CODE"), null));
+        model.addAttribute("categoryCodes", codeService.getCodeList(new CodeDto("TPL_CATEGORY"), null));
         
         // 등록된 템플릿 리스트 조회
         TemplateDto tplDto = new TemplateDto();
