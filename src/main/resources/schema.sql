@@ -184,7 +184,8 @@ CREATE TABLE IF NOT EXISTS TB_EXER_ATTR (
     PRIMARY KEY (TPL_ATTR_SEQ) USING BTREE,
     INDEX idx_use_del (USE_YN, DEL_YN) USING BTREE,
     INDEX idx_sort_order (TPL_SORT_ORDER) USING BTREE,
-    INDEX idx_exer_kind (TPL_KIND_CODE) USING BTREE
+    INDEX idx_exer_kind (TPL_KIND_CODE) USING BTREE,
+    FULLTEXT INDEX idx_tpl_exer_name (TPL_EXER_NAME)
 ) COLLATE='utf8mb4_general_ci' ENGINE=InnoDB;
 
 -- 10. 운동 관계 테이블

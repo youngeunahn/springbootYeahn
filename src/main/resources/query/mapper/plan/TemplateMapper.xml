@@ -83,7 +83,7 @@
             AND attr.TPL_TYPE_CODE = #{tplTypeCode}
         </if>
         <if test="tplExerName != null and tplExerName != ''">
-            AND attr.TPL_EXER_NAME LIKE CONCAT('%', #{tplExerName}, '%')
+            AND MATCH(attr.TPL_EXER_NAME) AGAINST(CONCAT('+', #{tplExerName}, '*') IN BOOLEAN MODE)
         </if>
         AND EXISTS (
             SELECT 1
