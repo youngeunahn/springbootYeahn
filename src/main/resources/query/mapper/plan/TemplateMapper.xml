@@ -63,6 +63,40 @@
         ORDER BY tpl.SORT_ORDER
     </select>
 
+    <select id="searchExerciseList"
+            parameterType="com.yeahn.template.dto.TemplateDto"
+            resultType="com.yeahn.template.dto.TemplateDto">
+        SELECT
+            attr.TPL_ATTR_SEQ tplAttrSeq
+            , attr.TPL_TYPE_CODE tplTypeCode
+            , attr.TPL_EXER_NAME tplExerName
+            , attr.TPL_CATEGORY_CODE tplCategoryCode
+            , FN_GET_COMM_CODE_DESC('TPL_CATEGORY', attr.TPL_CATEGORY_CODE) tplCategoryDesc
+            , attr.TPL_KIND_CODE tplKindCode
+            , FN_GET_COMM_CODE_DESC('TPL_KIND_CODE', attr.TPL_KIND_CODE) tplKindDesc
+            , attr.TPL_NOTE tplNote
+            , attr.TPL_SORT_ORDER tplSortOrder
+        FROM TB_EXER_ATTR attr
+        WHERE attr.USE_YN = 'Y'
+        AND attr.DEL_YN = 'N'
+        <if test="tplTypeCode != null and tplTypeCode != ''">
+            AND attr.TPL_TYPE_CODE = #{tplTypeCode}
+        </if>
+        <if test="tplExerName != null and tplExerName != ''">
+            AND attr.TPL_EXER_NAME LIKE CONCAT('%', #{tplExerName}, '%')
+        </if>
+        AND EXISTS (
+            SELECT 1
+            FROM TB_EXER exer
+            INNER JOIN TB_EXER_TPL tpl
+            ON tpl.TPL_SEQ = exer.TPL_SEQ
+            WHERE exer.TPL_ATTR_SEQ = attr.TPL_ATTR_SEQ
+            AND tpl.USE_YN = 'Y'
+            AND tpl.DEL_YN = 'N'
+        )
+        ORDER BY attr.TPL_EXER_NAME ASC, attr.TPL_ATTR_SEQ ASC
+    </select>
+
     <select id="getTplDetail" parameterType="long" resultType="com.yeahn.template.dto.TemplateDto">
         SELECT
             tpl.TPL_SEQ tplSeq

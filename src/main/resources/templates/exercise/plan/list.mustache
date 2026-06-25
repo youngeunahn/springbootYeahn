@@ -110,12 +110,17 @@
                 $container.append($('<div/>', { class: 'p-5 text-center text-muted', text: '등록된 계획이 없습니다.' }));
             } else {
                 data.forEach(function(plan) {
-                    $('<a/>', {
+                    const $item = $('<a/>', {
                         href: '#',
                         class: 'list-group-item list-group-item-action py-3',
-                        'data-seq': plan.planSeq,
-                        html: '<span class="badge badge-primary mr-2">' + plan.planDate + '</span><span>' + plan.planName + '</span>'
-                    }).appendTo($container);
+                        'data-seq': plan.planSeq
+                    });
+                    const $row = $('<div/>', { class: 'd-flex justify-content-between align-items-start' }).appendTo($item);
+                    const $info = $('<div/>').appendTo($row);
+                    $info.append($('<span/>', { class: 'badge badge-primary mr-2', text: plan.planDate }));
+                    $info.append($('<span/>', { text: plan.planName }));
+                    $row.append($('<span/>', { class: 'badge badge-light text-muted ml-2', text: plan.userId || '-' }));
+                    $item.appendTo($container);
                 });
             }
         }
@@ -638,20 +643,28 @@
         $('#tplLibSearch').on('keyup', function() {
             const kw = $(this).val().trim().toLowerCase();
 
-            $('#recordListOrigin .record-group').each(function() {
-                const $group = $(this);
-                $group.toggle($group.text().toLowerCase().indexOf(kw) > -1);
-            });
-
             if (!kw) {
-                $('#tplListOrigin').show();
-                $('#tplSearchResult').hide();
+                clearTimeout(searchTimer);
+                if ($('#record-tab').hasClass('active')) {
+                    searchRecordList('');
+                } else {
+                    $('#tplListOrigin').show();
+                    $('#tplSearchResult').hide().empty();
+                }
                 return;
             }
 
             clearTimeout(searchTimer);
             searchTimer = setTimeout(function() {
+                if ($('#record-tab').hasClass('active')) {
+                    searchRecordList(kw);
+                    return;
+                }
+
                 $.get('/exercise/plan/search-exercises', { keyword: kw, typeCode: typeCode }, function(data) {
+                    if ($('#record-tab').hasClass('active') || $('#tplLibSearch').val().trim().toLowerCase() !== kw) {
+                        return;
+                    }
                     $('#tplListOrigin').hide();
                     const $result = $('#tplSearchResult').empty().show();
                     $result.append($('<div/>', { class: 'p-2 bg-light text-muted border-bottom', text: '개별 운동 검색 결과' }));
@@ -675,19 +688,20 @@
                             'data-kind': ex.tplKindCode || ''
                         });
 
-                        let info = '<strong>' + ex.tplExerName + '</strong>';
-                        if (ex.tplMeasure1 || ex.tplMeasure2) {
-                            info += ' <span class="text-primary ml-1">[' + (ex.tplMeasure1 || 0) + 'S ' + (ex.tplMeasure2 || 0) + 'R]</span>';
-                        }
-                        if (ex.tplNote) {
-                            info += '<span class="text-muted ml-1">| ' + ex.tplNote + '</span>';
-                        }
-
                         const $label = $('<label/>', {
                             class: 'mb-0 ml-2 cursor-pointer',
-                            html: info,
                             click: function() { $check.prop('checked', !$check.prop('checked')); }
                         });
+                        $label.append($('<strong/>', { text: ex.tplExerName }));
+                        if (ex.tplMeasure1 || ex.tplMeasure2) {
+                            $label.append($('<span/>', {
+                                class: 'text-primary ml-1',
+                                text: '[' + (ex.tplMeasure1 || 0) + 'S ' + (ex.tplMeasure2 || 0) + 'R]'
+                            }));
+                        }
+                        if (ex.tplNote) {
+                            $label.append($('<span/>', { class: 'text-muted ml-1', text: '| ' + ex.tplNote }));
+                        }
                         $result.append($div.append($check).append($label));
                     });
                 });
@@ -695,7 +709,34 @@
         });
 
         // 기간 검색 구현
-        $('#btnSearchApply').on('click', function() {
+        $('#libraryTab a[data-toggle="tab"]').on('shown.bs.tab', function() {
+            clearTimeout(searchTimer);
+            $('#tplLibSearch').val('');
+            $('#tplSearchResult').hide().empty();
+            $('#tplListOrigin').show();
+            $('.btn-quick-filter').removeClass('active');
+
+            $.get('/exercise/plan/search', { planTypeCode: typeCode }, function(data) {
+                renderRecordList(data);
+            });
+        });
+
+        function searchRecordList(kw) {
+            $('#tplSearchResult').hide().empty();
+            $('.btn-quick-filter').removeClass('active');
+            const params = { planTypeCode: typeCode };
+            if (kw) params.planNameSearch = kw;
+
+            $.get('/exercise/plan/search', params, function(data) {
+                if ($('#record-tab').hasClass('active') && $('#tplLibSearch').val().trim().toLowerCase() !== kw) {
+                    return;
+                }
+                renderRecordList(data);
+            });
+        }
+
+        let planSearchTimer;
+        function searchPlanList() {
             const params = {
                 planNameSearch: $('#searchPlanName').val(),
                 searchStartDate: $('#searchStartDate').val(),
@@ -705,10 +746,26 @@
             $.get('/exercise/plan/search', params, function(data) {
                 renderPlanList(data);
             });
+        }
+
+        $('#searchPlanName').on('keyup', function() {
+            clearTimeout(planSearchTimer);
+            planSearchTimer = setTimeout(searchPlanList, 300);
+        });
+
+        $('#btnSearchApply').on('click', function() {
+            clearTimeout(planSearchTimer);
+            searchPlanList();
         });
 
         // 퀵 필터 (과거 기록 탭)
         $(document).on('click', '.btn-quick-filter', function() {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                searchRecordList($('#tplLibSearch').val().trim().toLowerCase());
+                return;
+            }
+
             const now = new Date();
             const offset = now.getTimezoneOffset() * 60000;
             const endDate = new Date(now.getTime() - offset).toISOString().split('T')[0];
@@ -732,12 +789,16 @@
             }
             data.forEach(function(plan) {
                 const $group = $('<div/>', { class: 'record-group' }).appendTo($origin);
-                $('<a/>', {
+                const $item = $('<a/>', {
                     href: 'javascript:void(0);',
                     class: 'list-group-item list-group-item-action d-flex justify-content-between align-items-center',
-                    'data-seq': plan.planSeq,
-                    html: '<div><span class="badge badge-secondary mr-2">' + plan.planDate + '</span><span>' + plan.planName + '</span></div><i class="fas fa-chevron-down text-muted"></i>'
+                    'data-seq': plan.planSeq
                 }).appendTo($group);
+                const $info = $('<div/>').appendTo($item);
+                $info.append($('<span/>', { class: 'badge badge-secondary mr-2', text: plan.planDate }));
+                $info.append($('<span/>', { text: plan.planName }));
+                $info.append($('<span/>', { class: 'badge badge-light text-muted ml-2', text: plan.userId || '-' }));
+                $item.append($('<i/>', { class: 'fas fa-chevron-down text-muted' }));
                 $('<div/>', { class: 'tpl-exercises', style: 'display: none;' }).appendTo($group);
             });
         }
@@ -885,7 +946,11 @@
         $('#searchStartDate').datepicker({ dateFormat: 'yy-mm-dd' });
         $('#searchEndDate').datepicker({ dateFormat: 'yy-mm-dd' });
         $('#btnToggleFilter').on('click', function() { $('#advancedFilter').slideToggle(200); });
-        $('#btnSearchReset').on('click', function() { $('#searchPlanName, #searchStartDate, #searchEndDate').val(''); });
+        $('#btnSearchReset').on('click', function() {
+            $('#searchPlanName, #searchStartDate, #searchEndDate').val('');
+            clearTimeout(planSearchTimer);
+            searchPlanList();
+        });
 
         // 과거 기록 탭 초기 전체 로딩
         $.get('/exercise/plan/search', { planTypeCode: typeCode }, function(data) {
@@ -949,8 +1014,13 @@
                 <div class="list-group list-group-flush">
                     {{#planList}}
                         <a href="#" class="list-group-item list-group-item-action py-3" data-seq="{{planSeq}}">
-                            <span class="badge badge-primary mr-2">{{planDate}}</span>
-                            <span>{{planName}}</span>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge badge-primary mr-2">{{planDate}}</span>
+                                    <span>{{planName}}</span>
+                                </div>
+                                <span class="badge badge-light text-muted ml-2">{{userId}}</span>
+                            </div>
                         </a>
                     {{/planList}}
                     {{^planList}}

@@ -30,6 +30,10 @@ public class TemplateService {
         return templateMapper.searchTplList(dto);
     }
 
+    public List<TemplateDto> searchExerciseList(TemplateDto dto) {
+        return templateMapper.searchExerciseList(dto);
+    }
+
     public TemplateDto getTplDetail(Long tplSeq) {
         TemplateDto tpl = templateMapper.getTplDetail(tplSeq);
         if (tpl != null) {

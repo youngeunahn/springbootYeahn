@@ -7,7 +7,6 @@ import com.yeahn.plan.service.PlanService;
 import com.yeahn.template.dto.TemplateDto;
 import com.yeahn.template.service.TemplateService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -46,10 +45,8 @@ public class PlanController {
         tplDto.setTplTypeCode(typeCode);
         model.addAttribute("tplList", templateService.getTplList(tplDto));
         
-        // 실제 등록된 운동 계획 리스트 조회 (로그인 유저 본인 것만)
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 실제 등록된 운동 계획 리스트 조회
         PlanVo planVo = new PlanVo();
-        planVo.setUserId(userId);
         planVo.setPlanTypeCode(typeCode);
         model.addAttribute("planList", planService.getPlanList(planVo));
 
@@ -82,7 +79,6 @@ public class PlanController {
     @GetMapping("/search")
     @ResponseBody
     public List<PlanVo> searchPlanList(@ModelAttribute PlanVo planVo) {
-        planVo.setUserId(SecurityContextHolder.getContext().getAuthentication().getName());
         return planService.getPlanList(planVo);
     }
 
@@ -93,6 +89,6 @@ public class PlanController {
         TemplateDto searchDto = new TemplateDto();
         searchDto.setTplTypeCode(typeCode);
         searchDto.setTplExerName(keyword);
-        return templateService.getTplList(searchDto);
+        return templateService.searchExerciseList(searchDto);
     }
 }

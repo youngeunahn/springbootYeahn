@@ -14,6 +14,8 @@ public interface TemplateMapper {
 
     List<TemplateDto> searchTplList(TemplateSearchDto dto);
 
+    List<TemplateDto> searchExerciseList(TemplateDto dto);
+
     TemplateDto getTplDetail(Long tplSeq);
 
     List<TemplateDto> getExerList(Long tplSeq);

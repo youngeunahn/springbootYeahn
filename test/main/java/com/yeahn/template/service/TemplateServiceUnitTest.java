@@ -101,6 +101,24 @@ class TemplateServiceUnitTest {
     }
 
     @Test
+    @DisplayName("개별 운동을 검색한다")
+    void searchExerciseList_Test() {
+        // [Given]
+        TemplateDto dto = new TemplateDto();
+        dto.setTplTypeCode("GYM");
+        dto.setTplExerName("스쿼트");
+        List<TemplateDto> expectedList = Arrays.asList(new TemplateDto());
+        when(templateMapper.searchExerciseList(dto)).thenReturn(expectedList);
+
+        // [When]
+        List<TemplateDto> result = templateService.searchExerciseList(dto);
+
+        // [Then]
+        assertEquals(expectedList.size(), result.size());
+        verify(templateMapper, times(1)).searchExerciseList(dto);
+    }
+
+    @Test
     @DisplayName("템플릿 상세와 운동 목록을 조회한다")
     void getTplDetail_Success_Test() {
         // [Given]
