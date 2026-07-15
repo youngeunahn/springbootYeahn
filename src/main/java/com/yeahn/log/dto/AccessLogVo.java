@@ -4,10 +4,7 @@ import lombok.Data;
 
 @Data
 public class AccessLogVo {
-    private String accessMenuSeq;
     private String accessUri;
-    private String accessQueryString;
-    private String accessFormData;
     private String accessMethod;
     private String accessIp;
     private String accessDevice;

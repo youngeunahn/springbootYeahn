@@ -6,10 +6,7 @@
 
     <insert id="insertAccessLog" parameterType="com.yeahn.log.dto.AccessLogVo">
         INSERT INTO TB_LOG_ACCESS (
-            ACCESS_MENU_SEQ
-            , ACCESS_URI
-            , ACCESS_QUERY_STRING
-            , ACCESS_FORM_DATA
+            ACCESS_URI
             , ACCESS_METHOD
             , ACCESS_IP
             , ACCESS_DEVICE
@@ -23,10 +20,7 @@
             , RESPONSE_TIME
             , INS_DT
         ) VALUES (
-              #{accessMenuSeq}
-            , #{accessUri}
-            , #{accessQueryString}
-            , #{accessFormData}
+              #{accessUri}
             , #{accessMethod}
             , #{accessIp}
             , #{accessDevice}
@@ -75,5 +69,87 @@
             , NOW()
         )
     </insert>
+
+    <insert id="insertLogOutbox" parameterType="com.yeahn.log.dto.LogOutboxVo" useGeneratedKeys="true" keyProperty="logOutboxSeq" keyColumn="LOG_OUTBOX_SEQ">
+        INSERT INTO TB_LOG_OUTBOX (
+            LOG_TYPE
+            , PAYLOAD
+            , STATUS
+            , RETRY_COUNT
+            , AVAILABLE_DT
+            , INS_DT
+        ) VALUES (
+            #{logType}
+            , #{payload}
+            , 'PENDING'
+            , 0
+            , NOW()
+            , NOW()
+        )
+    </insert>
+
+    <select id="selectPendingLogOutboxSeqs" resultType="long">
+        SELECT LOG_OUTBOX_SEQ
+        FROM TB_LOG_OUTBOX
+        WHERE STATUS = 'PENDING'
+          AND RETRY_COUNT &lt; #{maxRetryCount}
+          AND AVAILABLE_DT &lt;= NOW()
+        ORDER BY LOG_OUTBOX_SEQ
+        LIMIT #{limit}
+    </select>
+
+    <update id="claimLogOutbox" parameterType="long">
+        UPDATE TB_LOG_OUTBOX
+        SET STATUS = 'PROCESSING'
+            , PROCESSING_DT = NOW()
+            , UPD_DT = NOW()
+        WHERE LOG_OUTBOX_SEQ = #{outboxSeq}
+          AND STATUS = 'PENDING'
+    </update>
+
+    <select id="selectLogOutbox" parameterType="long" resultType="com.yeahn.log.dto.LogOutboxVo">
+        SELECT
+            LOG_OUTBOX_SEQ AS logOutboxSeq
+            , LOG_TYPE AS logType
+            , PAYLOAD AS payload
+            , STATUS AS status
+            , RETRY_COUNT AS retryCount
+        FROM TB_LOG_OUTBOX
+        WHERE LOG_OUTBOX_SEQ = #{outboxSeq}
+    </select>
+
+    <update id="completeLogOutbox" parameterType="long">
+        UPDATE TB_LOG_OUTBOX
+        SET STATUS = 'COMPLETED'
+            , PROCESSED_DT = NOW()
+            , LAST_ERROR = NULL
+            , UPD_DT = NOW()
+        WHERE LOG_OUTBOX_SEQ = #{outboxSeq}
+          AND STATUS = 'PROCESSING'
+    </update>
+
+    <update id="failLogOutbox">
+        UPDATE TB_LOG_OUTBOX
+        SET RETRY_COUNT = RETRY_COUNT + 1
+            , STATUS = CASE
+                WHEN RETRY_COUNT + 1 &gt;= #{maxRetryCount} THEN 'FAILED'
+                ELSE 'PENDING'
+              END
+            , AVAILABLE_DT = CASE
+                WHEN RETRY_COUNT + 1 &gt;= #{maxRetryCount} THEN AVAILABLE_DT
+                ELSE DATE_ADD(NOW(), INTERVAL 30 SECOND)
+              END
+            , PROCESSING_DT = NULL
+            , LAST_ERROR = #{errorMessage}
+            , UPD_DT = NOW()
+        WHERE LOG_OUTBOX_SEQ = #{outboxSeq}
+          AND STATUS = 'PENDING'
+    </update>
+
+    <delete id="deleteCompletedLogOutbox" parameterType="int">
+        DELETE FROM TB_LOG_OUTBOX
+        WHERE STATUS = 'COMPLETED'
+          AND PROCESSED_DT &lt; TIMESTAMPADD(DAY, -#{retentionDays}, NOW())
+    </delete>
 
 </mapper>
